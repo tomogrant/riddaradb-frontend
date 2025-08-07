@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { Home } from './home/home';
-import { Sagas } from './sagas/sagas';
+import { HomeComponent } from './home/home';
+import { SagasComponent } from './sagas/sagas';
 
 export const routes: Routes = [
-    {path: 'home', component: Home},
-    {path: 'sagas', component: Sagas}
+    { path: '', component: HomeComponent, pathMatch: 'full' },
+    { path: 'sagas', component: SagasComponent }
 ];
