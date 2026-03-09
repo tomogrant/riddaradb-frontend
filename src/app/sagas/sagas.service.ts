@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 
 export class SagasService {
 
-  sagasMain = 'http://localhost:8000/getsagas';
+  sagasMain = '/api/getsagas';
 
   constructor(private http: HttpClient) {}
     getSagas(){
