@@ -1,0 +1,34 @@
+<div class="card">
+  <div class="card-header">
+  </div>
+
+  <div class="row">
+    @for(bib of bibs; track bib.id){
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+        <style>
+            .centered
+            {
+            text-align: center;
+            }
+        </style>
+          <strong>{{ bib.title }}</strong>
+        </div>
+        <div class="card-body">
+          <p><strong>Authors:</strong> {{ bib.authors }}</p>
+          <p><strong>Editors:</strong> {{ bib.editors }}</p>
+          <p><strong>Book:</strong> {{ bib.book }}</p>
+          <p><strong>Book Series:</strong> {{ bib.bookSeries }}</p>
+          <p><strong>Number of Volumes:</strong> {{ bib.numOfVolumes }}</p>
+          <p><strong>Place of Publication:</strong> {{ bib.placeOfPublication }}</p>
+          <p><strong>Publisher:</strong> {{ bib.publisher }}</p>
+          <p><strong>Publication Year:</strong> {{ bib.publicationYear }}</p>
+          <p><strong>Page Numbers:</strong> {{ bib.pageNumbers }}</p>
+          <p><strong>Sagas:</strong> {{ bib.sagaIds }}</p>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>

@@ -1,83 +1,33 @@
-<div class='card'>
-    <div class='card-header'>
-      {{pageTitle}}
-    </div>
+<div class="card">
+  <div class="card-header">
+  </div>
 
-      <div class='row'>
-        <div class='col-md-6'>
-          <h4>&nbsp;</h4>
+  <div class="row">
+    @for(saga of sagas; track saga.id){
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <strong>{{ saga.name }}</strong>
         </div>
-
-        <table class='table'>
-          <thead>
-            <tr>
-              <th>Saga ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Date</th>
-              <th>Translated?</th>
-              <th>Bibliography</th>
-              <th>Folklore</th>
-              <th>Person</th>
-              <th>Place</th>
-              <th>Object</th>
-              <th>MS</th>
-            </tr>
-            <tr *ngFor="let saga of sagas, let i = index">
-
-                <!--ID-->
-                <td>{{saga.id}}</td>
-
-                <!--NAME-->
-                <td>
-                  {{saga.name}}
-                </td>
-
-                <!--DESCRIPTION-->
-                <td>
-                  {{saga.description}}
-                </td>
-
-                <!--DATE-->
-                <td>
-                 {{saga.date}}
-                </td>
-
-                <!--TRANSLATED?-->
-                <td>
-                  {{saga.isTranslated}}
-                </td>
-
-                <!--BIB IDS-->
-                <td>
-                 {{saga.bibIds}}
-                </td>
-
-                <!--FOLKLORE IDS-->
-                <td>
-                  {{saga.folkloreIds}}
-                </td>
-
-                <!--PERSON IDS-->
-                <td>
-                  {{saga.personIds}}
-                </td>
-
-                <!--PLACE IDS-->
-                <td>
-                  {{saga.placeIds}}
-                </td>
-
-                <!--OBJECT IDS-->
-                <td>
-                  {{saga.objectIds}}
-                </td>
-
-                <!--MS IDS-->
-                <td>
-                  {{saga.msIds}}
-                </td>
-          </thead> 
-        </table>
+        <div class="card-body">
+          <p><strong>Description:</strong> {{ saga.description }}</p>
+          <p><strong>Date:</strong> {{ saga.date }}</p>
+          <p><strong>Translated?</strong> {{ saga.isTranslated }}</p>
+          <p><strong>Bibliography:</strong></p>
+          @if(saga.bibIds.length > 0){
+            @for(bibId of saga.bibIds; track bibId){
+              <p><a [routerLink]="['/bib', bibId]">{{ bibEntries[bibId]?.title }}</a></p>
+            }
+          }
+        
+          <p><strong>Folklore:</strong> {{ saga.folkloreIds }}</p>
+          <p><strong>Person:</strong> {{ saga.personIds }}</p>
+          <p><strong>Place:</strong> {{ saga.placeIds }}</p>
+          <p><strong>Object:</strong> {{ saga.objectIds }}</p>
+          <p><strong>MS:</strong> {{ saga.msIds }}</p>
+        </div>
       </div>
     </div>
+    }
+  </div>
+</div>
