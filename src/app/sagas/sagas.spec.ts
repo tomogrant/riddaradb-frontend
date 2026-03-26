@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SagasComponent } from './sagas';
+import { SagasComponent } from './sagas-all/sagas-all';
 
 describe('Sagas', () => {
   let component: SagasComponent;

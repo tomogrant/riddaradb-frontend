@@ -1,0 +1,17 @@
+@if (sagaEntry)
+{
+    <div>
+        <p> {{ sagaEntry.name }}, 
+            {{ sagaEntry.date }}
+            {{ sagaEntry.description }}: 
+        <h2>Bibs</h2>
+        @if(sagaEntry.bibIds.length > 0){
+            @for(bibId of sagaEntry.bibIds; track bibId){
+              <p><a [routerLink]="['/bib-single', bibId]">{{ bibEntries[bibId]?.title }}</a></p>
+            }
+          }
+        @for(bibId of sagaEntry.bibIds; track bibId){
+          <p>{{ bibEntries[bibId]?.title }}</p>
+        }
+    </div>
+}

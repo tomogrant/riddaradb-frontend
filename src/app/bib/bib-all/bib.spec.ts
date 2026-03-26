@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BibComponent } from './bib';
+import { BibComponent } from './bib-all';
 
 describe('Bibs', () => {
   let component: BibComponent;

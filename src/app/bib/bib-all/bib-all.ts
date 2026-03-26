@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BibService } from './bib.service';
-import { IBib } from './IBib';
+import { BibService } from '../bib.service';
+import { IBib } from '../IBib';
 
 @Component({
   selector: 'app-bibs',
   imports: [CommonModule],
-  templateUrl: './bib.html',
-  styleUrl: './bib.css',
+  templateUrl: './bib-all.html',
+  styleUrl: './bib-all.css',
   providers: [BibService]
 })
-export class BibComponent {
+export class BibAll {
   constructor(private bibService: BibService) {}
 
   pageTitle = 'Bibs';

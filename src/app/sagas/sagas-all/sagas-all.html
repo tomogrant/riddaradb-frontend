@@ -7,16 +7,23 @@
     <div class="col-md-4 mb-3">
       <div class="card h-100">
         <div class="card-header">
-          <strong>{{ saga.name }}</strong>
+          <h1><i><strong>{{ saga.name }}</strong></i></h1>
         </div>
         <div class="card-body">
-          <p><strong>Description:</strong> {{ saga.description }}</p>
-          <p><strong>Date:</strong> {{ saga.date }}</p>
-          <p><strong>Translated?</strong> {{ saga.isTranslated }}</p>
+          <p> {{ saga.date }} </p>
+          <p> {{ saga.description }}</p>
+          @if (saga.isTranslated)
+            {
+              <p><strong>Translated:</strong> Yes</p>
+            }
+          @else
+            {
+              <p><strong>Translated:</strong> No</p>        
+            }
           <p><strong>Bibliography:</strong></p>
           @if(saga.bibIds.length > 0){
             @for(bibId of saga.bibIds; track bibId){
-              <p><a [routerLink]="['/bib', bibId]">{{ bibEntries[bibId]?.title }}</a></p>
+              <p><a [routerLink]="['/bib-single', bibId]">{{ bibEntries[bibId]?.title }}</a></p>
             }
           }
         

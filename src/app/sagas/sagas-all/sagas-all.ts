@@ -1,19 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SagasService } from './sagas.service';
-import { BibService } from '../bib entries/bib.service';
-import { ISaga } from './ISaga';
-import { IBib } from '../bib entries/IBib';
+import { SagasService } from '../sagas.service';
+import { BibService } from '../../bib/bib.service';
+import { ISaga } from '../ISaga';
+import { IBib } from '../../bib/IBib';
 
 @Component({
   selector: 'app-sagas',
   imports: [CommonModule, RouterModule],
-  templateUrl: './sagas.html',
-  styleUrl: './sagas.css',
+  templateUrl: './sagas-all.html',
+  styleUrl: './sagas-all.css',
   providers: [SagasService]
 })
-export class SagasComponent implements OnInit {
+export class SagasAll implements OnInit {
   constructor(private sagasService: SagasService, 
               private bibService: BibService) {}
 

@@ -1,0 +1,24 @@
+@if (bibEntry)
+{
+    <div>
+        <p>{{ bibEntry.authors }}, 
+            {{ bibEntry.title }}
+        ({{ bibEntry.publisher }}: 
+        {{ bibEntry.publicationYear }})</p>
+        <p>{{ bibEntry.editors }}</p>
+        <p>{{ bibEntry.book }}</p>
+        <p>{{ bibEntry.bookSeries }}</p>
+        <p>{{ bibEntry.numOfVolumes }}</p>
+        <p>{{ bibEntry.placeOfPublication }}</p>
+        <p>{{ bibEntry.pageNumbers }}</p>
+        <h2>Sagas</h2>
+        @if(bibEntry.sagaIds.length > 0){
+            @for(sagaId of bibEntry.sagaIds; track sagaId){
+              <p><a [routerLink]="['/sagas-single', sagaId]">{{ sagaEntries[sagaId]?.name }}</a></p>
+            }
+          }
+        @for(sagaId of bibEntry.sagaIds; track sagaId){
+          <p>{{ sagaEntries[sagaId]?.name }}</p>
+        }
+    </div>
+}
