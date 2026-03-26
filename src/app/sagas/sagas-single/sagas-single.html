@@ -10,8 +10,5 @@
               <p><a [routerLink]="['/bib-single', bibId]">{{ bibEntries[bibId]?.title }}</a></p>
             }
           }
-        @for(bibId of sagaEntry.bibIds; track bibId){
-          <p>{{ bibEntries[bibId]?.title }}</p>
-        }
     </div>
 }

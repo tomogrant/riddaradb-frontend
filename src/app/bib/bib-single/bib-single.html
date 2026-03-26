@@ -17,8 +17,5 @@
               <p><a [routerLink]="['/sagas-single', sagaId]">{{ sagaEntries[sagaId]?.name }}</a></p>
             }
           }
-        @for(sagaId of bibEntry.sagaIds; track sagaId){
-          <p>{{ sagaEntries[sagaId]?.name }}</p>
-        }
     </div>
 }

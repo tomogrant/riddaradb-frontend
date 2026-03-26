@@ -25,7 +25,13 @@
           <p><strong>Publisher:</strong> {{ bib.publisher }}</p>
           <p><strong>Publication Year:</strong> {{ bib.publicationYear }}</p>
           <p><strong>Page Numbers:</strong> {{ bib.pageNumbers }}</p>
-          <p><strong>Sagas:</strong> {{ bib.sagaIds }}</p>
+          <p><strong>Sagas:</strong></p>
+            @if(bib.sagaIds.length > 0){
+              @for(sagaId of bib.sagaIds; track sagaId){
+                <p><a [routerLink]="['/sagas-single', sagaId]">{{ sagas[sagaId]?.name }}</a></p>
+              }
+            }
+            <p></p>
         </div>
       </div>
     </div>
