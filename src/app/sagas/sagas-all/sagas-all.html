@@ -1,40 +1,7 @@
-<div class="card">
-  <div class="card-header">
-  </div>
-
-  <div class="row">
+<div class="card-body">
+  <h2><i>Riddarasögur</i></h2>
     @for(saga of sagas; track saga.id){
-    <div class="col-md-4 mb-3">
-      <div class="card h-100">
-        <div class="card-header">
-          <h1><i><strong>{{ saga.name }}</strong></i></h1>
-        </div>
-        <div class="card-body">
-          <p> {{ saga.date }} </p>
-          <p> {{ saga.description }}</p>
-          @if (saga.isTranslated)
-            {
-              <p><strong>Translated:</strong> Yes</p>
-            }
-          @else
-            {
-              <p><strong>Translated:</strong> No</p>        
-            }
-          <p><strong>Bibliography:</strong></p>
-          @if(saga.bibIds.length > 0){
-            @for(bibId of saga.bibIds; track bibId){
-              <p><a [routerLink]="['/bib-single', bibId]">{{ bibEntries[bibId]?.title }}</a></p>
-            }
-          }
-        
-          <p><strong>Folklore:</strong> {{ saga.folkloreIds }}</p>
-          <p><strong>Person:</strong> {{ saga.personIds }}</p>
-          <p><strong>Place:</strong> {{ saga.placeIds }}</p>
-          <p><strong>Object:</strong> {{ saga.objectIds }}</p>
-          <p><strong>MS:</strong> {{ saga.msIds }}</p>
-        </div>
-      </div>
-    </div>
+      <li><i><a [routerLink]="['/sagas', saga.id]">{{ saga.name }}</a></i></li>
     }
-  </div>
 </div>
+

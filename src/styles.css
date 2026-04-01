@@ -1,9 +1,25 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'bootstrap/dist/css/bootstrap.min.css';
 
 body {
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
+  background-color: rgb(242, 240, 237);
+  font-family: Garamond, serif;
 }
 
 .centered{
   text-align: center;
-}   
+}
+
+.card-body{
+    padding: 2rem;
+    margin: 1rem;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+a:visited{
+  color: black;
+}
+
+a:hover{
+  color: gray;
+}

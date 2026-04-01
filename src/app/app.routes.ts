@@ -6,9 +6,9 @@ import { BibAll } from './bib/bib-all/bib-all';
 import { BibSingle } from './bib/bib-single/bib-single';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent, pathMatch: 'full' },
-    { path: 'sagas-all', component: SagasAll },
-    { path: 'sagas-single/:id', component: SagasSingle },
-    { path: 'bib-all', component: BibAll },
-    { path: 'bib-single/:id', component: BibSingle },
+    { path: 'home', component: HomeComponent, pathMatch: 'full' },
+    { path: 'sagas', component: SagasAll },
+    { path: 'sagas/:id', component: SagasSingle },
+    { path: 'bib', component: BibAll },
+    { path: 'bib/:id', component: BibSingle },
 ];

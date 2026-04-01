@@ -1,6 +1,6 @@
 @if (bibEntry)
 {
-    <div>
+    <div class="card-body">
         <p>{{ bibEntry.authors }}, 
             {{ bibEntry.title }}
         ({{ bibEntry.publisher }}: 
@@ -14,7 +14,7 @@
         <h2>Sagas</h2>
         @if(bibEntry.sagaIds.length > 0){
             @for(sagaId of bibEntry.sagaIds; track sagaId){
-              <p><a [routerLink]="['/sagas-single', sagaId]">{{ sagaEntries[sagaId]?.name }}</a></p>
+              <p><a [routerLink]="['/sagas', sagaId]">{{ sagaEntries[sagaId]?.name }}</a></p>
             }
           }
     </div>
