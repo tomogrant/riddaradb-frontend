@@ -1,28 +1,79 @@
-@if (sagaEntry)
-{
+<style>
+  .version-card {
+    border: 1px solid #ddd;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  .version-card h3 {
+    margin-top: 0;
+  }
+</style>
+
+@if (sagaEntry) {
   <div class="card-body">
-      <h1><i><strong>{{ sagaEntry.name }}</strong></i></h1>
-      <p> {{ sagaEntry.date }} </p>
-      <p> {{ sagaEntry.description }}</p>
-      @if (sagaEntry.isTranslated)
-        {
-          <p><strong>Translated:</strong> Yes</p>
+    <div class="container space-around">
+      <h1><i><strong>{{ sagaEntry.title }}</strong></i></h1>
+      <button type="button" class="btn btn-outline-secondary">Secondary</button>
+      <button type="button" class="btn btn-outline-danger">Danger</button>
+    </div>
+    <p>{{ sagaEntry.description }}</p>
+    <p><strong>Translated:</strong> {{ sagaEntry.isTranslated ? 'Yes' : 'No' }}</p>
+    @for (version of sagaEntry.sagaVersions; track version) {
+      <div>
+        @if (sagaEntry.sagaVersions.length > 1) {
+          <h3><i>{{ version.title }}</i></h3>
+          <p>{{ version.description }}</p>
         }
-      @else
-        {
-          <p><strong>Translated:</strong> No</p>        
+        <p><strong>Date:</strong> {{ version.date }}</p>
+
+        <p><strong>Bibliography:</strong> 
+        @for (bib of version.bibDto; track bib){
+          {{ bib.title }}
+          {{ bib.authors }}
         }
-      <p><strong>Bibliography:</strong></p>
-      @if(sagaEntry.bibIds.length > 0){
-        @for(bibId of sagaEntry.bibIds; track bibId){
-          <p><a [routerLink]="['/bib', bibId]">{{ bibEntries[bibId]?.title }}</a></p>
-        }
-      }
-    
-      <p><strong>Folklore:</strong> {{ sagaEntry.folkloreIds }}</p>
-      <p><strong>Person:</strong> {{ sagaEntry.personIds }}</p>
-      <p><strong>Place:</strong> {{ sagaEntry.placeIds }}</p>
-      <p><strong>Object:</strong> {{ sagaEntry.objectIds }}</p>
-      <p><strong>MS:</strong> {{ sagaEntry.msIds }}</p>
+        </p>
+
+        <p><strong>Folklore:</strong> {{ version.folkloreIds.join(', ') }}</p>
+        <p><strong>Persons:</strong> {{ version.personIds.join(', ') }}</p>
+        <p><strong>Places:</strong> {{ version.placeIds.join(', ') }}</p>
+        <p><strong>Objects:</strong> {{ version.objectIds.join(', ') }}</p>
+        <p><strong>Manuscripts:</strong> {{ version.msIds.join(', ') }}</p>
+      </div>
+    }
+
+    <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSagaVersion">
+  Add saga version
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="addSagaVersion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Add/edit saga</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="saga-version-title" class="col-form-label">Title:</label>
+            <input type="text" class="form-control" id="saga-version-title">
+          </div>
+          <div class="mb-3">
+            <label for="saga-version-description" class="col-form-label">Description:</label>
+            <textarea class="form-control" id="saga-version-description"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 }

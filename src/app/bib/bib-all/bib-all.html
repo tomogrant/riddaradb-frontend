@@ -11,9 +11,9 @@
       <p><strong>Publication Year:</strong> {{ bib.publicationYear }}</p>
       <p><strong>Page Numbers:</strong> {{ bib.pageNumbers }}</p>
       <p><strong>Sagas:</strong></p>
-        @if(bib.sagaIds.length > 0){
-          @for(sagaId of bib.sagaIds; track sagaId){
-            <p><a [routerLink]="['/sagas', sagaId]">{{ sagas[sagaId]?.name }}</a></p>
+        @if(bib.sagaVersionIds.length > 0){
+          @for(sagaVersionId of bib.sagaVersionIds; track sagaVersionId){
+            <p><a [routerLink]="['/sagas', sagas[sagaVersionId].id]">{{ sagaVersions[sagaVersionId].title }}</a></p>
           }
         }
         <p></p>

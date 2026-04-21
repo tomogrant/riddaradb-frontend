@@ -3,8 +3,9 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BibService } from '../bib.service';
 import { IBib } from '../IBib';
-import { ISaga } from '../../sagas/ISaga';
-import { SagasService } from '../../sagas/sagas.service';
+import { ISagaVm } from '../../sagas/ISagaVm';
+import { SagaService } from '../../sagas/saga.service';
+import { ISagaVersionDto } from '../../sagas/ISagaVersionDto';
 
 @Component({
   selector: 'app-bibs',
@@ -14,11 +15,12 @@ import { SagasService } from '../../sagas/sagas.service';
   providers: [BibService]
 })
 export class BibAll {
-  constructor(private bibService: BibService, private sagaService: SagasService) {}
+  constructor(private bibService: BibService, private sagaService: SagaService) {}
 
   pageTitle = 'Bibliography entries';
   bibs: IBib[] = [];
-  sagas: { [id: number]: ISaga } = {};  // Cache for saga entries
+  sagas: { [id: number]: ISagaVm } = {};  // Cache for saga entries
+  sagaVersions: { [id: number]: ISagaVersionDto } = {};  // Cache for saga version entries
 
 ngOnInit() {
     // Fetch bibs data when the component initializes
@@ -30,25 +32,10 @@ displayBibs(){
           next: receivedBibs => {
               this.bibs = receivedBibs;
               // Fetch all unique saga entries after bibs are loaded
-              this.fetchAllSagas();
           },
           error: err => console.log('Error fetching bibs: ' + err)
       });
   }
 
-    fetchAllSagas() {
-    // Collect all unique bibIds from all sagas
-    const allSagaIds = [...new Set(this.bibs.flatMap(bib => bib.sagaIds))];
-    allSagaIds.forEach(id => {
-      if (!this.sagas[id]) {  // Avoid duplicate fetches
-        this.sagaService.getSagaById(id).subscribe({
-          next: receivedSaga => {
-            this.sagas[id] = receivedSaga;
-          },
-          error: err => console.log('Error fetching saga: ' + err)
-        });
-      }
-    });
-  }
 
 }

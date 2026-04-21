@@ -1,7 +1,96 @@
 <div class="card-body">
-  <h2><i>Riddarasögur</i></h2>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm">
+        <h2><i>Riddarasögur</i></h2>
+      </div>
+    </div>
     @for(saga of sagas; track saga.id){
-      <li><i><a [routerLink]="['/sagas', saga.id]">{{ saga.name }}</a></i></li>
+      <div class="row">
+        <div class="col-2" style="margin: 0.25rem">
+          <i><a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a></i>
+        </div>
+        <div class="col-2" style="margin: 0.25rem">
+          <button (click)="selectSaga(saga.id); fillInputFields()"
+                  type="button" style="margin-right: 0.25rem" 
+                  class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editSaga">Edit</button>
+          <button (click)="selectSaga(saga.id)"
+                  type="button"
+                  class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
+        </div>
+      </div>
     }
+    <div class="row">
+      <div class="col-sm">
+        <button (click)="emptyInputFields();" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSaga">Add</button>
+      </div>
+    </div>
+  </div>
 </div>
 
+<!--Edit modal-->
+<div class="modal fade" id="editSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="saga-version-title" class="col-form-label">Title:</label>
+            <input [(ngModel)]="inputTitle" name="edit" type="text" class="form-control" id="saga-version-title">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button (click)="updateSaga()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Delete modal-->
+<div class="modal fade" id="deleteSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete <i>{{ activeSaga.title }}</i>?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+        <button (click)='deleteSaga(activeSaga.id)' type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Add modal-->
+<div class="modal fade" id="addSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Add saga</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="saga-version-title" class="col-form-label">Title:</label>
+            <input [(ngModel)]="inputTitle" name="add" type="text" class="form-control" id="saga-version-title">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button (click)="postSaga()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+      </div>
+    </div>
+  </div>
+</div>

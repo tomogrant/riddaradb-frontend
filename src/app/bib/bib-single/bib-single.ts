@@ -3,8 +3,9 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BibService } from '../bib.service';
 import { IBib } from '../IBib';
-import { ISaga } from '../../sagas/ISaga';
-import { SagasService } from '../../sagas/sagas.service';
+import { SagaService } from '../../sagas/saga.service';
+import { ISagaVersionDto } from '../../sagas/ISagaVersionDto';
+import { ISagaVm } from '../../sagas/ISagaVm';
 
 @Component({
   selector: 'app-bib-entry',
@@ -14,12 +15,13 @@ import { SagasService } from '../../sagas/sagas.service';
 })
 export class BibSingle implements OnInit {
   bibEntry?: IBib;
-  sagaEntries: { [id: number]: ISaga } = {};  // Cache for saga entries
+  sagas: { [id: number]: ISagaVm } = {};  // Cache for saga entries
+  sagaVersions: { [id: number]: ISagaVersionDto } = {};  // Cache for saga entries
 
   constructor(
     private route: ActivatedRoute,
     private bibService: BibService,
-    private sagasService: SagasService
+    private sagasService: SagaService
   ) {}
 
   ngOnInit() {
@@ -28,26 +30,9 @@ export class BibSingle implements OnInit {
       if (!Number.isNaN(id)) {
         this.bibService.getBibEntryById(id).subscribe(receivedEntry => {
           this.bibEntry = receivedEntry;
-          this.fetchAllSagas();
         });
       }
-      console.log(this.bibEntry?.sagaIds);
-    });
-  }
-
-  fetchAllSagas() {
-    console.log('Fetching all sagas');
-    // Collect all sagas belonging to this bib
-    this.bibEntry?.sagaIds.forEach(id => {
-      console.log(id);
-      this.sagasService.getSagaById(id).subscribe({
-       next: receivedSaga => {
-          this.sagaEntries[id] = receivedSaga;
-          console.log(`Saga entry with ID ${id}: ` + JSON.stringify(receivedSaga));
-      },
-          error: err => console.log('Error fetching saga entry: ' + err)
-        });
-      
+      console.log(this.bibEntry?.sagaVersionIds);
     });
   }
 }

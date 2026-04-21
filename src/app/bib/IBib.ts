@@ -10,5 +10,5 @@ export interface IBib {
   publisher: string;
   publicationYear: string;
   pageNumbers: string;
-  sagaIds: number[];
+  sagaVersionIds: number[];
 }

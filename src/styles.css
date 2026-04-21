@@ -2,7 +2,7 @@
 
 body {
   background-color: rgb(242, 240, 237);
-  font-family: Garamond, serif;
+  font-family: Garamond
 }
 
 .centered{
@@ -22,4 +22,11 @@ a:visited{
 
 a:hover{
   color: gray;
+}
+
+.container.space-around {
+  justify-content: space-around;
+}
+.container.space-between {  
+  justify-content: space-between;
 }

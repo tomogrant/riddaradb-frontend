@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { BibService } from '../../bib/bib.service';
 import { IBib } from '../../bib/IBib';
-import { ISaga } from '../ISaga';
-import { SagasService } from '../sagas.service';
+import { ISagaVm } from '../ISagaVm';
+import { SagaService } from '../saga.service';
+import { ISagaVersionDto } from '../ISagaVersionDto';
 
 @Component({
   selector: 'app-saga-entry',
@@ -13,41 +13,26 @@ import { SagasService } from '../sagas.service';
   templateUrl: './sagas-single.html',
 })
 export class SagasSingle implements OnInit {
-  sagaEntry?: ISaga;
-  bibEntries: { [id: number]: IBib } = {};  // Cache for bib entries
+  sagaEntry?: ISagaVm;
 
   constructor(
     private route: ActivatedRoute,
-    private bibService: BibService,
-    private sagasService: SagasService
+    private sagasService: SagaService
   ) {}
 
   ngOnInit() {
+    // Subscribe to route parameters to get the saga ID;
+    // If the ID exists, fetch the saga entry and then load its versions and associated bibs.
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
       if (!Number.isNaN(id)) {
         this.sagasService.getSagaById(id).subscribe(receivedEntry => {
           this.sagaEntry = receivedEntry;
-          this.fetchAllBibs();
+          console.log(receivedEntry.title);
         });
       }
-      console.log(this.sagaEntry?.bibIds);
     });
   }
 
-  fetchAllBibs() {
-    console.log('Fetching all bibs');
-    // Collect all bibs belonging to this saga
-    this.sagaEntry?.bibIds.forEach(id => {
-      console.log(id);
-      this.bibService.getBibEntryById(id).subscribe({
-       next: receivedBib => {
-          this.bibEntries[id] = receivedBib;
-          console.log(`Bib entry with ID ${id}: ` + JSON.stringify(receivedBib));
-      },
-          error: err => console.log('Error fetching bib entry: ' + err)
-        });
-      
-    });
-  }
+
 }

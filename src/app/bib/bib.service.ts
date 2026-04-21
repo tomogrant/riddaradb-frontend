@@ -26,6 +26,13 @@ export class BibService {
         catchError(this.errorHandler));
     }
 
+    postBib(bib: IBib): Observable<IBib>{
+        console.log('Posting bib: ' + JSON.stringify(bib));
+        return this.httpClient.post<IBib>(`${this.bibMain}/postbibentry`, bib)
+        .pipe(tap(data => console.log('Saga posted: ' + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
+
     private errorHandler (error: HttpErrorResponse){
         let errorMessage = 'error';
         return throwError(() => errorMessage);

@@ -12,9 +12,9 @@
         <p>{{ bibEntry.placeOfPublication }}</p>
         <p>{{ bibEntry.pageNumbers }}</p>
         <h2>Sagas</h2>
-        @if(bibEntry.sagaIds.length > 0){
-            @for(sagaId of bibEntry.sagaIds; track sagaId){
-              <p><a [routerLink]="['/sagas', sagaId]">{{ sagaEntries[sagaId]?.name }}</a></p>
+        @if(bibEntry.sagaVersionIds.length > 0){
+            @for(sagaVersionId of bibEntry.sagaVersionIds; track sagaVersionId){
+              <p><a [routerLink]="['/sagas', ]">{{ sagaVersions[sagaVersionId]?.title }}</a></p>
             }
           }
     </div>
