@@ -11,7 +11,7 @@
           <i><a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a></i>
         </div>
         <div class="col-2" style="margin: 0.25rem">
-          <button (click)="selectSaga(saga.id); fillInputFields()"
+          <button (click)="selectSaga(saga.id); fillInputFields(); this.editForm.markAsPristine(); this.editForm.markAsUntouched();"
                   type="button" style="margin-right: 0.25rem" 
                   class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editSaga">Edit</button>
           <button (click)="selectSaga(saga.id)"
@@ -22,7 +22,8 @@
     }
     <div class="row">
       <div class="col-sm">
-        <button (click)="emptyInputFields();" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSaga">Add</button>
+        <button (click)="emptyInputFields(); this.editForm.markAsPristine(); this.editForm.markAsUntouched();" 
+                type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSaga">Add</button>
       </div>
     </div>
   </div>
@@ -32,22 +33,40 @@
 <div class="modal fade" id="editSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <label for="saga-version-title" class="col-form-label">Title:</label>
-            <input [(ngModel)]="inputTitle" name="edit" type="text" class="form-control" id="saga-version-title">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button (click)="updateSaga()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
-      </div>
+      <form [formGroup]="editForm">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="mb-3">
+              <label for="saga-version-title" class="form-label">Title:*</label>
+              <input type="text" class="form-control" formControlName="title" id="saga-version-title">
+                @if (title.invalid && (!title.pristine)) {
+                  @if (title.hasError('required')) {
+                    <div style="color:red">
+                        <small>Title is required.</small>
+                    </div>
+                  }
+                  @else if (title.hasError('nameNotUnique')){
+                    <div style="color:red" ngClass="{ $scope.title.$setUntouched(); }">
+                        <small>Saga already exists.</small>
+                    </div>
+                  }
+                }
+                @else {
+                  <div>
+                      <small>&nbsp;</small>
+                  </div>
+                }
+                
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button (click)="updateSaga()" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -65,7 +84,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteSaga(activeSaga.id)' type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        <button (click)='deleteSaga(activeSaga.id)' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
       </div>
     </div>
   </div>
@@ -80,16 +99,33 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form>
+        <form [formGroup]="editForm">
           <div class="mb-3">
             <label for="saga-version-title" class="col-form-label">Title:</label>
-            <input [(ngModel)]="inputTitle" name="add" type="text" class="form-control" id="saga-version-title">
+            <input type="text" class="form-control" id="saga-version-title" formControlName="title">
+                @if (title.invalid && (!title.pristine)) {
+                  @if (title.hasError('required')) {
+                    <div style="color:red">
+                        <small>Title is required.</small>
+                    </div>
+                  }
+                  @else if (title.hasError('nameNotUnique')){
+                    <div style="color:red" ngClass="{ $scope.title.$setUntouched(); }">
+                        <small>Saga already exists.</small>
+                    </div>
+                  }
+                }
+                @else {
+                  <div>
+                      <small>&nbsp;</small>
+                  </div>
+                }
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button (click)="postSaga()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+        <button (click)="postSaga()" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
       </div>
     </div>
   </div>
