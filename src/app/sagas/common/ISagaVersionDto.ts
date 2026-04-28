@@ -1,13 +1,14 @@
-import { IBib } from "../bib/IBib";
+import { SagaDate } from './SagaDate';
 
-export interface ISagaVersionVm {
+export interface ISagaVersionDto {
+
   id: number;
   title: string;
   description: string;
-  date: number;
+  date: SagaDate;
   isTranslated: boolean;
   sagaId: number;
-  bibDto: IBib[];
+  bibIds: number[];
   folkloreIds: number[];
   personIds: number[];
   placeIds: number[];

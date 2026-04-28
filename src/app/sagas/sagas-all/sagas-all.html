@@ -7,13 +7,15 @@
     </div>
     @for(saga of sagas; track saga.id){
       <div class="row">
-        <div class="col-2" style="margin: 0.25rem">
+        <div class="col-2">
           <i><a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a></i>
         </div>
         <div class="col-2" style="margin: 0.25rem">
-          <button (click)="selectSaga(saga.id); fillInputFields(); this.editForm.markAsPristine(); this.editForm.markAsUntouched();"
+          <!-- Edit button -->
+          <button (click)="editSaga(saga.id);"
                   type="button" style="margin-right: 0.25rem" 
-                  class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editSaga">Edit</button>
+                  class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Edit</button>
+          <!-- Delete button -->
           <button (click)="selectSaga(saga.id)"
                   type="button"
                   class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
@@ -22,24 +24,30 @@
     }
     <div class="row">
       <div class="col-sm">
-        <button (click)="emptyInputFields(); this.editForm.markAsPristine(); this.editForm.markAsUntouched();" 
-                type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSaga">Add</button>
+        <button (click)="addSaga();" 
+                type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
       </div>
     </div>
   </div>
 </div>
 
-<!--Edit modal-->
-<div class="modal fade" id="editSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<!--Add/dit modal-->
+<div class="modal fade" id="editAddSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <form [formGroup]="editForm">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga</h1>
+          @if(mode === Mode.EDIT){
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga</h1>
+          }
+          @else if(mode === Mode.ADD){
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Add saga</h1>
+          }
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <div class="mb-3">
+              <!-- SAGA TITLE -->
               <label for="saga-version-title" class="form-label">Title:*</label>
               <input type="text" class="form-control" formControlName="title" id="saga-version-title">
                 @if (title.invalid && (!title.pristine)) {
@@ -54,17 +62,31 @@
                     </div>
                   }
                 }
-                @else {
+                <!-- @else {
                   <div>
                       <small>&nbsp;</small>
                   </div>
-                }
-                
+                } -->
+            </div>
+            <div class="mb-3">
+              <span>Translated/original composition:</span>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" formControlName="translated" [value]=false>
+                <label class="form-check-label">
+                  Original
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" formControlName="translated" [value]=true>
+                <label class="form-check-label">
+                  Translated
+                </label>
+              </div>
             </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button (click)="updateSaga()" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
+          <button (click)="submitAddOrEdit();" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
         </div>
       </form>
     </div>
@@ -84,48 +106,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteSaga(activeSaga.id)' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!--Add modal-->
-<div class="modal fade" id="addSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">Add saga</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="editForm">
-          <div class="mb-3">
-            <label for="saga-version-title" class="col-form-label">Title:</label>
-            <input type="text" class="form-control" id="saga-version-title" formControlName="title">
-                @if (title.invalid && (!title.pristine)) {
-                  @if (title.hasError('required')) {
-                    <div style="color:red">
-                        <small>Title is required.</small>
-                    </div>
-                  }
-                  @else if (title.hasError('nameNotUnique')){
-                    <div style="color:red" ngClass="{ $scope.title.$setUntouched(); }">
-                        <small>Saga already exists.</small>
-                    </div>
-                  }
-                }
-                @else {
-                  <div>
-                      <small>&nbsp;</small>
-                  </div>
-                }
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button (click)="postSaga()" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
+        <button (click)='deleteSaga()' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
       </div>
     </div>
   </div>

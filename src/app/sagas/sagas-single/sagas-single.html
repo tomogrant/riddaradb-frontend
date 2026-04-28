@@ -1,89 +1,122 @@
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
-
 @if (sagaEntry) {
   <div class="card-body">
-    @for (version of sagaEntry.sagaVersions; track version) {
-      <div>
-        <h3><i>{{ version.title }}</i>
-        <button (click)="selectSagaVersion(version.id);"
-                  type="button" style="margin-right: 0.25rem" 
-                  class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editSaga">Edit</button>
-          <button (click)="selectSagaVersion(version.id)"
-                  type="button"
-                  class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
-        </h3>
-        
-        <p>{{ version.description }}</p>
-        @if (version.date > 0){
-          <p><strong>Date:</strong> {{ version.date }}</p>
-        }
-        @if (version.bibDto.length > 0){
-          <p><strong>Bibliography:</strong></p> 
-          @for (bib of version.bibDto; track bib){
-            {{ bib.title }}
-            {{ bib.authors }}
-          }
-        }
+    @for (version of sagaVersions; track version.id) {
+      <!-- Title and buttons -->
+      <h3 style="margin-bottom: 1rem"><i>{{ version.title }}</i>
+      <button (click)="editSagaVersion(version.id);"
+                type="button" style="margin-left: 0.5rem" 
+                class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Edit</button>
+      <button (click)="selectSagaVersion(version.id)" [disabled]="sagaVersions.length < 2"
+                type="button" style="margin-left: 0.5rem"
+                class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
+      </h3>
 
-        <p><strong>Folklore:</strong> {{ version.folkloreIds.join(', ') }}</p>
-        <p><strong>Persons:</strong> {{ version.personIds.join(', ') }}</p>
-        <p><strong>Places:</strong> {{ version.placeIds.join(', ') }}</p>
-        <p><strong>Objects:</strong> {{ version.objectIds.join(', ') }}</p>
-        <p><strong>Manuscripts:</strong> {{ version.msIds.join(', ') }}</p>
+        <!-- Date -->
+      <div><strong>Date: </strong>
+       {{ mapToUi(version.date) }}
+      <p></p>
       </div>
+
+      <!-- Description -->
+      <div class [innerHTML]="version.description"></div>
+      <p></p>
+
+      <!-- Bibliography -->
+      @if (version.bibDto.length > 0){
+        <p><strong>Bibliography:</strong></p> 
+        @for (bib of version.bibDto; track bib){
+          {{ bib.title }}
+          {{ bib.authors }}
+        }
+      }
     }
-</div>
+    <button (click)="addSagaVersion();" 
+        type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
+  </div>
 }
 
-<!--Edit modal-->
-<div class="modal fade" id="editSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+<!-- MODALS -->
+
+<!--Add/edit modal-->
+<div class="modal fade" id="editAddSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-xl">
     <div class="modal-content">
-      <form [formGroup]="editForm">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga</h1>
+          @if (mode === Mode.EDIT){
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga version</h1>
+          }
+          @else if (mode === Mode.ADD){
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Add saga version</h1>
+          }
+          
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <div class="mb-3">
-
-              <!-- TITLE FIELD -->
-              <label for="saga-version-title" class="form-label">Title:*</label>
-              <input type="text" class="form-control" formControlName="title" id="saga-version-title">
-                @if (title.invalid && (!title.pristine)) {
-                  @if (title.hasError('required')) {
-                    <div style="color:red">
-                        <small>Title is required.</small>
-                    </div>
+          <form [formGroup]="editForm">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <!-- TITLE FIELD -->
+                  <label for="saga-version-title" class="form-label">Title:*</label>
+                  <input type="text" class="form-control" formControlName="title" id="saga-version-title" placeholder="Saga version title">
+                  @if (title.invalid && (!title.pristine)) {
+                    @if (title.hasError('required')) {
+                      <div style="color:red">
+                          <small>Title is required.</small>
+                      </div>
+                    }
+                    @else if (title.hasError('nameNotUnique')){
+                      <div style="color:red">
+                          <small>Saga already exists.</small>
+                      </div>
+                    }
                   }
-                  @else if (title.hasError('nameNotUnique')){
-                    <div style="color:red" ngClass="{ $scope.title.$setUntouched(); }">
-                        <small>Saga already exists.</small>
+                  <!-- @else {
+                    <div>
+                        <small>&nbsp;</small>
                     </div>
-                  }
-                }
-                @else {
-                  <div>
-                      <small>&nbsp;</small>
-                  </div>
-                }
+                  } -->
+                </div>
+                <!-- DATE FIELD -->
+                <div class="col">
+                  <label for="saga-version-title" class="form-label">Date:</label>
+                  <select class="form-select" formControlName="date" id="saga-version-date">
+                    <option disabled selected>Select a date:</option>
+                    <option>1250-1300</option>
+                    <option>1300-1350</option>
+                    <option>1350-1400</option>
+                    <option>1400-1450</option>
+                    <option>1450-1500</option>
+                    <option>1500-1550</option>
+                  </select>
+                </div>
+                <!-- <div class="col-3">
+                  <label for="saga-version-title" class="form-label">Date:</label>
+                  <select class="form-select" formControlName="translated" id="saga-version-translated">
+                    <option disabled selected>Select a date:</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div> -->
+              </div>
+                
 
-              <!-- DESCRIPTION FIELD -->
-              <!-- Create the editor container -->
-              <div id="editor">
-              <h2>Demo Content</h2>
-              <p>Preset build with <code>snow</code> theme, and some common formats.</p>
+              <div class="row">
+                <!-- DESCRIPTION FIELD -->
+                <label for="saga-version-title" class="form-label">Description:</label>
+                <quill-editor class="quill-editor" formControlName="description" id="saga-version-title" placeholder="Saga version description">
+                </quill-editor>
+              </div>
             </div>
+          </form>
+        </div>
+
 
             <!-- END OF FIELDS -->
-            </div>
-        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button (click)="updateSagaVersion()" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
+          <button (click)="submitAddOrEdit()" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
         </div>
-      </form>
     </div>
   </div>
 </div>
@@ -101,14 +134,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteSagaVersion(activeSagaVersion.id)' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        <button (click)='deleteSagaVersion()' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
       </div>
     </div>
   </div>
 </div>
-
-<script>
-  const quill = new Quill('#editor', {
-    theme: 'snow'
-  });
-</script>

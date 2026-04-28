@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { BibService } from '../bib.service';
 import { IBib } from '../IBib';
-import { SagaService } from '../../sagas/saga.service';
-import { ISagaVersionDto } from '../../sagas/ISagaVersionDto';
-import { ISagaVm } from '../../sagas/ISagaVm';
+import { SagaService } from '../../sagas/common/saga.service';
+import { ISagaVersionDto } from '../../sagas/common/ISagaVersionDto';
+import { ISagaVm } from '../../sagas/common/ISagaVm';
 
 @Component({
   selector: 'app-bib-entry',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './bib-single.html',
 })
 export class BibSingle implements OnInit {

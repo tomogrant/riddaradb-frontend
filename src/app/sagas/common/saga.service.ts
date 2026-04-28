@@ -70,7 +70,7 @@ export class SagaService {
         catchError(this.errorHandler));
     }
 
-    //UPDATE SAGA DTO
+    //UPDATE SAGA VERSION DTO
     putSagaVersion(sagaVersion: ISagaVersionDto): Observable<ISagaVersionDto>{
         console.log('Updating saga version: ' + JSON.stringify(sagaVersion));
         return this.httpClient.put<ISagaVersionDto>(`${this.sagasMain}/putsagaversion`, sagaVersion)

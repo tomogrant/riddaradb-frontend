@@ -1,4 +1,5 @@
 <div class="card-body">
+  <div class="container">
     @for(bib of bibs; track bib.id){
       <strong>{{ bib.title }}</strong>
       <p><strong>Authors:</strong> {{ bib.authors }}</p>
@@ -11,11 +12,14 @@
       <p><strong>Publication Year:</strong> {{ bib.publicationYear }}</p>
       <p><strong>Page Numbers:</strong> {{ bib.pageNumbers }}</p>
       <p><strong>Sagas:</strong></p>
-        @if(bib.sagaVersionIds.length > 0){
-          @for(sagaVersionId of bib.sagaVersionIds; track sagaVersionId){
-            <p><a [routerLink]="['/sagas', sagas[sagaVersionId].id]">{{ sagaVersions[sagaVersionId].title }}</a></p>
-          }
-        }
-        <p></p>
     }
+
+    <div class="row">
+      <div class="col-sm">
+        <button (click)="addBib();" type="button" class="btn btn-success btn-sm" 
+                data-bs-toggle="modal" data-bs-target="#editAddBib">Add
+        </button>
+      </div>
+    </div>
   </div>
+</div>

@@ -1,8 +1,9 @@
+@import 'quill/dist/quill.snow.css';
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
 body {
   background-color: rgb(242, 240, 237);
-  font-family: Garamond
+  font-family: garamond
 }
 
 .centered{
@@ -13,7 +14,7 @@ body {
     padding: 2rem;
     margin: 1rem;
     background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 a:visited{
@@ -24,9 +25,34 @@ a:hover{
   color: gray;
 }
 
-.container.space-around {
-  justify-content: space-around;
+.quill-editor {
+  width: 100%;
+  height: 100%;
 }
-.container.space-between {  
-  justify-content: space-between;
+
+/* Paragraph settings */
+p:empty:before{
+    content: ' ';
+    white-space: pre;
+}
+
+p {
+    margin-bottom: -0.1rem;
+}
+
+/* Settings for Quill */
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value='garamond']::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value='garamond']::before
+{
+  content: 'Garamond';
+  font-family: 'garamond';
+}
+
+.ql-container {
+  font-family: 'garamond';
+  font-size: medium;
+}
+
+.ql-font-garamond {
+  font-family: 'garamond';
 }

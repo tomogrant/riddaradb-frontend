@@ -4,6 +4,6 @@ export interface ISagaDto {
   id: number;
   title: string;
   description: string;
-  isTranslated: boolean;
+  translated: boolean;
   sagaVersionIds: number[];
 }

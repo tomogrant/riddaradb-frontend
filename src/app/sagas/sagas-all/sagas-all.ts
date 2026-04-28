@@ -4,10 +4,12 @@ import { FormGroup, FormControl, AbstractControl,
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SagaService } from '../saga.service';
-import { ISagaVm } from '../ISagaVm';
-import { SagaMapper } from '../saga-mapper';
-import { ISagaVersionVm } from '../ISagaVersionVm';
+import { SagaService } from '../common/saga.service';
+import { ISagaVm } from '../common/ISagaVm';
+import { SagaMapper } from '../common/saga-mapper';
+import { ISagaVersionVm } from '../common/ISagaVersionVm';
+import { SagaDate } from '../common/SagaDate';
+import { Mode } from '../../shared/Enums';
 
 @Component({
   selector: 'app-sagas',
@@ -22,22 +24,25 @@ export class SagasAll implements OnInit {
               private sagaMapper: SagaMapper) {}
 
   pageTitle = 'Sagas';
+
+  readonly Mode = Mode;
+  mode: Mode = Mode.NONE;
+
   sagas: ISagaVm[] = [];
 
   initialisedSaga: ISagaVm = {
     id: 0,
     title: '',
     description: '',
-    isTranslated: false,
+    translated: false,
     sagaVersions: []
-  };
 
+  };
     initialisedSagaVersion: ISagaVersionVm = {
     id: 0,
     title: '',
     description: '',
-    date: 0,
-    isTranslated: false,
+    date: SagaDate.UNDEFINED,
     sagaId: 0,
     bibDto: [],
     folkloreIds: [],
@@ -50,58 +55,68 @@ export class SagasAll implements OnInit {
   activeSaga: ISagaVm = this.initialisedSaga;
 
   editForm = new FormGroup(
-    {title: new FormControl('', [Validators.required, titleUnique(this.sagas)])
+    {title: new FormControl('', [Validators.required, titleUnique(this.sagas, this.activeSaga.title)]),
+    translated: new FormControl(false)
     });
 
     get title() {
     return this.editForm.get('title') as FormControl;
     }
 
-  // bib: IBib = {
-  //   id: 0,
-  //   authors: "Author",
-  //   title: "Title",
-  //   editors: "Editor",
-  //   book: "Book",
-  //   bookSeries: "Series",
-  //   numOfVolumes: 1,
-  //   placeOfPublication: "Place",
-  //   publisher: "Publisher",
-  //   publicationYear: "Year",
-  //   pageNumbers: "10-100",
-  //   sagaVersionIds: []
-  // }
+    get translated(){
+      return this.editForm.get('translated') as FormControl;
+    }
 
   ngOnInit() {
       this.displaySagas();
-
-    // this.bibService.postBib(this.bib).subscribe({
-    //   next: receivedBib => {
-    //     console.log ("bib posted successfully: " + JSON.stringify(receivedBib));
-    //         this.sagaVersion.bibDto.push(receivedBib);
-    //     this.sagasService.postSaga(this.sagaMapper.mapSagaVmToDto(this.saga)).subscribe({
-    //       next: receivedSaga => {
-    //         console.log('Saga posted successfully: ' + JSON.stringify(receivedSaga));
-    //         this.sagaVersion.sagaId = receivedSaga.id;
-    //         this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToDto(this.sagaVersion)).subscribe({
-    //           next: receivedSagaVersion => {
-    //             console.log('Saga version posted successfully: ' + JSON.stringify(receivedSagaVersion));
-    //             this.displaySagas();
-    //       },
-    //   error: err => console.log('Error posting saga version: ' + err)
-    // });
-    //   },
-    //   error: err => console.log('Error posting saga version: ' + err)
-    // });
-    //   },
-    //   error: error => console.log("error!" + error)
-    // });
   }
+
+  //---------------
+  //  FIELD LOGIC
+  //---------------
 
   resetValidators(){
     this.title.clearValidators();
-    this.title.addValidators([Validators.required, titleUnique(this.sagas)]);
+    this.title.addValidators([Validators.required, titleUnique(this.sagas, this.activeSaga.title)]);
     this.title.updateValueAndValidity();
+  }
+
+  resetFieldValidationStatus(){
+    this.editForm.markAsPristine();
+    this.editForm.markAsUntouched();
+  }
+
+  fillInputFields(){
+    this.title.setValue(this.activeSaga.title);
+    this.translated.setValue(this.activeSaga.translated);
+    console.log("translated value just set to: " + this.translated.value);
+  }
+
+  emptyInputFields(){
+    this.title.setValue("");
+    this.translated.setValue(false);
+  }
+
+  //---------------
+  //  USER CHOICE
+  //---------------
+
+  editSaga(id: number){
+    //Sets mode, resets field validation, selects saga for editing and populates fields
+    this.mode = Mode.EDIT;
+    this.selectSaga(id);
+    this.resetFieldValidationStatus();
+    this.resetValidators();
+    this.fillInputFields();
+  }
+
+  addSaga(){
+    //Sets mode,resets field validation, initialises selected saga and empties fields ready for user input
+    this.mode = Mode.ADD;
+    this.activeSaga = this.initialisedSaga;
+    this.resetFieldValidationStatus();
+    this.resetValidators();
+    this.emptyInputFields();
   }
 
   selectSaga(id: number){
@@ -116,20 +131,24 @@ export class SagasAll implements OnInit {
     }
   }
 
-  fillInputFields(){
-    this.title.setValue(this.activeSaga.title);
+  submitAddOrEdit(){
+    if (this.mode === Mode.ADD){
+      this.postSaga();
+    }
+    if (this.mode === Mode.EDIT){
+      this.updateSaga();
+    }
   }
 
-  emptyInputFields(){
-    this.title.setValue("");
-  }
-
-  //CRUD
+  //---------------
+  //     CRUD
+  //---------------
 
   //CREATE
   postSaga(){
     this.activeSaga = this.initialisedSaga;
     this.activeSaga.title = this.title.value;
+    this.activeSaga.translated = this.translated.value;
     this.sagasService.postSaga(this.sagaMapper.mapSagaVmToDto(this.activeSaga)).subscribe({
       next: receivedSaga => {
         var newSagaVersion = this.initialisedSagaVersion;
@@ -156,7 +175,8 @@ export class SagasAll implements OnInit {
     this.sagasService.getSagas().subscribe({
       next: receivedSagas => {
         this.sagas = receivedSagas.sort((a, b) => a.title.localeCompare(b.title));
-        this.resetValidators();
+        //The custom validation method titleUnique does not get updated every time
+        //the sagas list does, so this parameter needs manually passing. 
       },
       error: err => console.log('Error fetching sagas: ' + err)
     });
@@ -165,6 +185,7 @@ export class SagasAll implements OnInit {
   //UPDATE
   updateSaga(){
     this.activeSaga.title = this.title.value;
+    this.activeSaga.translated = this.translated.value;
     this.sagasService.putSaga(this.sagaMapper.mapSagaVmToDto(this.activeSaga)).subscribe({
       next: receivedSaga => {
         console.log("Saved successfully! " + receivedSaga);
@@ -177,17 +198,19 @@ export class SagasAll implements OnInit {
   }
 
   //DELETE
-  deleteSaga(id: number){
-    console.log("deleting saga with id " + id);
-    this.sagasService.deleteSaga(id).subscribe({
+  deleteSaga(){
+    this.sagasService.deleteSaga(this.activeSaga.id).subscribe({
       next: saga => this.displaySagas(),
       error: err=> console.log("problem with deleting")
       })
     }
 }
 
+  //---------------
   //CUSTOM VALIDATION
-  export function titleUnique(sagas: ISagaVm[]): ValidatorFn {
+  //---------------
+
+  export function titleUnique(sagas: ISagaVm[], sagaName: string): ValidatorFn {
     return (control:AbstractControl) : ValidationErrors | null => {
 
 
@@ -197,13 +220,20 @@ export class SagasAll implements OnInit {
             return null;
         }
 
+        console.log("sagaName is: " + sagaName);
+        console.log("Value is: " + value);
+
       let saga = sagas.find(saga => saga.title.toLowerCase() === value.toLowerCase());
       if (typeof saga === 'undefined') {
         console.log("Name is unique");
         return null;
       }
-      else{
+      //Saga exists with this name. If not the current saga's name, return error
+      else if (value !== sagaName){
         return { nameNotUnique: true };
+      }
+      else{
+        return null;
       }
     }
 }

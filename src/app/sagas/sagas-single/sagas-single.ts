@@ -1,21 +1,25 @@
 import { FormGroup, FormControl, AbstractControl, 
         ValidationErrors, ReactiveFormsModule, Validators,
         ValidatorFn } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { QuillModule } from 'ngx-quill'
 import { IBib } from '../../bib/IBib';
-import { ISagaVm } from '../ISagaVm';
-import { SagaService } from '../saga.service';
-import {ISagaVersionVm } from '../ISagaVersionVm'
-import { SagaMapper } from '../saga-mapper';
+import { ISagaVm } from '../common/ISagaVm';
+import { SagaService } from '../common/saga.service';
+import {ISagaVersionVm } from '../common/ISagaVersionVm'
+import { SagaMapper } from '../common/saga-mapper';
+import { SagaDate } from '../common/SagaDate';
+import { Mode } from '../../shared/Enums';
 
 @Component({
   selector: 'app-saga-entry',
-  standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule,
+            QuillModule],
   templateUrl: './sagas-single.html',
-  providers: [SagaService]
+  styleUrl: './sagas-single.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class SagasSingle implements OnInit {
 
@@ -25,20 +29,25 @@ export class SagasSingle implements OnInit {
     private sagaMapper: SagaMapper
   ) {}
 
+    readonly SagaDate = SagaDate;
+    readonly Mode = Mode;
+    mode: Mode = Mode.NONE;
+
     sagaEntry: ISagaVm = {
     id: 0,
     title: '',
     description: '',
-    isTranslated: false,
+    translated: false,
     sagaVersions: []
   };
+
+  sagaVersions: ISagaVersionVm[] = [];
 
   initialisedSagaVersion: ISagaVersionVm = {
     id: 0,
     title: '',
     description: '',
-    date: 0,
-    isTranslated: false,
+    date: SagaDate.UNDEFINED,
     sagaId: 0,
     bibDto: [],
     folkloreIds: [],
@@ -51,21 +60,136 @@ export class SagasSingle implements OnInit {
   activeSagaVersion: ISagaVersionVm = this.initialisedSagaVersion;
 
   editForm = new FormGroup({
-    title: new FormControl('', [Validators.required, titleUnique(this.sagaEntry.sagaVersions)]),
+    title: new FormControl('', [Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]),
     description: new FormControl(''),
-    date: new FormControl(''),
+    date: new FormControl('Select a date:'),
     isTranslated: new FormControl(false)
   });
 
   get title() {
   return this.editForm.get('title') as FormControl;
   }
+  get description() {
+  return this.editForm.get('description') as FormControl;
+  }
+
+  get date(){
+    return this.editForm.get('date') as FormControl;
+  }
 
   ngOnInit() {
     this.displaySaga();
   }
 
-  //SELECT SAGA VERSION
+  //---------------
+  //  FIELD LOGIC
+  //---------------
+
+  mapToUi(sagaDate: SagaDate){
+    switch(sagaDate){
+      case(SagaDate._1250_1300):{
+        return "1250-1300";
+      }
+      case(SagaDate._1300_1350):{
+        return "1300-1350";
+      }
+      case(SagaDate._1350_1400):{
+        return "1350-1400";
+      }
+      case(SagaDate._1400_1450):{
+        return "1400-1450";
+      }
+      case(SagaDate._1450_1500):{
+        return "1450-1500";
+      }
+      case(SagaDate._1500_1550):{
+        return "1500-1550";
+      }
+      default:{
+        return "Select a date:";
+      }
+    }
+  }
+
+  mapFromUi(sagaDate: string){
+    switch(sagaDate){
+      case("1250-1300"):{
+        return SagaDate._1250_1300;
+      }
+      case("1300-1350"):{
+        return SagaDate._1300_1350;
+      }
+      case("1350-1400"):{
+        return SagaDate._1350_1400;
+      }
+      case("1400-1450"):{
+        return SagaDate._1400_1450;
+      }
+      case("1450-1500"):{
+        return SagaDate._1450_1500;
+      }
+      case("1500-1550"):{
+        return SagaDate._1500_1550;
+      }
+      default:{
+        return SagaDate.UNDEFINED;
+      }
+    }
+  }
+
+  fillInputFields(){
+    this.title.setValue(this.activeSagaVersion.title);
+    this.description.setValue(this.activeSagaVersion.description);
+    this.date.setValue(this.mapToUi(this.activeSagaVersion.date));
+  }
+
+  emptyInputFields(){
+    this.title.setValue("");
+    this.description.setValue("");
+    this.date.setValue('Select a date:');
+
+  }
+
+  resetFieldValidationStatus(){
+    this.editForm.markAsPristine();
+    this.editForm.markAsUntouched();
+  }
+
+  resetValidators(){
+      this.title.clearValidators();
+      this.title.addValidators([Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]);
+      this.title.updateValueAndValidity();
+    }
+
+  //---------------
+  //  USER CHOICE
+  //---------------
+
+  editSagaVersion(id: number){
+    this.mode = Mode.EDIT;
+    this.selectSagaVersion(id); 
+    this.resetFieldValidationStatus();
+    this.resetValidators();
+    this.fillInputFields();
+  }
+
+  addSagaVersion(){
+    this.mode = Mode.ADD;
+    this.activeSagaVersion = this.initialisedSagaVersion;
+    this.resetFieldValidationStatus();
+    this.resetValidators();
+    this.emptyInputFields();
+  }
+
+  submitAddOrEdit(){
+    if (this.mode === Mode.EDIT){
+      this.updateSagaVersion();
+    }
+    if (this.mode === Mode.ADD){
+      this.postSagaVersion();
+    }
+  }
+
   selectSagaVersion(id: number){
     let sagaVersion = this.sagaEntry.sagaVersions.find(i => i.id === id);
     if (typeof sagaVersion === 'undefined') {
@@ -73,17 +197,35 @@ export class SagasSingle implements OnInit {
       this.activeSagaVersion = this.initialisedSagaVersion;
     }
     else{
-      console.log("saga with ID " + sagaVersion.id + " found.");
       this.activeSagaVersion = sagaVersion;
     }
   }
 
-  postSagaVersion(){
-    this.activeSagaVersion = this.initialisedSagaVersion;
-    this.activeSagaVersion.title = this.sagaEntry.title + " " + this.sagaEntry.sagaVersions.length + 1;
+  //---------------
+  //     CRUD
+  //---------------
+
+  //FILL VM
+  formToVm(){
     this.activeSagaVersion.sagaId = this.sagaEntry.id;
+    this.activeSagaVersion.title = this.title.value;
+
+    //Ugly fix until Quill releases update
+    this.activeSagaVersion.description = String(this.description.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
+    console.log("Date value: " + this.date.value);
+    this.activeSagaVersion.date = this.mapFromUi(this.date.value);
+    console.log("SagaDate of mapped saga version: " + this.activeSagaVersion.date);
+  }
+
+  //CREATE
+  postSagaVersion(){
+
+    this.formToVm();
     this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion)).subscribe({
-      next: receivedSagaVersion => console.log("saga version posted: " + receivedSagaVersion),
+      next: receivedSagaVersion => {
+        console.log("saga version posted: " + receivedSagaVersion);
+        this.displaySaga();
+      },
       error: err => console.log("Error with posting saga version: " + err)
     })
   }
@@ -95,8 +237,12 @@ export class SagasSingle implements OnInit {
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
       if (!Number.isNaN(id)) {
-        this.sagasService.getSagaById(id).subscribe(receivedEntry => {
-          this.sagaEntry = receivedEntry;
+        this.sagasService.getSagaById(id).subscribe({
+          next: receivedEntry => {
+            this.sagaEntry = receivedEntry;
+            this.sagaVersions = this.sagaEntry.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+          },
+          error: err => console.log(err)
         });
       }
     });
@@ -104,7 +250,8 @@ export class SagasSingle implements OnInit {
 
   //UPDATE
   updateSagaVersion(){
-    this.activeSagaVersion.title = this.title.value;
+    
+    this.formToVm();
     this.sagasService.putSagaVersion(this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion)).subscribe({
       next: receivedSagaVersion => {
         console.log("Saved successfully! " + receivedSagaVersion);
@@ -117,19 +264,25 @@ export class SagasSingle implements OnInit {
   }
 
   //DELETE
-  deleteSagaVersion(id: number){
-  console.log("deleting saga with id " + id);
-  this.sagasService.deleteSagaVersion(id).subscribe({
+  deleteSagaVersion(){
+  this.sagasService.deleteSagaVersion(this.activeSagaVersion.id).subscribe({
     next: sagaVersion => this.displaySaga(),
     error: err=> console.log("problem with deleting")
     })
   }
 }
 
-export function titleUnique(sagas: ISagaVersionVm[]): ValidatorFn {
+  //---------------
+  // CUSTOM VALIDATION
+  //---------------
+
+export function titleUnique(sagas: ISagaVersionVm[], sagaName: string): ValidatorFn {
   return (control:AbstractControl) : ValidationErrors | null => {
 
       const value = control.value;
+
+        console.log("sagaName is: " + sagaName);
+        console.log("Value is: " + value);
 
       if (!value) {
           return null;
@@ -137,11 +290,13 @@ export function titleUnique(sagas: ISagaVersionVm[]): ValidatorFn {
 
     let saga = sagas.find(saga => saga.title.toLowerCase() === value.toLowerCase());
     if (typeof saga === 'undefined') {
-      console.log("Name is unique");
       return null;
     }
-    else{
+    else if(value !== sagaName){
       return { nameNotUnique: true };
+    }
+    else{
+      return null;
     }
   }
 }

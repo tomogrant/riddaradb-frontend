@@ -4,6 +4,6 @@ export interface ISagaVm {
   id: number;
   title: string;
   description: string;
-  isTranslated: boolean;
+  translated: boolean;
   sagaVersions: ISagaVersionVm[];
 }
