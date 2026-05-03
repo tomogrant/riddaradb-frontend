@@ -7,6 +7,7 @@ import { Modal } from 'bootstrap';
 import { Mode } from '../../shared/Enums';
 import { BibService } from '../bib.service';
 import { IBib, PublicationType } from '../IBib';
+import { editFormConfigs, EditFormConfig } from '../bib-config';
 import { ISagaVm } from '../../sagas/common/ISagaVm';
 import { SagaService } from '../../sagas/common/saga.service';
 import { ISagaVersionDto } from '../../sagas/common/ISagaVersionDto';
@@ -63,28 +64,44 @@ export class BibSingle {
 
   editForm = new FormGroup({
     type: new FormControl('Select publication type:', {nonNullable: true}),
-    authors: new FormControl(''),
-    editors: new FormControl(''),
-    translators: new FormControl(''),
-    title: new FormControl(''),
-    url: new FormControl(''),
-    bookEditors: new FormControl(''),
-    book: new FormControl(''),
-    bookSeries: new FormControl(''),
-    volume: new FormControl(''),
-    numOfVolumes: new FormControl(''),
-    placeOfPublication: new FormControl(''),
-    publisher: new FormControl(''),
-    publicationYear: new FormControl(''),
-    pageNumbers: new FormControl(''),
-    description: new FormControl(''),
-    recommended: new FormControl(false)
+    authors: new FormControl('', {nonNullable: true}),
+    editors: new FormControl('', {nonNullable: true}),
+    translators: new FormControl('', {nonNullable: true}),
+    title: new FormControl('', {nonNullable: true}),
+    url: new FormControl('', {nonNullable: true}),
+    bookEditors: new FormControl('', {nonNullable: true}),
+    book: new FormControl('', {nonNullable: true}),
+    bookSeries: new FormControl('', {nonNullable: true}),
+    volume: new FormControl('', {nonNullable: true}),
+    numOfVolumes: new FormControl('', {nonNullable: true}),
+    placeOfPublication: new FormControl('', {nonNullable: true}),
+    publisher: new FormControl('', {nonNullable: true}),
+    publicationYear: new FormControl('', {nonNullable: true}),
+    pageNumbers: new FormControl('', {nonNullable: true}),
+    description: new FormControl('', {nonNullable: true}),
+    recommended: new FormControl(false, {nonNullable: true})
   }, [this.authorsEditorsTranslatorsNotProvided()]);
 
   showValidationErrors: boolean = false;
 
   //CONFIG RECORDS FOR EDITFORM
   editFormConfig = {
+    includeAuthors: false,
+    includeEditors: false,
+    includeTranslators: false,
+    includeTitle: false,
+    includeUrl: false,
+    includeBookEditors: false,
+    includeBook: false,
+    includeBookSeries: false,
+    includeVolume: false,
+    includeNumOfVolumes: false,
+    includePlaceOfPublication: false,
+    includePublisher: false,
+    includePublicationYear: false,
+    includePageNumbers: false,
+    includeRecommended: false,
+
     validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: false,
@@ -98,162 +115,6 @@ export class BibSingle {
     validatePublicationYear: false,
     validatePageNumbers: false
   }
-
-  editFormConfigs: Record<PublicationType, {
-    validateAuthorsEditorsTranslators: boolean;
-    validateAuthors: boolean;
-    validateEditors: boolean;
-    validateTranslators: boolean;
-    validateTitle: boolean;
-    validateUrl: boolean;
-    validateBookEditors: boolean;
-    validateBook: boolean;
-    validatePlaceOfPublication: boolean;
-    validatePublisher: boolean;
-    validatePublicationYear: boolean;
-    validatePageNumbers: boolean;
-  }> = {
-    [PublicationType.UNDEFINED]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: false,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: false,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: false,
-    validatePublisher: false,
-    validatePublicationYear: false,
-    validatePageNumbers: false
-    },
-    [PublicationType.JOURNAL_ARTICLE]: {
-    validateAuthorsEditorsTranslators: true,
-    validateAuthors: false,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: true,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: true,
-    validatePlaceOfPublication: false,
-    validatePublisher: false,
-    validatePublicationYear: true,
-    validatePageNumbers: true
-    },
-    [PublicationType.BOOK_CHAPTER]: {
-    validateAuthorsEditorsTranslators: true,
-    validateAuthors: false,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: true,
-    validateUrl: false,
-    validateBookEditors: true,
-    validateBook: true,
-    validatePlaceOfPublication: true,
-    validatePublisher: true,
-    validatePublicationYear: true,
-    validatePageNumbers: true
-    },
-    [PublicationType.EDITION]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: false,
-    validateEditors: true,
-    validateTranslators: false,
-    validateTitle: true,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: true,
-    validatePlaceOfPublication: true,
-    validatePublisher: true,
-    validatePublicationYear: true,
-    validatePageNumbers: false
-    },
-    [PublicationType.TRANSLATION]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: false,
-    validateEditors: false,
-    validateTranslators: true,
-    validateTitle: true,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: true,
-    validatePublisher: true,
-    validatePublicationYear: true,
-    validatePageNumbers: false
-    },
-    [PublicationType.MONOGRAPH]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: true,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: true,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: true,
-    validatePublisher: true,
-    validatePublicationYear: true,
-    validatePageNumbers: false
-    },
-    [PublicationType.EDITED_COLLECTION]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: false,
-    validateEditors: true,
-    validateTranslators: false,
-    validateTitle: true,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: true,
-    validatePublisher: true,
-    validatePublicationYear: true,
-    validatePageNumbers: false
-    },
-    [PublicationType.THESIS]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: true,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: true,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: true,
-    validatePublisher: true,
-    validatePublicationYear: true,
-    validatePageNumbers: false
-    },
-    [PublicationType.WEBSITE]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: false,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: true,
-    validateUrl: true,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: false,
-    validatePublisher: false,
-    validatePublicationYear: false,
-    validatePageNumbers: false
-    },
-    [PublicationType.OTHER]: {
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: false,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: false,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: false,
-    validatePublisher: false,
-    validatePublicationYear: false,
-    validatePageNumbers: false
-    }
-  };
 
   //GETTERS FOR EDITFORM
   get type() {
@@ -373,34 +234,34 @@ export class BibSingle {
 
     switch(publicationType){
       case(PublicationType.UNDEFINED):
-        this.editFormConfig = this.editFormConfigs[PublicationType.UNDEFINED];
+        this.editFormConfig = editFormConfigs[PublicationType.UNDEFINED];
         break;
       case(PublicationType.JOURNAL_ARTICLE):
-        this.editFormConfig = this.editFormConfigs[PublicationType.JOURNAL_ARTICLE];
+        this.editFormConfig = editFormConfigs[PublicationType.JOURNAL_ARTICLE];
         break;
       case(PublicationType.BOOK_CHAPTER):
-        this.editFormConfig = this.editFormConfigs[PublicationType.BOOK_CHAPTER];
+        this.editFormConfig = editFormConfigs[PublicationType.BOOK_CHAPTER];
         break;
       case(PublicationType.EDITION):
-        this.editFormConfig = this.editFormConfigs[PublicationType.EDITION];
+        this.editFormConfig = editFormConfigs[PublicationType.EDITION];
         break;
       case(PublicationType.TRANSLATION):
-        this.editFormConfig = this.editFormConfigs[PublicationType.TRANSLATION];
+        this.editFormConfig = editFormConfigs[PublicationType.TRANSLATION];
         break;
       case(PublicationType.MONOGRAPH):
-        this.editFormConfig = this.editFormConfigs[PublicationType.MONOGRAPH];
+        this.editFormConfig = editFormConfigs[PublicationType.MONOGRAPH];
         break;
       case(PublicationType.EDITED_COLLECTION):
-        this.editFormConfig = this.editFormConfigs[PublicationType.EDITED_COLLECTION];
+        this.editFormConfig = editFormConfigs[PublicationType.EDITED_COLLECTION];
         break;
       case(PublicationType.THESIS):
-        this.editFormConfig = this.editFormConfigs[PublicationType.THESIS];
+        this.editFormConfig = editFormConfigs[PublicationType.THESIS];
         break;
       case(PublicationType.WEBSITE):
-        this.editFormConfig = this.editFormConfigs[PublicationType.WEBSITE];
+        this.editFormConfig = editFormConfigs[PublicationType.WEBSITE];
         break;
       case(PublicationType.OTHER):
-        this.editFormConfig = this.editFormConfigs[PublicationType.OTHER];
+        this.editFormConfig = editFormConfigs[PublicationType.OTHER];
         break;
       default:
         console.log("Error in validation setup!");
@@ -518,21 +379,50 @@ export class BibSingle {
   }
 
   fillForm(){
-    this.authors.setValue(this.activeBib.authors);
-    this.editors.setValue(this.activeBib.editors);
-    this.translators.setValue(this.activeBib.translators);
-    this.title.setValue(this.activeBib.title);
-    this.url.setValue(this.activeBib.url);
-    this.bookEditors.setValue(this.activeBib.bookEditors);
-    this.book.setValue(this.activeBib.book);
-    this.bookSeries.setValue(this.activeBib.bookSeries);
-    this.volume.setValue(this.activeBib.volume);
-    this.numOfVolumes.setValue(this.activeBib.numOfVolumes);
-    this.placeOfPublication.setValue(this.activeBib.placeOfPublication);
-    this.publisher.setValue(this.activeBib.publisher);
-    this.publicationYear.setValue(this.activeBib.publicationYear);
-    this.pageNumbers.setValue(this.activeBib.pageNumbers);
-    this.recommended.setValue(this.activeBib.recommended);
+    if (this.editFormConfig.includeAuthors){this.authors.setValue(this.activeBib.authors);}
+    else {this.authors.reset();}
+
+    if (this.editFormConfig.includeEditors){this.editors.setValue(this.activeBib.editors);}
+    else {this.editors.reset();}
+
+    if (this.editFormConfig.includeTranslators){this.translators.setValue(this.activeBib.translators);}
+    else {this.translators.reset();}
+
+    if (this.editFormConfig.includeTitle){this.title.setValue(this.activeBib.title);}
+    else {this.title.reset();}
+
+    if (this.editFormConfig.includeUrl){this.url.setValue(this.activeBib.url);}
+    else {this.url.reset();}
+
+    if (this.editFormConfig.includeBookEditors){this.bookEditors.setValue(this.activeBib.bookEditors);}
+    else {this.bookEditors.reset();}
+
+    if (this.editFormConfig.includeBook){this.book.setValue(this.activeBib.book);}
+    else {this.book.reset();}
+
+    if (this.editFormConfig.includeBookSeries){this.bookSeries.setValue(this.activeBib.bookSeries);}
+    else {this.bookSeries.reset();}
+
+    if (this.editFormConfig.includeVolume){this.volume.setValue(this.activeBib.volume);}
+    else {this.volume.reset();}
+
+    if (this.editFormConfig.includeNumOfVolumes){this.numOfVolumes.setValue(this.activeBib.numOfVolumes);}
+    else {this.numOfVolumes.reset();}
+
+    if (this.editFormConfig.includePlaceOfPublication){this.placeOfPublication.setValue(this.activeBib.placeOfPublication);}
+    else {this.placeOfPublication.reset();}
+
+    if (this.editFormConfig.includePublisher){this.publisher.setValue(this.activeBib.publisher);}
+    else {this.publisher.reset();}
+
+    if (this.editFormConfig.includePublicationYear){this.publicationYear.setValue(this.activeBib.publicationYear);}
+    else {this.publicationYear.reset();}
+
+    if (this.editFormConfig.includePageNumbers){this.pageNumbers.setValue(this.activeBib.pageNumbers);}
+    else {this.pageNumbers.reset();}
+
+    if (this.editFormConfig.includeRecommended){this.recommended.setValue(this.activeBib.recommended);}
+    else {this.recommended.reset();}
   }
 
   fillBibDto(){

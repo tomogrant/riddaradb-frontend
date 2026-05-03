@@ -58,18 +58,24 @@
                     <ng-container *ngTemplateOutlet="authorsTemplate"></ng-container>
                   </div>
                   <div class="col">
-                    <ng-container *ngTemplateOutlet="titleTemplate"></ng-container>
+                    <ng-container *ngTemplateOutlet="editorsTemplate"></ng-container>
+                  </div>
+                  <div class="col">
+                    <ng-container *ngTemplateOutlet="translatorsTemplate"></ng-container>
                   </div>
                 </div>
                 <div class="row mb-3">
                   <div class="col">
+                    <ng-container *ngTemplateOutlet="titleTemplate"></ng-container>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-6">
                     <ng-container *ngTemplateOutlet="bookTemplate"></ng-container>
                   </div>
                   <div class="col">
                     <ng-container *ngTemplateOutlet="volumeTemplate"></ng-container>
                   </div>
-                </div>
-                <div class="row mb-3">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="publicationYearTemplate"></ng-container>
                   </div>
@@ -97,18 +103,18 @@
                 <input type="text" class="form-control" formControlName="authors" id="bib-authors"
                         [ngStyle]="{'background-color': (editFormConfig.validateAuthors && authors.invalid && showValidationErrors) ||
                                                         (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
-                                                         ? 'rgb(210, 74, 74)' : 'white'}">
+                                                         ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (showValidationErrors){
                     @if (editFormConfig.validateAuthors && authors.invalid && authors.hasError('required')) {
-                          <div style="color:rgb(210, 74, 74)">
-                            <small>Author is required.</small>
-                          </div>
-                      }
-                      @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
-                          <div style="color:rgb(210, 74, 74)">
-                            <small>At least one author, editor or translator is required.</small>
-                          </div>
-                      }
+                      <div style="color:rgb(210, 74, 74)">
+                        <small>Author is required.</small>
+                      </div>
+                    }
+                    @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                      <div style="color:rgb(210, 74, 74)">
+                        <small>At least one author, editor or translator is required.</small>
+                      </div>
+                    }
                   }
 
               </ng-template>
@@ -117,11 +123,18 @@
               <ng-template #editorsTemplate>
                 <label for="bib-editors" class="form-label">Editor(s):</label>@if (editFormConfig.validateEditors){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="editors" id="bib-editors"
-                        [ngStyle]="{'background-color': (editFormConfig.validateEditors && editors.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
-                  @if (editFormConfig.validateEditors && editors.invalid && showValidationErrors) {
-                    @if (editors.hasError('required')) {
+                        [ngStyle]="{'background-color': (editFormConfig.validateEditors && editors.invalid && showValidationErrors) ||
+                                                        (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
+                                                         ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (showValidationErrors){
+                    @if (editFormConfig.validateEditors && editors.invalid && editors.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
-                          <small>Editor is required.</small>
+                        <small>Editor is required.</small>
+                      </div>
+                    }
+                    @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                      <div style="color:rgb(210, 74, 74)">
+                        <small>At least one author, editor or translator is required.</small>
                       </div>
                     }
                   }
@@ -131,11 +144,18 @@
               <ng-template #translatorsTemplate>
                 <label for="bib-translators" class="form-label">Translator(s):</label>@if (editFormConfig.validateTranslators){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="translators" id="bib-translators"
-                        [ngStyle]="{'background-color': (editFormConfig.validateTranslators && translators.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
-                  @if (editFormConfig.validateTranslators && translators.invalid && showValidationErrors) {
-                    @if (translators.hasError('required')) {
+                        [ngStyle]="{'background-color': (editFormConfig.validateTranslators && translators.invalid && showValidationErrors) ||
+                                                        (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
+                                                         ? 'rgb(255, 200, 200)' : 'white'}">
+                    @if (showValidationErrors){
+                    @if (editFormConfig.validateTranslators && translators.invalid && translators.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
-                          <small>Translator is required.</small>
+                        <small>Translator is required.</small>
+                      </div>
+                    }
+                    @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                      <div style="color:rgb(210, 74, 74)">
+                        <small>At least one author, editor or translator is required.</small>
                       </div>
                     }
                   }
@@ -145,7 +165,7 @@
               <ng-template #titleTemplate>
                 <label for="saga-version-title" class="form-label">Title:</label>@if (editFormConfig.validateTitle){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="title" id="saga-version-title"
-                        [ngStyle]="{'background-color': (editFormConfig.validateTitle && title.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validateTitle && title.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validateTitle && title.invalid && showValidationErrors) {
                     @if (title.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -159,7 +179,7 @@
               <ng-template #urlTemplate>
                 <label for="bib-url" class="form-label">URL:</label>@if (editFormConfig.validateUrl){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="url" id="bib-url"
-                        [ngStyle]="{'background-color': (editFormConfig.validateEditors && editors.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validateEditors && editors.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validateUrl && url.invalid && showValidationErrors) {
                     @if (url.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -173,7 +193,7 @@
               <ng-template #bookEditorsTemplate>
                 <label for="bib-book-editors" class="form-label">Editor(s) of book:</label>@if (editFormConfig.validateBookEditors){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="bookEditors" id="bib-book-editors"
-                        [ngStyle]="{'background-color': (editFormConfig.validateBookEditors && bookEditors.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validateBookEditors && bookEditors.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validateBookEditors && bookEditors.invalid && showValidationErrors) {
                     @if (editors.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -190,7 +210,7 @@
                 </label>
                 @if (editFormConfig.validateBook){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="book" id="bib-book"
-                        [ngStyle]="{'background-color': (editFormConfig.validateBook && book.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validateBook && book.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validateBook && book.invalid && showValidationErrors) {
                     @if (book.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -230,7 +250,7 @@
                 <label for="bib-place-of-publication" class="form-label">Place of publication:</label>
                 @if (editFormConfig.validatePlaceOfPublication){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="placeOfPublication" id="bib-place-of-publication"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validatePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validatePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) {
                     @if (placeOfPublication.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -245,7 +265,7 @@
                 <label for="bib-publisher" class="form-label">Publisher:</label>
                 @if (editFormConfig.validatePublisher){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="publisher" id="bib-publisher"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePublisher && publisher.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validatePublisher && publisher.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validatePublisher && publisher.invalid && showValidationErrors) {
                     @if (publisher.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -260,7 +280,7 @@
                 <label for="bib-publication-year" class="form-label">Year of publication:</label>
                 @if (editFormConfig.validatePublicationYear){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="publicationYear" id="bib-publication-year"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePublicationYear && publicationYear.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validatePublicationYear && publicationYear.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validatePublicationYear && publicationYear.invalid && showValidationErrors) {
                     @if (publicationYear.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -275,7 +295,7 @@
                 <label for="bib-page-numbers" class="form-label">Page range:</label>
                 @if (editFormConfig.validatePageNumbers){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="pageNumbers" id="bib-book"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePageNumbers && pageNumbers.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validatePageNumbers && pageNumbers.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (editFormConfig.validatePageNumbers && pageNumbers.invalid && showValidationErrors) {
                     @if (pageNumbers.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
