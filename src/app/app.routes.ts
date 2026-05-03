@@ -11,4 +11,5 @@ export const routes: Routes = [
     { path: 'sagas/:id', component: SagasSingle },
     { path: 'bib', component: BibAll },
     { path: 'bib/:id', component: BibSingle },
+    { path: 'bib/action/:mode', component: BibSingle }
 ];

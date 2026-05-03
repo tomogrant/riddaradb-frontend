@@ -1,25 +1,62 @@
 <div class="card-body">
   <div class="container">
-    @for(bib of bibs; track bib.id){
-      <strong>{{ bib.title }}</strong>
-      <p><strong>Authors:</strong> {{ bib.authors }}</p>
-      <p><strong>Editors:</strong> {{ bib.editors }}</p>
-      <p><strong>Book:</strong> {{ bib.book }}</p>
-      <p><strong>Book Series:</strong> {{ bib.bookSeries }}</p>
-      <p><strong>Number of Volumes:</strong> {{ bib.numOfVolumes }}</p>
-      <p><strong>Place of Publication:</strong> {{ bib.placeOfPublication }}</p>
-      <p><strong>Publisher:</strong> {{ bib.publisher }}</p>
-      <p><strong>Publication Year:</strong> {{ bib.publicationYear }}</p>
-      <p><strong>Page Numbers:</strong> {{ bib.pageNumbers }}</p>
-      <p><strong>Sagas:</strong></p>
+    <h2><i>Bibliography</i></h2>
+
+    <!-- Editions and translations -->
+    @if (editionsTranslations.length > 0){
+      <h3>Editions and translations</h3>
+      @for (bib of editionsTranslations; track bib.id){
+      }
     }
 
+    <!-- Secondary -->
+    @if (secondary.length > 0){
+      <h3>Secondary literature</h3>
+      @for(bib of secondary; track bib.id){
+        @if (bib.publicationType === PublicationType.JOURNAL_ARTICLE ){
+          <ul>
+            @if (bib.editors === '' && bib.translators === ''){<span>{{bib.authors}}. </span>}
+            @else {<span>{{bib.authors}}, </span>}
+
+            @if (bib.editors !== ''){
+              @if (bib.authors !== '' && bib.translators === ''){<span>ed. {{bib.editors}}. </span>}
+              @else {<span>{{bib.editors}}, ed., </span>}
+            }
+
+            @if (bib.translators !== ''){
+              @if (bib.authors !== ''){<span>tr. {{bib.translators}}. </span>}
+              @else { <span>{{bib.translators}}, tr.</span> }
+            }
+
+            <span>{{ bib.title }}', </span>
+
+            <span><i>{{ bib.book }} </i></span>
+
+            @if (bib.volume !== ''){<span>{{bib.volume}} </span>}
+
+            <span>({{bib.publicationYear}}), </span>
+
+            <span>{{ bib.pageNumbers }}.</span>
+          </ul>
+        }
+      }
+    }
+
+    <!-- Other -->
+    @if (other.length > 0){
+      <h3>Miscellaneous</h3>
+      @for (bib of other; track bib.id){
+
+      }
+    }
+
+    <!-- 'Add' button -->
+    <p></p>
     <div class="row">
       <div class="col-sm">
-        <button (click)="addBib();" type="button" class="btn btn-success btn-sm" 
-                data-bs-toggle="modal" data-bs-target="#editAddBib">Add
-        </button>
+        <button (click)="addBib();" type="button" class="btn btn-success btn-sm">Add</button>
       </div>
     </div>
   </div>
 </div>
+

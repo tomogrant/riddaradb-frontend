@@ -49,15 +49,16 @@
             <div class="mb-3">
               <!-- SAGA TITLE -->
               <label for="saga-version-title" class="form-label">Title:*</label>
-              <input type="text" class="form-control" formControlName="title" id="saga-version-title">
-                @if (title.invalid && (!title.pristine)) {
+              <input type="text" class="form-control" formControlName="title" id="saga-version-title"
+                      [ngStyle]="{'background-color': (title.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                @if (title.invalid && showValidationErrors) {
                   @if (title.hasError('required')) {
-                    <div style="color:red">
+                    <div style="color:rgb(210, 74, 74)">
                         <small>Title is required.</small>
                     </div>
                   }
                   @else if (title.hasError('nameNotUnique')){
-                    <div style="color:red" ngClass="{ $scope.title.$setUntouched(); }">
+                    <div style="color:rgb(210, 74, 74)" ngClass="{ $scope.title.$setUntouched(); }">
                         <small>Saga already exists.</small>
                     </div>
                   }
@@ -86,7 +87,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button (click)="submitAddOrEdit();" type="submit" class="btn btn-primary" data-bs-dismiss="modal" [disabled]="!editForm.valid">Save</button>
+          <button (click)="submitAddOrEdit();" type="submit" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

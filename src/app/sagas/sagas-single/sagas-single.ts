@@ -1,6 +1,7 @@
 import { FormGroup, FormControl, AbstractControl, 
         ValidationErrors, ReactiveFormsModule, Validators,
         ValidatorFn } from '@angular/forms';
+import { Modal } from 'bootstrap';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -59,10 +60,12 @@ export class SagasSingle implements OnInit {
 
   activeSagaVersion: ISagaVersionVm = this.initialisedSagaVersion;
 
+  showValidationErrors: boolean = false;
+
   editForm = new FormGroup({
     title: new FormControl('', [Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]),
     description: new FormControl(''),
-    date: new FormControl('Select a date:'),
+    date: new FormControl('Select a date:', dateNotSelected()),
     isTranslated: new FormControl(false)
   });
 
@@ -150,11 +153,6 @@ export class SagasSingle implements OnInit {
 
   }
 
-  resetFieldValidationStatus(){
-    this.editForm.markAsPristine();
-    this.editForm.markAsUntouched();
-  }
-
   resetValidators(){
       this.title.clearValidators();
       this.title.addValidators([Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]);
@@ -168,26 +166,15 @@ export class SagasSingle implements OnInit {
   editSagaVersion(id: number){
     this.mode = Mode.EDIT;
     this.selectSagaVersion(id); 
-    this.resetFieldValidationStatus();
-    this.resetValidators();
+    this.showValidationErrors = false;
     this.fillInputFields();
   }
 
   addSagaVersion(){
     this.mode = Mode.ADD;
     this.activeSagaVersion = this.initialisedSagaVersion;
-    this.resetFieldValidationStatus();
-    this.resetValidators();
+    this.showValidationErrors = false;
     this.emptyInputFields();
-  }
-
-  submitAddOrEdit(){
-    if (this.mode === Mode.EDIT){
-      this.updateSagaVersion();
-    }
-    if (this.mode === Mode.ADD){
-      this.postSagaVersion();
-    }
   }
 
   selectSagaVersion(id: number){
@@ -198,6 +185,27 @@ export class SagasSingle implements OnInit {
     }
     else{
       this.activeSagaVersion = sagaVersion;
+    }
+  }
+
+  submitAddOrEdit(){
+    this.resetValidators();
+    if (this.title.valid && this.date.valid){
+      var editAddModal = document.getElementById('editAddSaga');
+      if (editAddModal != null){
+        var modal = Modal.getInstance(editAddModal);
+        modal?.toggle();
+      }
+
+      if (this.mode === Mode.EDIT){
+        this.updateSagaVersion();
+      }
+      if (this.mode === Mode.ADD){
+        this.postSagaVersion();
+      }
+    }
+    else{
+      this.showValidationErrors = true;
     }
   }
 
@@ -212,9 +220,7 @@ export class SagasSingle implements OnInit {
 
     //Ugly fix until Quill releases update
     this.activeSagaVersion.description = String(this.description.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
-    console.log("Date value: " + this.date.value);
     this.activeSagaVersion.date = this.mapFromUi(this.date.value);
-    console.log("SagaDate of mapped saga version: " + this.activeSagaVersion.date);
   }
 
   //CREATE
@@ -232,8 +238,6 @@ export class SagasSingle implements OnInit {
 
   //READ
   displaySaga(){
-    // Subscribe to route parameters to get the saga ID;
-    // If the ID exists, fetch the saga entry and then load its versions and associated bibs.
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
       if (!Number.isNaN(id)) {
@@ -281,9 +285,6 @@ export function titleUnique(sagas: ISagaVersionVm[], sagaName: string): Validato
 
       const value = control.value;
 
-        console.log("sagaName is: " + sagaName);
-        console.log("Value is: " + value);
-
       if (!value) {
           return null;
       }
@@ -298,5 +299,25 @@ export function titleUnique(sagas: ISagaVersionVm[], sagaName: string): Validato
     else{
       return null;
     }
+  }
+}
+
+export function dateNotSelected(): ValidatorFn {
+  return (control:AbstractControl) : ValidationErrors | null => {
+
+      const value = control.value;
+
+      console.log("date value: " + value);
+
+      if (!value) {
+          return null;
+      }
+
+      if (value === "Select a date:"){
+        return { dateNotSelected: true };
+      }
+      else{
+        return null;
+      }
   }
 }

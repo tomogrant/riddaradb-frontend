@@ -1,6 +1,7 @@
 import { FormGroup, FormControl, AbstractControl, 
         ValidationErrors, ReactiveFormsModule, Validators,
         ValidatorFn } from '@angular/forms';
+import { Modal } from 'bootstrap';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -27,6 +28,8 @@ export class SagasAll implements OnInit {
 
   readonly Mode = Mode;
   mode: Mode = Mode.NONE;
+
+  showValidationErrors: boolean = false;
 
   sagas: ISagaVm[] = [];
 
@@ -81,15 +84,9 @@ export class SagasAll implements OnInit {
     this.title.updateValueAndValidity();
   }
 
-  resetFieldValidationStatus(){
-    this.editForm.markAsPristine();
-    this.editForm.markAsUntouched();
-  }
-
   fillInputFields(){
     this.title.setValue(this.activeSaga.title);
     this.translated.setValue(this.activeSaga.translated);
-    console.log("translated value just set to: " + this.translated.value);
   }
 
   emptyInputFields(){
@@ -105,8 +102,7 @@ export class SagasAll implements OnInit {
     //Sets mode, resets field validation, selects saga for editing and populates fields
     this.mode = Mode.EDIT;
     this.selectSaga(id);
-    this.resetFieldValidationStatus();
-    this.resetValidators();
+    this.showValidationErrors = false;
     this.fillInputFields();
   }
 
@@ -114,8 +110,7 @@ export class SagasAll implements OnInit {
     //Sets mode,resets field validation, initialises selected saga and empties fields ready for user input
     this.mode = Mode.ADD;
     this.activeSaga = this.initialisedSaga;
-    this.resetFieldValidationStatus();
-    this.resetValidators();
+    this.showValidationErrors = false;
     this.emptyInputFields();
   }
 
@@ -132,11 +127,22 @@ export class SagasAll implements OnInit {
   }
 
   submitAddOrEdit(){
-    if (this.mode === Mode.ADD){
-      this.postSaga();
+    this.resetValidators();
+    if (this.title.valid){
+      var editAddModal = document.getElementById('editAddSaga');
+      if (editAddModal != null){
+        var modal = Modal.getInstance(editAddModal);
+        modal?.toggle();
+      }
+      if (this.mode === Mode.ADD){
+        this.postSaga();
+      }
+      if (this.mode === Mode.EDIT){
+        this.updateSaga();
+      }
     }
-    if (this.mode === Mode.EDIT){
-      this.updateSaga();
+    else{
+      this.showValidationErrors = true;
     }
   }
 
