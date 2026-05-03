@@ -79,12 +79,13 @@ export class BibSingle {
     pageNumbers: new FormControl(''),
     description: new FormControl(''),
     recommended: new FormControl(false)
-  });
+  }, [this.authorsEditorsTranslatorsNotProvided()]);
 
   showValidationErrors: boolean = false;
 
   //CONFIG RECORDS FOR EDITFORM
   editFormConfig = {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: false,
     validateTranslators: false,
@@ -99,6 +100,7 @@ export class BibSingle {
   }
 
   editFormConfigs: Record<PublicationType, {
+    validateAuthorsEditorsTranslators: boolean;
     validateAuthors: boolean;
     validateEditors: boolean;
     validateTranslators: boolean;
@@ -112,6 +114,7 @@ export class BibSingle {
     validatePageNumbers: boolean;
   }> = {
     [PublicationType.UNDEFINED]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: false,
     validateTranslators: false,
@@ -125,7 +128,8 @@ export class BibSingle {
     validatePageNumbers: false
     },
     [PublicationType.JOURNAL_ARTICLE]: {
-    validateAuthors: true,
+    validateAuthorsEditorsTranslators: true,
+    validateAuthors: false,
     validateEditors: false,
     validateTranslators: false,
     validateTitle: true,
@@ -138,7 +142,8 @@ export class BibSingle {
     validatePageNumbers: true
     },
     [PublicationType.BOOK_CHAPTER]: {
-    validateAuthors: true,
+    validateAuthorsEditorsTranslators: true,
+    validateAuthors: false,
     validateEditors: false,
     validateTranslators: false,
     validateTitle: true,
@@ -151,6 +156,7 @@ export class BibSingle {
     validatePageNumbers: true
     },
     [PublicationType.EDITION]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: true,
     validateTranslators: false,
@@ -164,6 +170,7 @@ export class BibSingle {
     validatePageNumbers: false
     },
     [PublicationType.TRANSLATION]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: false,
     validateTranslators: true,
@@ -177,6 +184,7 @@ export class BibSingle {
     validatePageNumbers: false
     },
     [PublicationType.MONOGRAPH]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: true,
     validateEditors: false,
     validateTranslators: false,
@@ -190,6 +198,7 @@ export class BibSingle {
     validatePageNumbers: false
     },
     [PublicationType.EDITED_COLLECTION]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: true,
     validateTranslators: false,
@@ -203,6 +212,7 @@ export class BibSingle {
     validatePageNumbers: false
     },
     [PublicationType.THESIS]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: true,
     validateEditors: false,
     validateTranslators: false,
@@ -216,6 +226,7 @@ export class BibSingle {
     validatePageNumbers: false
     },
     [PublicationType.WEBSITE]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: false,
     validateTranslators: false,
@@ -229,6 +240,7 @@ export class BibSingle {
     validatePageNumbers: false
     },
     [PublicationType.OTHER]: {
+    validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
     validateEditors: false,
     validateTranslators: false,
@@ -396,6 +408,8 @@ export class BibSingle {
 
     this.editForm.clearValidators();
 
+    this.editForm.addValidators(this.authorsEditorsTranslatorsNotProvided());
+
     if (this.editFormConfig.validateAuthors){
       this.authors.addValidators(Validators.required);
     }
@@ -480,7 +494,6 @@ export class BibSingle {
 
   submitAddOrEdit(){
     this.editForm.updateValueAndValidity();
-    console.log("Error? : " + this.editForm.hasError('authorEditorTranslatorNotProvided'));
 
     if (this.editForm.valid){
       var editAddModal = document.getElementById('editAddBib');
@@ -548,6 +561,24 @@ export class BibSingle {
   navigateToBibAllPage(){
     this.router.navigate([`bib`]);
   }
+
+  authorsEditorsTranslatorsNotProvided(): ValidatorFn {
+  return (control:AbstractControl) : ValidationErrors | null => {
+
+      const value = control.value;
+
+      if (
+        value.authors.trim() !== "" ||
+        value.editors.trim() !== "" ||
+        value.translators.trim() !== ""
+      ) {
+        return null;
+      }
+      else{
+        return { authorsEditorsTranslatorsNotProvided: true }
+      }
+  }
+}
 
   //---------------
   //  CRUD

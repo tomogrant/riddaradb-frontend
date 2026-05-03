@@ -95,11 +95,18 @@
               <ng-template #authorsTemplate>
                 <label for="bib-authors" class="form-label">Author(s):</label>@if (editFormConfig.validateAuthors){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="authors" id="bib-authors"
-                        [ngStyle]="{'background-color': (editFormConfig.validateAuthors && authors.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                        [ngStyle]="{'background-color': (editFormConfig.validateAuthors && authors.invalid && showValidationErrors) ||
+                                                        (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
+                                                         ? 'rgb(210, 74, 74)' : 'white'}">
                   @if (showValidationErrors){
                     @if (editFormConfig.validateAuthors && authors.invalid && authors.hasError('required')) {
                           <div style="color:rgb(210, 74, 74)">
                             <small>Author is required.</small>
+                          </div>
+                      }
+                      @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                          <div style="color:rgb(210, 74, 74)">
+                            <small>At least one author, editor or translator is required.</small>
                           </div>
                       }
                   }
