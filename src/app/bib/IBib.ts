@@ -17,6 +17,7 @@ export interface IBib {
   pageNumbers: string;
   sagaVersionIds: number[];
   recommended: boolean;
+  description: string;
 }
 
 export enum PublicationType{

@@ -26,8 +26,7 @@ export class BibSingle {
               private route: ActivatedRoute,
               private router: Router) {}
 
-  pageTitle = 'Bibliography entries';
-  bibs: IBib[] = [];
+  pageTitle = 'Bibliography entry';
 
   editionsTranslations: IBib[] = [];
   secondary: IBib[] = [];
@@ -57,7 +56,8 @@ export class BibSingle {
     publicationYear: "",
     pageNumbers: "",
     sagaVersionIds: [],
-    recommended: false
+    recommended: false,
+    description: ""
   }
 
   activeBib: IBib = this.initialisedBib;
@@ -78,8 +78,8 @@ export class BibSingle {
     publisher: new FormControl('', {nonNullable: true}),
     publicationYear: new FormControl('', {nonNullable: true}),
     pageNumbers: new FormControl('', {nonNullable: true}),
+    recommended: new FormControl(false, {nonNullable: true}),
     description: new FormControl('', {nonNullable: true}),
-    recommended: new FormControl(false, {nonNullable: true})
   }, [this.authorsEditorsTranslatorsNotProvided()]);
 
   showValidationErrors: boolean = false;
@@ -101,6 +101,7 @@ export class BibSingle {
     includePublicationYear: false,
     includePageNumbers: false,
     includeRecommended: false,
+    includeDescription: false,
 
     validateAuthorsEditorsTranslators: false,
     validateAuthors: false,
@@ -162,11 +163,11 @@ export class BibSingle {
   get pageNumbers(){
     return this.editForm.get('pageNumbers') as FormControl;
   }
-  get description(){
-    return this.editForm.get('description') as FormControl;
-  }
   get recommended(){
     return this.editForm.get('recommended') as FormControl;
+  }
+  get description(){
+    return this.editForm.get('description') as FormControl;
   }
 
   ngOnInit() {
@@ -200,39 +201,17 @@ export class BibSingle {
     //Remove 'undefined' entry
     this.publicationTypesUi.shift();
 
-    this.sortBibEntries();
-
     this.type.valueChanges.pipe().subscribe({
       next: publicationType => {
-        console.log(publicationType);
-        this.setUpValidation(this.convertUiToEnum(publicationType));
+        //Set up config and validation for chosen publication type
+        this.setConfig(this.convertUiToEnum(publicationType));
+        this.setUpValidation();
       }
     })
   }
 
-  sortBibEntries(){
-    for (let bib of this.bibs){
-      switch(bib.publicationType){
-        case (PublicationType.EDITION):
-        case (PublicationType.TRANSLATION):
-          this.editionsTranslations.push(bib);
-          break;
-        case (PublicationType.OTHER):
-          this.other.push(bib);
-          break;
-        case (PublicationType.UNDEFINED):
-          console.log("Bibliography entry " + bib.authors + ", " + bib.title + " is undefined!");
-          break;
-        default:
-          this.secondary.push(bib);
-          break;
-      }
-    }
-  }
-
-  setUpValidation(publicationType: PublicationType){
-
-    switch(publicationType){
+  setConfig(publicationType: PublicationType){
+        switch(publicationType){
       case(PublicationType.UNDEFINED):
         this.editFormConfig = editFormConfigs[PublicationType.UNDEFINED];
         break;
@@ -266,10 +245,29 @@ export class BibSingle {
       default:
         console.log("Error in validation setup!");
     }
+  }
+
+  setUpValidation(){
 
     this.editForm.clearValidators();
 
     this.editForm.addValidators(this.authorsEditorsTranslatorsNotProvided());
+
+    if (this.editFormConfig.includeVolume) {
+      this.volume.addValidators(this.numericError());
+    }
+
+    if (this.editFormConfig.includeNumOfVolumes) {
+      this.numOfVolumes.addValidators(this.numericError());
+    }
+
+    if (this.editFormConfig.includePageNumbers){
+      this.pageNumbers.addValidators(this.pageNumError());
+    }
+
+    if (this.editFormConfig.includePublicationYear){
+      this.publicationYear.addValidators(Validators.pattern('[0-9]{4}'));
+    }
 
     if (this.editFormConfig.validateAuthors){
       this.authors.addValidators(Validators.required);
@@ -329,6 +327,7 @@ export class BibSingle {
   editBib(){
     this.mode = Mode.EDIT;
 
+    //Shouldn't be possible
     if (this.activeBib.publicationType === PublicationType.UNDEFINED){
       this.type.reset();
     }
@@ -364,12 +363,10 @@ export class BibSingle {
       }
 
       if (this.mode === Mode.ADD){
-        console.log("Add mode!");
         this.postBib();
       }
 
       if (this.mode === Mode.EDIT){
-        console.log("Edit mode!");
         this.updateBib();
       }
     }
@@ -423,25 +420,62 @@ export class BibSingle {
 
     if (this.editFormConfig.includeRecommended){this.recommended.setValue(this.activeBib.recommended);}
     else {this.recommended.reset();}
+
+        if (this.editFormConfig.includeDescription){this.description.setValue(this.activeBib.description);}
+    else {this.description.reset();}
+
   }
 
   fillBibDto(){
     this.activeBib.publicationType = this.convertUiToEnum(this.type.value);
-    this.activeBib.authors = this.authors.value;
-    this.activeBib.editors = this.editors.value;
-    this.activeBib.translators = this.translators.value;
-    this.activeBib.title = this.title.value;
-    this.activeBib.url = this.url.value;
-    this.activeBib.bookEditors = this.bookEditors.value;
-    this.activeBib.book = this.book.value;
-    this.activeBib.bookSeries = this.bookSeries.value;
-    this.activeBib.volume = this.volume.value;
-    this.activeBib.numOfVolumes = this.numOfVolumes.value;
-    this.activeBib.placeOfPublication = this.placeOfPublication.value;
-    this.activeBib.publisher = this.publisher.value;
-    this.activeBib.publicationYear = this.publicationYear.value;
-    this.activeBib.pageNumbers = this.pageNumbers.value;
-    this.activeBib.recommended = this.recommended.value;
+
+    if (this.editFormConfig.includeAuthors) this.activeBib.authors = this.authors.value;
+    else (this.activeBib.authors = this.authors.defaultValue);
+    
+    if (this.editFormConfig.includeEditors) this.activeBib.editors = this.editors.value;
+    else (this.activeBib.editors = this.editors.defaultValue);
+
+    if (this.editFormConfig.includeTranslators) this.activeBib.translators = this.translators.value;
+    else (this.activeBib.translators = this.translators.defaultValue);
+
+    if (this.editFormConfig.includeTitle) this.activeBib.title = this.title.value;
+    else (this.activeBib.title = this.title.defaultValue);
+
+    if (this.editFormConfig.includeUrl) this.activeBib.url = this.url.value;
+    else (this.activeBib.url = this.url.defaultValue);
+
+    if (this.editFormConfig.includeBookEditors) this.activeBib.bookEditors = this.bookEditors.value;
+    else (this.activeBib.bookEditors = this.bookEditors.defaultValue);
+
+    if (this.editFormConfig.includeBook) this.activeBib.book = this.book.value;
+    else (this.activeBib.book = this.book.defaultValue);
+
+    if (this.editFormConfig.includeBookSeries) this.activeBib.bookSeries = this.bookSeries.value;
+    else (this.activeBib.bookSeries = this.bookSeries.defaultValue);
+
+    if (this.editFormConfig.includeVolume) this.activeBib.volume = this.volume.value;
+    else (this.activeBib.volume = this.volume.defaultValue);
+
+    if (this.editFormConfig.includeNumOfVolumes) this.activeBib.numOfVolumes = this.numOfVolumes.value;
+    else (this.activeBib.numOfVolumes = this.numOfVolumes.defaultValue);
+
+    if (this.editFormConfig.includePlaceOfPublication) this.activeBib.placeOfPublication = this.placeOfPublication.value;
+    else (this.activeBib.placeOfPublication = this.placeOfPublication.defaultValue);
+
+    if (this.editFormConfig.includePublisher) this.activeBib.publisher = this.publisher.value;
+    else (this.activeBib.publisher = this.publisher.defaultValue);
+
+    if (this.editFormConfig.includePublicationYear) this.activeBib.publicationYear = this.publicationYear.value;
+    else (this.activeBib.publicationYear = this.publicationYear.defaultValue);
+
+    if (this.editFormConfig.includePageNumbers) this.activeBib.pageNumbers = this.pageNumbers.value;
+    else (this.activeBib.pageNumbers = this.pageNumbers.defaultValue);
+
+    if (this.editFormConfig.includeRecommended) this.activeBib.recommended = this.recommended.value;
+    else (this.activeBib.recommended = this.recommended.defaultValue);
+
+    if (this.editFormConfig.includeDescription) this.activeBib.description = this.description.value;
+    else (this.activeBib.description = this.description.defaultValue);
   }
 
   navigateToBibEntryPage(id: number){
@@ -455,18 +489,62 @@ export class BibSingle {
   authorsEditorsTranslatorsNotProvided(): ValidatorFn {
   return (control:AbstractControl) : ValidationErrors | null => {
 
-      const value = control.value;
+    const value = control.value;
 
-      if (
-        value.authors.trim() !== "" ||
+    if (value.authors.trim() !== "" ||
         value.editors.trim() !== "" ||
         value.translators.trim() !== ""
-      ) {
-        return null;
+    ) {
+      return null;
+    }
+    else{
+      return { authorsEditorsTranslatorsNotProvided: true }
+    }
+  }
+}
+
+  numericError(): ValidatorFn {
+  return (control:AbstractControl) : ValidationErrors | null => {
+
+    const value = control.value;
+
+    if (value !== ''){
+      if (isNaN(value) || value < 1){
+        console.log("Entry invalid!")
+        return { numericError: true }
       }
       else{
-        return { authorsEditorsTranslatorsNotProvided: true }
+        return null;
       }
+    }
+    else{
+      return null;
+    }
+  }
+}
+
+  pageNumError(): ValidatorFn {
+  return (control:AbstractControl) : ValidationErrors | null => {
+
+    const value = control.value;
+    const pageRangePattern = /[0-9]-[0-9]/;
+
+    if (value !== ''){
+      if (pageRangePattern.test(value)){
+        console.log("Pattern is valid!");
+        return null;
+      }
+      else if (isNaN(value) || value < 1){
+        console.log("Entry invalid!")
+        return { pageNumError: true }
+      }
+      else{
+        return null;
+      }
+    }
+    else{
+      return null;
+    }
   }
 }
 

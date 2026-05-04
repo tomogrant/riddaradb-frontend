@@ -11,11 +11,9 @@
   </div>
 </div>
 
-
-
 <!--Add/edit modal-->
 <div class="modal fade" id="editAddBib" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-xl">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
         <div class="modal-header">
           @if (mode === Mode.EDIT){
@@ -52,46 +50,119 @@
               </div>
 
               <!-- JOURNAL ARTICLE -->
-              @if( convertUiToEnum(type.value) == PublicationType.JOURNAL_ARTICLE ){
-                <div class="row mb-3">
+              @if( editFormConfig.includeAuthors ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="authorsTemplate"></ng-container>
                   </div>
+                </div>
+              }
+              @if( editFormConfig.includeEditors ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="editorsTemplate"></ng-container>
                   </div>
+                </div>
+              }
+              @if( editFormConfig.includeTranslators ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="translatorsTemplate"></ng-container>
                   </div>
                 </div>
-                <div class="row mb-3">
+              }
+              @if( editFormConfig.includeTitle ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="titleTemplate"></ng-container>
                   </div>
                 </div>
-                <div class="row mb-3">
-                  <div class="col-6">
+              }
+              @if( editFormConfig.includeUrl ){
+                <div class="row mb-2">
+                  <div class="col">
+                    <ng-container *ngTemplateOutlet="urlTemplate"></ng-container>
+                  </div>
+                </div>
+              }
+              @if( editFormConfig.includeBookEditors ){
+                <div class="row mb-2">
+                  <div class="col">
+                    <ng-container *ngTemplateOutlet="bookEditorsTemplate"></ng-container>
+                  </div>
+                </div>
+              }
+              @if( editFormConfig.includeBook ){
+                <div class="row mb-2">
+                  <div class="col">
                     <ng-container *ngTemplateOutlet="bookTemplate"></ng-container>
                   </div>
+                </div>
+              }
+              @if( editFormConfig.includeBookSeries ){
+                <div class="row mb-2">
+                  <div class="col">
+                    <ng-container *ngTemplateOutlet="bookSeriesTemplate"></ng-container>
+                  </div>
+                </div>
+              }
+              @if( editFormConfig.includeVolume ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="volumeTemplate"></ng-container>
                   </div>
+                </div>
+              }
+              @if( editFormConfig.includeNumOfVolumes ){
+                <div class="row mb-2">
+                  <div class="col">
+                    <ng-container *ngTemplateOutlet="numOfVolumesTemplate"></ng-container>
+                  </div>
+                </div>
+              }
+              @if( editFormConfig.includePlaceOfPublication ){
+                <div class="row mb-2">
+                  <div class="col">
+                    <ng-container *ngTemplateOutlet="placeOfPublicationTemplate"></ng-container>
+                  </div>
+                </div>
+              }
+              @if( editFormConfig.includePublisher ){
+                <div class="row mb-2">
+                  <div class="col">
+                    <ng-container *ngTemplateOutlet="publisherTemplate"></ng-container>
+                  </div>
+                </div>
+              }
+              @if( editFormConfig.includePublicationYear ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="publicationYearTemplate"></ng-container>
                   </div>
+                </div>
+              }
+              @if( editFormConfig.includePageNumbers ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="pageNumbersTemplate"></ng-container>
                   </div>
                 </div>
-                <div class="row mb-4">
+              }
+              @if( editFormConfig.includeRecommended ){
+                <div class="row mb-2">
                   <div class="col">
                     <ng-container *ngTemplateOutlet="recommendedTemplate"></ng-container>
                   </div>
                 </div>
-                <div class="row mb-3">
+              }
+              @if ( editFormConfig.includeDescription ){
+              <div class="row mb-2">
+                <div class="col">
                   <ng-container *ngTemplateOutlet="descriptionTemplate"></ng-container>
                 </div>
+              </div>
               }
+              
 
               <!-- ============= -->
               <!-- | TEMPLATES | -->
@@ -148,16 +219,16 @@
                                                         (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
                                                          ? 'rgb(255, 200, 200)' : 'white'}">
                     @if (showValidationErrors){
-                    @if (editFormConfig.validateTranslators && translators.invalid && translators.hasError('required')) {
-                      <div style="color:rgb(210, 74, 74)">
-                        <small>Translator is required.</small>
-                      </div>
-                    }
-                    @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
-                      <div style="color:rgb(210, 74, 74)">
-                        <small>At least one author, editor or translator is required.</small>
-                      </div>
-                    }
+                      @if (editFormConfig.validateTranslators && translators.invalid && translators.hasError('required')) {
+                        <div style="color:rgb(210, 74, 74)">
+                          <small>Translator is required.</small>
+                        </div>
+                      }
+                      @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                        <div style="color:rgb(210, 74, 74)">
+                          <small>At least one author, editor or translator is required.</small>
+                        </div>
+                      }
                   }
               </ng-template>
 
@@ -229,20 +300,28 @@
               <!-- Volume template -->
               <ng-template #volumeTemplate>
                 <label for="bib-volume" class="form-label">Volume:</label>
-                <input type="text" class="form-control" formControlName="volume" id="bib-volume">
+                <input type="text" class="form-control" formControlName="volume" id="bib-volume"
+                      [ngStyle]="{'background-color': (volume.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (volume.invalid && showValidationErrors) {
+                    @if (volume.hasError('numericError')) {
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Enter a number greater than 0.</small>
+                      </div>
+                    }
+                  }
               </ng-template>
 
-              <!-- Volume template -->
+              <!-- Number of volumes template -->
               <ng-template #numOfVolumesTemplate>
                 <label for="bib-num-of-volumes" class="form-label">Number of volumes:</label>
-                <input type="text" class="form-control" formControlName="volume" id="bib-num-of-volumes">
-              </ng-template>
-
-              <!-- Description template -->
-              <ng-template #descriptionTemplate>
-                <label for="saga-version-title" class="form-label">Description:</label>
-                <quill-editor class="quill-editor" formControlName="description" id="saga-version-title" placeholder="Saga version description">
-                </quill-editor>
+                <input type="text" class="form-control" formControlName="numOfVolumes" id="bib-num-of-volumes">
+                  @if (numOfVolumes.invalid && showValidationErrors) {
+                    @if (numOfVolumes.hasError('numericError')) {
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Enter a number greater than 0.</small>
+                      </div>
+                    }
+                  }
               </ng-template>
 
               <!-- Place of publication template -->
@@ -280,9 +359,14 @@
                 <label for="bib-publication-year" class="form-label">Year of publication:</label>
                 @if (editFormConfig.validatePublicationYear){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="publicationYear" id="bib-publication-year"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePublicationYear && publicationYear.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validatePublicationYear && publicationYear.invalid && showValidationErrors) {
-                    @if (publicationYear.hasError('required')) {
+                        [ngStyle]="{'background-color': (publicationYear.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (publicationYear.invalid && showValidationErrors) {
+                    @if (publicationYear.hasError('pattern')){
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Please enter a valid year.</small>
+                      </div>
+                    }
+                    @else if (editFormConfig.validatePublicationYear && publicationYear.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>A year of publication is required.</small>
                       </div>
@@ -295,9 +379,14 @@
                 <label for="bib-page-numbers" class="form-label">Page range:</label>
                 @if (editFormConfig.validatePageNumbers){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="pageNumbers" id="bib-book"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePageNumbers && pageNumbers.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validatePageNumbers && pageNumbers.invalid && showValidationErrors) {
-                    @if (pageNumbers.hasError('required')) {
+                        [ngStyle]="{'background-color': (pageNumbers.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (pageNumbers.invalid && showValidationErrors) {
+                    @if (pageNumbers.hasError('pageNumError')){
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Please enter a valid page or page range.</small>
+                      </div>
+                    }
+                    @if (editFormConfig.validatePageNumbers && pageNumbers.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>A page range is required.</small>
                       </div>
@@ -311,6 +400,13 @@
                   <input class="form-check-input" type="checkbox" formControlName="recommended" value="true" id="bib-recommended">
                   <label class="form-check-label" for="bib-recommended">Recommended title</label>
                 </div>
+              </ng-template>
+
+              <!-- Description template -->
+              <ng-template #descriptionTemplate>
+                <label for="bib-description" class="form-label">Description:</label>
+                <quill-editor class="quill-editor" formControlName="description" id="bib-description">
+                </quill-editor>
               </ng-template>
 
               <!-- End of templates -->
