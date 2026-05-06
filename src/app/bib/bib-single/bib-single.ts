@@ -28,6 +28,8 @@ export class BibSingle {
 
   pageTitle = 'Bibliography entry';
 
+  urlPattern = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+
   editionsTranslations: IBib[] = [];
   secondary: IBib[] = [];
   other: IBib[] = [];
@@ -103,18 +105,18 @@ export class BibSingle {
     includeRecommended: false,
     includeDescription: false,
 
-    validateAuthorsEditorsTranslators: false,
-    validateAuthors: false,
-    validateEditors: false,
-    validateTranslators: false,
-    validateTitle: false,
-    validateUrl: false,
-    validateBookEditors: false,
-    validateBook: false,
-    validatePlaceOfPublication: false,
-    validatePublisher: false,
-    validatePublicationYear: false,
-    validatePageNumbers: false
+    requireAuthorsEditorsTranslators: false,
+    requireAuthors: false,
+    requireEditors: false,
+    requireTranslators: false,
+    requireTitle: false,
+    requireUrl: false,
+    requireBookEditors: false,
+    requireBook: false,
+    requirePlaceOfPublication: false,
+    requirePublisher: false,
+    requirePublicationYear: false,
+    requirePageNumbers: false
   }
 
   //GETTERS FOR EDITFORM
@@ -171,6 +173,11 @@ export class BibSingle {
   }
 
   ngOnInit() {
+    this.initialiseFormAndValidators();
+    this.parseParams();
+  }
+
+  parseParams(){
     this.route.paramMap.subscribe(params => {
       //ADD MODE
       if (params.get('mode') == 'add'){
@@ -182,7 +189,6 @@ export class BibSingle {
         if (!Number.isNaN(id)) {
           this.bibService.getBibEntryById(id).subscribe(receivedEntry => {
             this.activeBib = receivedEntry;
-            this.initialiseFormAndValidators();
           });
         }
       }
@@ -203,6 +209,7 @@ export class BibSingle {
 
     this.type.valueChanges.pipe().subscribe({
       next: publicationType => {
+        console.log("Value changed");
         //Set up config and validation for chosen publication type
         this.setConfig(this.convertUiToEnum(publicationType));
         this.setUpValidation();
@@ -249,59 +256,62 @@ export class BibSingle {
 
   setUpValidation(){
 
-    this.editForm.clearValidators();
+    this.showValidationErrors = false;
 
-    this.editForm.addValidators(this.authorsEditorsTranslatorsNotProvided());
+    //Optional validators
+    if (this.editFormConfig.includeUrl) {this.url.addValidators(Validators.pattern(this.urlPattern));}
+    else {this.url.removeValidators(Validators.pattern(this.urlPattern));}
 
-    if (this.editFormConfig.includeVolume) {
-      this.volume.addValidators(this.numericError());
-    }
+    if (this.editFormConfig.includeVolume) {this.volume.addValidators(this.numericError());}
+    else {this.volume.removeValidators(this.numericError());}
 
-    if (this.editFormConfig.includeNumOfVolumes) {
-      this.numOfVolumes.addValidators(this.numericError());
-    }
+    if (this.editFormConfig.includeNumOfVolumes) {this.numOfVolumes.addValidators(this.numericError());}
+    else {this.numOfVolumes.removeValidators(this.numericError());}
 
-    if (this.editFormConfig.includePageNumbers){
-      this.pageNumbers.addValidators(this.pageNumError());
-    }
+    if (this.editFormConfig.includePageNumbers){this.pageNumbers.addValidators(this.pageNumError());}
+    else {this.pageNumbers.removeValidators(this.pageNumError());}
 
-    if (this.editFormConfig.includePublicationYear){
-      this.publicationYear.addValidators(Validators.pattern('[0-9]{4}'));
-    }
+    if (this.editFormConfig.includePublicationYear){this.publicationYear.addValidators(Validators.pattern('[0-9]{4}'));}
+    else {this.publicationYear.removeValidators(Validators.pattern('[0-9]{4}'));}
 
-    if (this.editFormConfig.validateAuthors){
-      this.authors.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validateEditors){
-      this.editors.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validateTranslators){
-      this.translators.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validateTitle){
-      this.title.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validateUrl){
-      this.url.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validateBookEditors){
-      this.bookEditors.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validateBook){
-      this.book.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validatePlaceOfPublication){
-      this.placeOfPublication.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validatePublisher){
-      this.publisher.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validatePublicationYear){
-      this.publicationYear.addValidators(Validators.required);
-    }
-    if (this.editFormConfig.validatePageNumbers){
-      this.pageNumbers.addValidators(Validators.required);
-    }
+    //Required validators
+    if (this.editFormConfig.requireAuthorsEditorsTranslators){this.editForm.addValidators(this.authorsEditorsTranslatorsNotProvided());}
+    else {this.editForm.removeValidators(this.authorsEditorsTranslatorsNotProvided());}
+
+    if (this.editFormConfig.requireAuthors){this.authors.addValidators(Validators.required);}
+    else (this.authors.removeValidators(Validators.required));
+
+    if (this.editFormConfig.requireEditors){this.editors.addValidators(Validators.required);}
+    else {(this.editors.removeValidators(Validators.required))};
+
+    if (this.editFormConfig.requireTranslators){this.translators.addValidators(Validators.required);}
+    else {this.translators.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requireTitle){this.title.addValidators(Validators.required);}
+    else{this.title.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requireUrl){this.url.addValidators(Validators.required);}
+    else {this.url.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requireBookEditors){this.bookEditors.addValidators(Validators.required);}
+    else {this.bookEditors.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requireBook){this.book.addValidators(Validators.required);}
+    else {this.book.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requirePlaceOfPublication){this.placeOfPublication.addValidators(Validators.required)}
+    else {this.placeOfPublication.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requirePublisher){this.publisher.addValidators(Validators.required);}
+    else {this.publisher.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requirePublicationYear){this.publicationYear.addValidators(Validators.required);}
+    else {this.publicationYear.removeValidators(Validators.required);}
+
+    if (this.editFormConfig.requirePageNumbers){this.pageNumbers.addValidators(Validators.required);}
+    else {this.pageNumbers.removeValidators(Validators.required);}
+
+    this.editForm.updateValueAndValidity();
   }
 
   convertEnumToUi(publicationType: PublicationType){
@@ -353,7 +363,10 @@ export class BibSingle {
   }
 
   submitAddOrEdit(){
-    this.editForm.updateValueAndValidity();
+
+    Object.values(this.editForm.controls).forEach(formControl =>{
+      formControl.updateValueAndValidity();
+    });
 
     if (this.editForm.valid){
       var editAddModal = document.getElementById('editAddBib');
@@ -486,6 +499,14 @@ export class BibSingle {
     this.router.navigate([`bib`]);
   }
 
+  stringToInt(string: string){
+    return Number(parseInt(string));
+  }
+
+  //---------------
+  //  CUSTOM VALIDATION
+  //---------------
+
   authorsEditorsTranslatorsNotProvided(): ValidatorFn {
   return (control:AbstractControl) : ValidationErrors | null => {
 
@@ -531,11 +552,9 @@ export class BibSingle {
 
     if (value !== ''){
       if (pageRangePattern.test(value)){
-        console.log("Pattern is valid!");
         return null;
       }
       else if (isNaN(value) || value < 1){
-        console.log("Entry invalid!")
         return { pageNumError: true }
       }
       else{
@@ -570,7 +589,7 @@ export class BibSingle {
     this.bibService.putBib(this.activeBib).subscribe({
       next: receivedBib =>{
         console.log("bibliography entry updated: " + receivedBib);
-        this.navigateToBibEntryPage(receivedBib.id);
+        this.parseParams();
       },
       error: err => {
         console.log('Error updating bib: ' + err)

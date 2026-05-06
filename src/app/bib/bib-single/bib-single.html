@@ -1,17 +1,298 @@
 <div class="card-body">
   <div class="container">
-    <button (click)="editBib()"
-            type="button" style="margin-right: 0.25rem" 
-            class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddBib">Edit</button>
-    <!-- Delete button -->
-    <button (click)="deleteBib()"
-            type="button"
-            class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
-    New bibliography ID: {{activeBib.id}}; new bibliography title: {{activeBib.title}}
+    <div class="row">
+      <div class="col">
+        @if (activeBib != null){
+
+          <!-- JOURNAL ARTICLE -->
+          @if (activeBib.publicationType === PublicationType.JOURNAL_ARTICLE ){
+            @if (activeBib.authors !== ''){
+              @if (activeBib.editors === '' && activeBib.translators === ''){<span>{{activeBib.authors}}. </span>}
+              @else {<span>{{activeBib.authors}}, </span>}
+              }
+            @if (activeBib.editors !== ''){
+              @if (activeBib.authors !== '' && activeBib.translators === ''){<span>ed. {{activeBib.editors}}. </span>}
+              @else {<span>{{activeBib.editors}}, ed., </span>}
+            }
+
+            @if (activeBib.translators !== ''){
+              @if (activeBib.authors !== '' && activeBib.editors !== ''){<span>{{activeBib.translators}}, trans., </span>}
+              @else { <span>tr. {{activeBib.translators}}. </span> }
+            }
+
+            <span>'{{ activeBib.title }}', </span>
+
+            <span><i>{{ activeBib.book }} </i></span>
+
+            @if (activeBib.volume !== ''){<span>{{activeBib.volume}} </span>}
+
+            <span>({{activeBib.publicationYear}}), </span>
+
+            <span>{{ activeBib.pageNumbers }}.</span>
+          }
+
+          <!--  BOOK CHAPTER -->
+          @if (activeBib.publicationType === PublicationType.BOOK_CHAPTER ){
+            @if (activeBib.authors !== ''){
+              @if (activeBib.editors === '' && activeBib.translators === ''){<span>{{activeBib.authors}}. </span>}
+              @else {<span>{{activeBib.authors}}, </span>}
+            }
+            @if (activeBib.editors !== ''){
+              @if (activeBib.authors !== '' && activeBib.translators === ''){<span>ed. {{activeBib.editors}}. </span>}
+              @else {<span>{{activeBib.editors}}, ed., </span>}
+            }
+
+            @if (activeBib.translators !== ''){
+              @if (activeBib.authors !== '' && activeBib.editors !== ''){<span>{{activeBib.translators}}, trans., </span>}
+              @else { <span>tr. {{activeBib.translators}}. </span> }
+            }
+
+            <span>'{{ activeBib.title }}', in </span>
+
+            <span>{{activeBib.bookEditors}}, ed., </span>
+
+            <span><i>{{ activeBib.book }}</i></span>
+
+            @if(activeBib.bookSeries !== ''){<span>. {{activeBib.bookSeries}}</span>}
+
+            @if (activeBib.volume !== ''){<span> {{activeBib.volume}}</span>}
+
+            <span>. {{activeBib.placeOfPublication}}: </span>
+
+            <span>{{ activeBib.publisher }}, </span>
+
+            <span>{{activeBib.publicationYear}}, </span>
+
+            @if (activeBib.pageNumbers.includes('-')){
+              <span>pp. {{activeBib.pageNumbers}}.</span>
+            }
+            @else {
+              <span>p. {{activeBib.pageNumbers}}.</span>
+            }
+          }
+
+          <!-- EDITION -->
+          @if (activeBib.publicationType === PublicationType.EDITION ){
+            <span>{{activeBib.editors}}, ed. </span>
+
+            <span><i>{{ activeBib.title }}</i></span>
+
+            @if(activeBib.bookSeries !== ''){<span>. {{activeBib.bookSeries}}</span>}
+
+            @if (activeBib.volume !== ''){<span> {{activeBib.volume}}</span>}
+
+            @if (activeBib.numOfVolumes !== ''){
+              @if (stringToInt(activeBib.numOfVolumes) > 1){
+                <span>, {{activeBib.numOfVolumes}} vols.</span>
+              }
+              @else {
+                <span>, {{activeBib.volume}} vol.</span>
+              }
+            }
+
+            <span>. {{activeBib.placeOfPublication}}: </span>
+
+            <span>{{ activeBib.publisher }}, </span>
+
+            <span>{{activeBib.publicationYear}}.</span>
+          }
+
+          <!-- TRANSLATION -->
+          @if (activeBib.publicationType === PublicationType.TRANSLATION ){
+
+            <span>{{activeBib.translators}}, trans.</span>
+
+            @if (activeBib.editors !== ''){
+              <span>, ed. {{activeBib.editors}}.</span>
+            }
+
+            <span><i> {{ activeBib.title }}</i></span>
+
+            @if(activeBib.bookSeries !== ''){<span>. {{activeBib.bookSeries}}</span>}
+
+            @if (activeBib.volume !== ''){<span> {{activeBib.volume}}</span>}
+
+            @if (activeBib.numOfVolumes !== ''){
+              @if (stringToInt(activeBib.numOfVolumes) > 1){
+                <span>, {{activeBib.numOfVolumes}} vols</span>
+              }
+              @else {
+                <span>, {{activeBib.volume}} vol</span>
+              }
+            }
+
+            <span>. {{activeBib.placeOfPublication}}: </span>
+
+            <span>{{ activeBib.publisher }}, </span>
+
+            <span>{{activeBib.publicationYear}}.</span>
+          }
+
+          <!-- MONOGRAPH -->
+          @if (activeBib.publicationType === PublicationType.MONOGRAPH ){
+
+            <span>{{activeBib.authors}}. </span>
+
+            <span><i> {{ activeBib.title }}</i></span>
+
+            @if(activeBib.bookSeries !== ''){<span>. {{activeBib.bookSeries}}</span>}
+
+            @if (activeBib.volume !== ''){<span> {{activeBib.volume}}</span>}
+
+            @if (activeBib.numOfVolumes !== ''){
+              @if (stringToInt(activeBib.numOfVolumes) > 1){
+                <span>, {{activeBib.numOfVolumes}} vols</span>
+              }
+              @else {
+                <span>, {{activeBib.volume}} vol</span>
+              }
+            }
+
+            <span>. {{activeBib.placeOfPublication}}: </span>
+
+            <span>{{ activeBib.publisher }}, </span>
+
+            <span>{{activeBib.publicationYear}}.</span>
+          }
+
+          <!-- EDITED COLLECTION -->
+          @if (activeBib.publicationType === PublicationType.EDITED_COLLECTION ){
+            <span>{{activeBib.editors}}, ed. </span>
+
+            <span><i>{{ activeBib.title }}</i></span>
+
+            @if(activeBib.bookSeries !== ''){<span>. {{activeBib.bookSeries}}</span>}
+
+            @if (activeBib.volume !== ''){<span> {{activeBib.volume}}</span>}
+
+            @if (activeBib.numOfVolumes !== ''){
+              @if (stringToInt(activeBib.numOfVolumes) > 1){
+                <span>, {{activeBib.numOfVolumes}} vols.</span>
+              }
+              @else {
+                <span>, {{activeBib.numOfVolumes}} vol.</span>
+              }
+            }
+
+            <span>. {{activeBib.placeOfPublication}}: </span>
+
+            <span>{{ activeBib.publisher }}, </span>
+
+            <span>{{activeBib.publicationYear}}.</span>
+          }
+
+          <!-- THESIS -->
+          @if (activeBib.publicationType === PublicationType.THESIS ){
+            <span>{{activeBib.authors}}. </span>
+
+            <span>'{{ activeBib.title}}'. </span>
+
+            <span>Unpubl. doctoral dissertation, </span>
+
+            <span>{{activeBib.publisher}}, </span>
+
+            <span>{{activeBib.publicationYear}}.</span>
+          }
+
+          <!-- WEBSITE -->
+          @if (activeBib.publicationType === PublicationType.WEBSITE ){
+            @if (activeBib.authors !== ''){<span>{{activeBib.authors}}. </span>}
+
+            <span>{{activeBib.title}}. </span>
+
+            <span><i><a href="{{activeBib.url}}">{{ activeBib.url }}</a>. </i></span>
+
+            <span>Last accessed: </span>
+
+            <span>{{activeBib.publicationYear}}.</span>
+          }
+
+          <!--  OTHER -->
+          @if (activeBib.publicationType === PublicationType.OTHER ){
+            @if (activeBib.authors !== ''){
+              @if (activeBib.editors === '' && activeBib.translators === ''){<span>{{activeBib.authors}}. </span>}
+              @else {<span>{{activeBib.authors}}, </span>}
+            }
+            @if (activeBib.editors !== ''){
+              @if (activeBib.authors !== '' && activeBib.translators === ''){<span>ed. {{activeBib.editors}}. </span>}
+              @else {<span>{{activeBib.editors}}, ed., </span>}
+            }
+
+            @if (activeBib.translators !== ''){
+              @if (activeBib.authors !== '' && activeBib.editors !== ''){<span>{{activeBib.translators}}, trans., </span>}
+              @else { <span>tr. {{activeBib.translators}}. </span> }
+            }
+
+            @if (activeBib.title !== ''){
+              <span>'{{ activeBib.title }}'. </span>
+            }
+
+            @if (activeBib.url !== ''){
+              <span><i><a href="{{activeBib.url}}">{{ activeBib.url }}</a>. </i></span>
+            }
+
+            @if (activeBib.bookEditors !== ''){
+            <span>{{activeBib.bookEditors}}, ed., </span>
+            }
+
+            @if (activeBib.book){
+            <span><i>{{ activeBib.book }}</i></span>
+            }
+
+            @if(activeBib.bookSeries !== ''){<span>. {{activeBib.bookSeries}}</span>}
+
+            @if (activeBib.volume !== ''){<span> {{activeBib.volume}}, </span>}
+
+            @if (activeBib.numOfVolumes !== ''){
+              @if (stringToInt(activeBib.numOfVolumes) > 1){
+                <span>{{activeBib.numOfVolumes}} vols.</span>
+              }
+              @else {
+                <span>{{activeBib.numOfVolumes}} vol. </span>
+              }
+            }
+
+            @if (activeBib.placeOfPublication){
+            <span> {{activeBib.placeOfPublication}}: </span>
+            }
+
+            @if (activeBib.publisher !== ''){
+            <span>{{ activeBib.publisher }}, </span>
+            }
+
+
+            @if (activeBib.publicationYear !== ''){
+            <span>{{activeBib.publicationYear}}, </span>
+            }
+
+            @if (activeBib.pageNumbers !== ''){
+              @if (activeBib.pageNumbers.includes('-')){
+                <span>pp. {{activeBib.pageNumbers}}.</span>
+              }
+              @else {
+                <span>p. {{activeBib.pageNumbers}}.</span>
+              }
+            }
+          }
+        }
+          
+      </div>
+      <div>
+        <p></p>
+        <!-- Edit button -->
+        <button (click)="editBib()"
+              type="button" style="margin-right: 0.25rem" 
+              class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddBib">Edit</button>
+        <!-- Delete button -->
+        <button (click)="deleteBib()"
+              type="button"
+              class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<!--Add/edit modal-->
+<!--ADD/EDIT MODAL-->
 <div class="modal fade" id="editAddBib" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
@@ -35,7 +316,7 @@
                   <select class="form-select" formControlName="type" id="bib-type"
                           [ngStyle]="{'background-color': (type.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
                     <option disabled selected>Select publication type:</option>
-                    @for(publicationType of publicationTypesUi; track publicationType){
+                    @for(publicationType of publicationTypesUi; track $index){
                       <option>{{ publicationType }}</option>
                     }
                   </select>
@@ -170,18 +451,18 @@
 
               <!-- Authors template -->
               <ng-template #authorsTemplate>
-                <label for="bib-authors" class="form-label">Author(s):</label>@if (editFormConfig.validateAuthors){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="bib-authors" class="form-label">Author(s):</label>@if (editFormConfig.requireAuthors){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="authors" id="bib-authors"
-                        [ngStyle]="{'background-color': (editFormConfig.validateAuthors && authors.invalid && showValidationErrors) ||
-                                                        (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
+                        [ngStyle]="{'background-color': (editFormConfig.requireAuthors && authors.invalid && showValidationErrors) ||
+                                                        (editFormConfig.requireAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
                                                          ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (showValidationErrors){
-                    @if (editFormConfig.validateAuthors && authors.invalid && authors.hasError('required')) {
+                    @if (editFormConfig.requireAuthors && authors.invalid && authors.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                         <small>Author is required.</small>
                       </div>
                     }
-                    @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                    @if (editFormConfig.requireAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
                       <div style="color:rgb(210, 74, 74)">
                         <small>At least one author, editor or translator is required.</small>
                       </div>
@@ -192,18 +473,18 @@
 
               <!-- Editors template -->
               <ng-template #editorsTemplate>
-                <label for="bib-editors" class="form-label">Editor(s):</label>@if (editFormConfig.validateEditors){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="bib-editors" class="form-label">Editor(s):</label>@if (editFormConfig.requireEditors){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="editors" id="bib-editors"
-                        [ngStyle]="{'background-color': (editFormConfig.validateEditors && editors.invalid && showValidationErrors) ||
-                                                        (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
+                        [ngStyle]="{'background-color': (editFormConfig.requireEditors && editors.invalid && showValidationErrors) ||
+                                                        (editFormConfig.requireAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
                                                          ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (showValidationErrors){
-                    @if (editFormConfig.validateEditors && editors.invalid && editors.hasError('required')) {
+                    @if (editFormConfig.requireEditors && editors.invalid && editors.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                         <small>Editor is required.</small>
                       </div>
                     }
-                    @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                    @if (editFormConfig.requireAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
                       <div style="color:rgb(210, 74, 74)">
                         <small>At least one author, editor or translator is required.</small>
                       </div>
@@ -213,18 +494,18 @@
 
               <!-- Translators template -->
               <ng-template #translatorsTemplate>
-                <label for="bib-translators" class="form-label">Translator(s):</label>@if (editFormConfig.validateTranslators){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="bib-translators" class="form-label">Translator(s):</label>@if (editFormConfig.requireTranslators){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="translators" id="bib-translators"
-                        [ngStyle]="{'background-color': (editFormConfig.validateTranslators && translators.invalid && showValidationErrors) ||
-                                                        (editFormConfig.validateAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
+                        [ngStyle]="{'background-color': (editFormConfig.requireTranslators && translators.invalid && showValidationErrors) ||
+                                                        (editFormConfig.requireAuthorsEditorsTranslators && editForm.hasError('authorsEditorsTranslatorsNotProvided') && showValidationErrors)
                                                          ? 'rgb(255, 200, 200)' : 'white'}">
                     @if (showValidationErrors){
-                      @if (editFormConfig.validateTranslators && translators.invalid && translators.hasError('required')) {
+                      @if (editFormConfig.requireTranslators && translators.invalid && translators.hasError('required')) {
                         <div style="color:rgb(210, 74, 74)">
                           <small>Translator is required.</small>
                         </div>
                       }
-                      @if (editFormConfig.validateAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
+                      @if (editFormConfig.requireAuthorsEditorsTranslators && editForm.invalid && editForm.hasError('authorsEditorsTranslatorsNotProvided')) {
                         <div style="color:rgb(210, 74, 74)">
                           <small>At least one author, editor or translator is required.</small>
                         </div>
@@ -234,10 +515,10 @@
 
               <!-- Title template -->
               <ng-template #titleTemplate>
-                <label for="saga-version-title" class="form-label">Title:</label>@if (editFormConfig.validateTitle){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="saga-version-title" class="form-label">Title:</label>@if (editFormConfig.requireTitle){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="title" id="saga-version-title"
-                        [ngStyle]="{'background-color': (editFormConfig.validateTitle && title.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validateTitle && title.invalid && showValidationErrors) {
+                        [ngStyle]="{'background-color': (editFormConfig.requireTitle && title.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (editFormConfig.requireTitle && title.invalid && showValidationErrors) {
                     @if (title.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>Title is required.</small>
@@ -248,13 +529,18 @@
 
               <!-- URL template -->
               <ng-template #urlTemplate>
-                <label for="bib-url" class="form-label">URL:</label>@if (editFormConfig.validateUrl){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="bib-url" class="form-label">URL:</label>@if (editFormConfig.requireUrl){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="url" id="bib-url"
-                        [ngStyle]="{'background-color': (editFormConfig.validateEditors && editors.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validateUrl && url.invalid && showValidationErrors) {
-                    @if (url.hasError('required')) {
+                        [ngStyle]="{'background-color': (url.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (url.invalid && showValidationErrors) {
+                    @if (editFormConfig.requireUrl && url.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>URL is required.</small>
+                      </div>
+                    }
+                    @if (url.hasError('pattern')){
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Please enter a valid URL.</small>
                       </div>
                     }
                   }
@@ -262,13 +548,13 @@
 
               <!-- Book editors template -->
               <ng-template #bookEditorsTemplate>
-                <label for="bib-book-editors" class="form-label">Editor(s) of book:</label>@if (editFormConfig.validateBookEditors){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="bib-book-editors" class="form-label">Editor(s) of book:</label>@if (editFormConfig.requireBookEditors){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="bookEditors" id="bib-book-editors"
-                        [ngStyle]="{'background-color': (editFormConfig.validateBookEditors && bookEditors.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validateBookEditors && bookEditors.invalid && showValidationErrors) {
-                    @if (editors.hasError('required')) {
+                        [ngStyle]="{'background-color': (editFormConfig.requireBookEditors && bookEditors.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (editFormConfig.requireBookEditors && bookEditors.invalid && showValidationErrors) {
+                    @if (bookEditors.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
-                          <small>An editor is required for this book</small>
+                          <small>An editor is required for this book.</small>
                       </div>
                     }
                   }
@@ -279,10 +565,10 @@
                 <label for="bib-book" class="form-label">@if( convertUiToEnum(type.value) == PublicationType.JOURNAL_ARTICLE ){ Journal title: }
                                                          @else{ Book title: }
                 </label>
-                @if (editFormConfig.validateBook){<span style="color: rgb(210, 74, 74)">*</span>}
+                @if (editFormConfig.requireBook){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="book" id="bib-book"
-                        [ngStyle]="{'background-color': (editFormConfig.validateBook && book.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validateBook && book.invalid && showValidationErrors) {
+                        [ngStyle]="{'background-color': (editFormConfig.requireBook && book.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (editFormConfig.requireBook && book.invalid && showValidationErrors) {
                     @if (book.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>A title is required.</small>
@@ -327,10 +613,10 @@
               <!-- Place of publication template -->
               <ng-template #placeOfPublicationTemplate>
                 <label for="bib-place-of-publication" class="form-label">Place of publication:</label>
-                @if (editFormConfig.validatePlaceOfPublication){<span style="color: rgb(210, 74, 74)">*</span>}
+                @if (editFormConfig.requirePlaceOfPublication){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="placeOfPublication" id="bib-place-of-publication"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validatePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) {
+                        [ngStyle]="{'background-color': (editFormConfig.requirePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (editFormConfig.requirePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) {
                     @if (placeOfPublication.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>A place of publication is required.</small>
@@ -341,11 +627,12 @@
 
               <!-- Publisher template -->
               <ng-template #publisherTemplate>
-                <label for="bib-publisher" class="form-label">Publisher:</label>
-                @if (editFormConfig.validatePublisher){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="bib-publisher" class="form-label">@if( convertUiToEnum(type.value) == PublicationType.THESIS ){ University: }
+                                                              @else{ Publisher: }</label>
+                @if (editFormConfig.requirePublisher){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="publisher" id="bib-publisher"
-                        [ngStyle]="{'background-color': (editFormConfig.validatePublisher && publisher.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
-                  @if (editFormConfig.validatePublisher && publisher.invalid && showValidationErrors) {
+                        [ngStyle]="{'background-color': (editFormConfig.requirePublisher && publisher.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                  @if (editFormConfig.requirePublisher && publisher.invalid && showValidationErrors) {
                     @if (publisher.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>A publisher is required.</small>
@@ -356,8 +643,9 @@
 
               <!-- Publication year template -->
               <ng-template #publicationYearTemplate>
-                <label for="bib-publication-year" class="form-label">Year of publication:</label>
-                @if (editFormConfig.validatePublicationYear){<span style="color: rgb(210, 74, 74)">*</span>}
+                <label for="bib-publication-year" class="form-label">@if( convertUiToEnum(type.value) == PublicationType.WEBSITE ){Year last accessed:}
+                                                                     @else{Year of publication:}</label>
+                @if (editFormConfig.requirePublicationYear){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="publicationYear" id="bib-publication-year"
                         [ngStyle]="{'background-color': (publicationYear.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (publicationYear.invalid && showValidationErrors) {
@@ -366,7 +654,7 @@
                           <small>Please enter a valid year.</small>
                       </div>
                     }
-                    @else if (editFormConfig.validatePublicationYear && publicationYear.hasError('required')) {
+                    @else if (editFormConfig.requirePublicationYear && publicationYear.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>A year of publication is required.</small>
                       </div>
@@ -377,7 +665,7 @@
               <!-- Page numbers template -->
               <ng-template #pageNumbersTemplate>
                 <label for="bib-page-numbers" class="form-label">Page range:</label>
-                @if (editFormConfig.validatePageNumbers){<span style="color: rgb(210, 74, 74)">*</span>}
+                @if (editFormConfig.requirePageNumbers){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="pageNumbers" id="bib-book"
                         [ngStyle]="{'background-color': (pageNumbers.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
                   @if (pageNumbers.invalid && showValidationErrors) {
@@ -386,7 +674,7 @@
                           <small>Please enter a valid page or page range.</small>
                       </div>
                     }
-                    @if (editFormConfig.validatePageNumbers && pageNumbers.hasError('required')) {
+                    @if (editFormConfig.requirePageNumbers && pageNumbers.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>A page range is required.</small>
                       </div>

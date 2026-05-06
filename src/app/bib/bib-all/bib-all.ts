@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-bibs',
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './bib-all.html',
   styleUrl: './bib-all.css',
   providers: [BibService]
