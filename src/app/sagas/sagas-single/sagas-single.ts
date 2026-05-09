@@ -6,10 +6,12 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { QuillModule } from 'ngx-quill'
-import { IBib } from '../../bib/IBib';
+import { IBib, PublicationType } from '../../bib/common/IBib';
+import { BibService } from '../../bib/common/bib.service';
 import { ISagaVm } from '../common/ISagaVm';
 import { SagaService } from '../common/saga.service';
-import {ISagaVersionVm } from '../common/ISagaVersionVm'
+import { ISagaVersionVm } from '../common/ISagaVersionVm'
+import { ISagaVersionDto } from '../common/ISagaVersionDto';
 import { SagaMapper } from '../common/saga-mapper';
 import { SagaDate } from '../common/SagaDate';
 import { Mode } from '../../shared/Enums';
@@ -27,9 +29,11 @@ export class SagasSingle implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private sagasService: SagaService,
+    private bibService: BibService,
     private sagaMapper: SagaMapper
   ) {}
 
+    readonly PublicationType = PublicationType;
     readonly SagaDate = SagaDate;
     readonly Mode = Mode;
     mode: Mode = Mode.NONE;
@@ -59,13 +63,17 @@ export class SagasSingle implements OnInit {
   };
 
   activeSagaVersion: ISagaVersionVm = this.initialisedSagaVersion;
+  activeSagaVersionBibDtos: IBib[] = [];
+  activeSagaVersionBibIds: number[] = [];
+
+  bibs: IBib[] = [];
 
   showValidationErrors: boolean = false;
 
   editForm = new FormGroup({
     title: new FormControl('', [Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]),
-    description: new FormControl(''),
     date: new FormControl('Select a date:', dateNotSelected()),
+    description: new FormControl(''),
     isTranslated: new FormControl(false)
   });
 
@@ -87,6 +95,27 @@ export class SagasSingle implements OnInit {
   //---------------
   //  FIELD LOGIC
   //---------------
+
+  boxChecked(bib: IBib){
+    if (this.activeSagaVersionBibIds.includes(bib.id)){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
+  addRemoveBibEntry(bib: IBib){
+
+    if (this.activeSagaVersionBibIds.includes(bib.id)){
+      this.activeSagaVersionBibIds.splice(this.activeSagaVersionBibIds.indexOf(bib.id), 1);
+    }
+    else {
+      this.activeSagaVersionBibIds.push(bib.id);
+    }
+
+    console.log(this.activeSagaVersionBibIds);
+  }
 
   mapToUi(sagaDate: SagaDate){
     switch(sagaDate){
@@ -159,6 +188,10 @@ export class SagasSingle implements OnInit {
       this.title.updateValueAndValidity();
     }
 
+  stringToInt(string: string){
+    return Number(parseInt(string));
+  }
+
   //---------------
   //  USER CHOICE
   //---------------
@@ -185,6 +218,8 @@ export class SagasSingle implements OnInit {
     }
     else{
       this.activeSagaVersion = sagaVersion;
+      this.activeSagaVersionBibDtos = sagaVersion.bibDto;
+      this.activeSagaVersionBibIds = this.activeSagaVersion.bibDto.flatMap(bib => bib.id);
     }
   }
 
@@ -227,7 +262,10 @@ export class SagasSingle implements OnInit {
   postSagaVersion(){
 
     this.formToVm();
-    this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion)).subscribe({
+    var sagaVersionDto = this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion);
+    sagaVersionDto.bibIds = this.activeSagaVersionBibIds;
+
+    this.sagasService.postSagaVersion(sagaVersionDto).subscribe({
       next: receivedSagaVersion => {
         console.log("saga version posted: " + receivedSagaVersion);
         this.displaySaga();
@@ -245,6 +283,11 @@ export class SagasSingle implements OnInit {
           next: receivedEntry => {
             this.sagaEntry = receivedEntry;
             this.sagaVersions = this.sagaEntry.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+            this.bibService.getBibEntries().subscribe({
+              next: bibEntries => {
+                this.bibs = bibEntries;
+              }
+            })
           },
           error: err => console.log(err)
         });
@@ -256,7 +299,10 @@ export class SagasSingle implements OnInit {
   updateSagaVersion(){
     
     this.formToVm();
-    this.sagasService.putSagaVersion(this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion)).subscribe({
+    var sagaVersionDto = this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion);
+    sagaVersionDto.bibIds = this.activeSagaVersionBibIds;
+
+    this.sagasService.putSagaVersion(sagaVersionDto).subscribe({
       next: receivedSagaVersion => {
         console.log("Saved successfully! " + receivedSagaVersion);
         this.displaySaga();

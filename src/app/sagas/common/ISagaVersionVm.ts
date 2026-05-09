@@ -1,4 +1,4 @@
-import { IBib } from "../../bib/IBib";
+import { IBib } from "../../bib/common/IBib";
 import { SagaDate } from './SagaDate';
 
 export interface ISagaVersionVm {

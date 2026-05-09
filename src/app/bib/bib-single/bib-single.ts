@@ -5,14 +5,16 @@ import { Component } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Modal } from 'bootstrap';
 import { Mode } from '../../shared/Enums';
-import { BibService } from '../bib.service';
-import { IBib, PublicationType } from '../IBib';
-import { editFormConfigs, EditFormConfig } from '../bib-config';
+import { BibService } from '../common/bib.service';
+import { IBib, PublicationType } from '../common/IBib';
+import { editFormConfigs, EditFormConfig } from '../common/bib-config';
 import { ISagaVm } from '../../sagas/common/ISagaVm';
 import { SagaService } from '../../sagas/common/saga.service';
 import { ISagaVersionDto } from '../../sagas/common/ISagaVersionDto';
 import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
+import { BibMapper } from '../common/bib-mapper';
+import { IBibVm } from '../common/IBibVm';
 
 @Component({
   selector: 'app-bibs',
@@ -23,6 +25,7 @@ import { CommonModule } from '@angular/common';
 export class BibSingle {
   constructor(private bibService: BibService, 
               private sagaService: SagaService,
+              private bibMapper: BibMapper,
               private route: ActivatedRoute,
               private router: Router) {}
 
@@ -33,6 +36,8 @@ export class BibSingle {
   editionsTranslations: IBib[] = [];
   secondary: IBib[] = [];
   other: IBib[] = [];
+
+  bibVm: IBibVm[] = [];
 
   publicationTypesUi: string[] = [];
 
@@ -62,7 +67,14 @@ export class BibSingle {
     description: ""
   }
 
+  initialisedBibVm: IBibVm = {
+    id: 0,
+    publicationType: PublicationType.UNDEFINED,
+    bibliographyEntry: ""
+  }
+
   activeBib: IBib = this.initialisedBib;
+  activeBibVm: IBibVm = this.initialisedBibVm;
 
   editForm = new FormGroup({
     type: new FormControl('Select publication type:', {nonNullable: true}),
@@ -189,6 +201,8 @@ export class BibSingle {
         if (!Number.isNaN(id)) {
           this.bibService.getBibEntryById(id).subscribe(receivedEntry => {
             this.activeBib = receivedEntry;
+            this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
+            console.log(this.activeBibVm.bibliographyEntry);
           });
         }
       }
@@ -329,7 +343,6 @@ export class BibSingle {
   addBib(){
     this.mode = Mode.ADD;
 
-    this.initialiseFormAndValidators();
     this.activeBib = this.initialisedBib;
     this.openAddModal();
   }

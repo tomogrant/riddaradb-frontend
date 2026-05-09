@@ -5,8 +5,8 @@ import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { Modal } from 'bootstrap';
 import { Mode } from '../../shared/Enums';
-import { BibService } from '../bib.service';
-import { IBib, PublicationType } from '../IBib';
+import { BibService } from '../common/bib.service';
+import { IBib, PublicationType } from '../common/IBib';
 import { ISagaVm } from '../../sagas/common/ISagaVm';
 import { SagaService } from '../../sagas/common/saga.service';
 import { ISagaVersionDto } from '../../sagas/common/ISagaVersionDto';
@@ -65,6 +65,10 @@ export class BibAll {
 
   addBib(){
     this.router.navigate([`bib/action/add`]);
+  }
+
+  stringToInt(string: string){
+    return Number(parseInt(string));
   }
 
   //READ
