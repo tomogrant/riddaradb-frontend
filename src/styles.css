@@ -27,7 +27,6 @@ a:hover{
 
 .quill-editor {
   width: 100%;
-  height: 100%;
 }
 
 /* Paragraph settings */
@@ -53,6 +52,24 @@ p {
   font-size: medium;
 }
 
+
 .ql-font-garamond {
   font-family: 'garamond';
 }
+
+.invalid-input.form-control:focus{
+  border-color: #FF0000;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+}
+
+/* Targets an element with BOTH classes invalid-input and form-control */
+.invalid-input.form-control{
+    border-color: #FF0000;
+}
+
+/* Targets the element, ql-editor, within an element with invalid-input */
+.invalid-input .ql-editor {
+    border: 1px solid #FF0000;
+}
+
+

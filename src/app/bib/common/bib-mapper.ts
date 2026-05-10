@@ -8,11 +8,6 @@ import { IBibVm } from "./IBibVm";
 
 export class BibMapper{
 
-    stringBuilder(stringToBuild: string, stringToAdd: string){
-        return (stringToBuild = (stringToBuild + stringToAdd));
-
-    }
-
     mapDtoToVm(dto: IBib): IBibVm{
 
         var vm: IBibVm = {
@@ -33,28 +28,28 @@ export class BibMapper{
         var str = "";
 
         if (dto.authors !== ''){
-            if (dto.editors === '' && dto.translators === '') {this.stringBuilder(str, dto.authors + ". ");}
-            else { {this.stringBuilder(str, dto.authors + ", ")} }
+            if (dto.editors === '' && dto.translators === '') {str = str + (dto.authors + ". ");}
+            else { str = str + (dto.authors + ", ") }
         }
         if (dto.editors !== ''){
-            if (dto.authors !== '' && dto.translators === ''){this.stringBuilder(str, "ed. " + dto.editors + ". ");}
-            else {this.stringBuilder(str, dto.editors + ", ed., ");}
+            if (dto.authors !== '' && dto.translators === ''){str = str + ("ed. " + dto.editors + ". ");}
+            else {str = str + (dto.editors + ", ed., ");}
         }
 
         if (dto.translators !== ''){
-            if (dto.authors !== '' && dto.editors !== ''){this.stringBuilder(str, dto.translators + ", trans., ");}
-            else { this.stringBuilder(str, "tr. " + dto.translators +". ");}
+            if (dto.authors !== '' && dto.editors !== ''){str = str + (dto.translators + ", trans., ");}
+            else {str = str + ("tr. " + dto.translators +". ");}
         }
 
-        this.stringBuilder(str, "'" + dto.title + "', ");
+        str = str + ("'" + dto.title + "', ");
 
-        this.stringBuilder(str, "<i>" + dto.book + " </i>");
+        str = str + ("<i>" + dto.book + " </i>");
 
-        if (dto.volume !== ''){this.stringBuilder(str, dto.volume + " ");}
+        if (dto.volume !== ''){str = str + (dto.volume + " ");}
 
-        this.stringBuilder(str, "(" + dto.publicationYear + "), ");
+        str = str + ("(" + dto.publicationYear + "), ");
 
-        this.stringBuilder(str, dto.pageNumbers + ".");
+        str = str + (dto.pageNumbers + ".");
 
         return str;
     }

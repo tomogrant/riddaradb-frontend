@@ -20,6 +20,7 @@ import { IBibVm } from '../common/IBibVm';
   selector: 'app-bibs',
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule],
   templateUrl: './bib-single.html',
+  styleUrl: './bib-single.css',
   providers: [BibService]
 })
 export class BibSingle {
@@ -464,7 +465,7 @@ export class BibSingle {
     if (this.editFormConfig.includeTranslators) this.activeBib.translators = this.translators.value;
     else (this.activeBib.translators = this.translators.defaultValue);
 
-    if (this.editFormConfig.includeTitle) this.activeBib.title = this.title.value;
+    if (this.editFormConfig.includeTitle) this.activeBib.title = this.title.value.replaceAll(/<\/?p[^>]*>/g, '');
     else (this.activeBib.title = this.title.defaultValue);
 
     if (this.editFormConfig.includeUrl) this.activeBib.url = this.url.value;

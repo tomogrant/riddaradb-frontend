@@ -11,20 +11,5 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-    provideQuillConfig({
-      modules: {
-        toolbar: [
-          ['bold', 'italic', 'underline'],                  // custom button values
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-        ] 
-      },
-      sanitize: true,
-      customOptions: [{
-        import: 'formats/font',
-        whitelist: ['garamond']
-      }]
-    })
-
   ]
 };
