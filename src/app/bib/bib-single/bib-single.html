@@ -12,13 +12,15 @@
       <div>
         <p></p>
         <!-- Edit button -->
-        <button (click)="editBib()"
-              type="button" style="margin-right: 0.25rem" 
-              class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddBib">Edit</button>
-        <!-- Delete button -->
-        <button (click)="deleteBib()"
-              type="button"
-              class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
+         @if (mode !== Mode.ADD){
+          <button (click)="editBib()"
+                type="button" style="margin-right: 0.25rem" 
+                class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddBib">Edit</button>
+          <!-- Delete button -->
+          <button (click)="deleteBib()"
+                type="button"
+                class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
+         }
       </div>
     </div>
   </div>
@@ -52,13 +54,6 @@
                       <option>{{ publicationType }}</option>
                     }
                   </select>
-                  <!-- @if (type.invalid && showValidationErrors) {
-                    @if (type.hasError('typeNotSelected')) {
-                      <div style="color: rgb(210, 74, 74)">
-                          <small>Publication type is required.</small>
-                      </div>
-                    }
-                  } -->
                 </div>
               </div>
 
@@ -247,26 +242,40 @@
 
               <!-- Title template -->
               <ng-template #titleTemplate>
-                <label for="bib-title" class="form-label">Title:</label>@if (editFormConfig.requireTitle){<span style="color: rgb(210, 74, 74)">*</span>}
-                <quill-editor class="quill-editor" formControlName="title" id="bib-title"
-                  [class.invalid-input]="editFormConfig.requireTitle && title.invalid && showValidationErrors"
-                  [modules]="{toolbar: [['italic']]}" 
-                  >
-                </quill-editor>
-                  @if (editFormConfig.requireTitle && title.invalid && showValidationErrors) {
-                    @if (title.hasError('required')) {
-                      <div style="color:rgb(210, 74, 74)">
-                          <small>Title is required.</small>
-                      </div>
+                @if (editFormConfig.titleHasItalics){
+                      <label for="bib-title-quill" class="form-label">Title:</label>@if (editFormConfig.requireTitle){<span style="color: rgb(210, 74, 74)">*</span>}
+                      <quill-editor class="quill-editor" formControlName="title" id="bib-title-quill" placeholder=""
+                        [class.invalid-input]="editFormConfig.requireTitle && title.invalid && showValidationErrors"
+                        [modules]="{toolbar: [['italic']]}" >
+                      </quill-editor>
+                        @if (editFormConfig.requireTitle && title.invalid && showValidationErrors) {
+                          @if (title.hasError('required')) {
+                            <div style="color:rgb(210, 74, 74)">
+                                <small>Title is required.</small>
+                            </div>
+                          }
+                        }
                     }
-                  }
+                    @else {
+                      <label for="bib-title" class="form-label">Title:</label>@if (editFormConfig.requireTitle){<span style="color: rgb(210, 74, 74)">*</span>}
+                      <input class="form-control" formControlName="title" id="bib-title"
+                        [class.invalid-input]="editFormConfig.requireTitle && title.invalid && showValidationErrors">
+                        @if (editFormConfig.requireTitle && title.invalid && showValidationErrors) {
+                          @if (title.hasError('required')) {
+                            <div style="color:rgb(210, 74, 74)">
+                                <small>Title is required.</small>
+                            </div>
+                          }
+                        }
+                    }
+                
               </ng-template>
 
               <!-- URL template -->
               <ng-template #urlTemplate>
                 <label for="bib-url" class="form-label">URL:</label>@if (editFormConfig.requireUrl){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="url" id="bib-url"
-                        [ngStyle]="{'background-color': (url.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                        [class.invalid-input]="url.invalid && showValidationErrors">
                   @if (url.invalid && showValidationErrors) {
                     @if (editFormConfig.requireUrl && url.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -285,7 +294,7 @@
               <ng-template #bookEditorsTemplate>
                 <label for="bib-book-editors" class="form-label">Editor(s) of book:</label>@if (editFormConfig.requireBookEditors){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="bookEditors" id="bib-book-editors"
-                        [ngStyle]="{'background-color': (editFormConfig.requireBookEditors && bookEditors.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                        [class.invalid-input]="editFormConfig.requireBookEditors && bookEditors.invalid && showValidationErrors">
                   @if (editFormConfig.requireBookEditors && bookEditors.invalid && showValidationErrors) {
                     @if (bookEditors.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -302,7 +311,7 @@
                 </label>
                 @if (editFormConfig.requireBook){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="book" id="bib-book"
-                        [ngStyle]="{'background-color': (editFormConfig.requireBook && book.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                        [class.invalid-input]="editFormConfig.requireBook && book.invalid && showValidationErrors">
                   @if (editFormConfig.requireBook && book.invalid && showValidationErrors) {
                     @if (book.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -322,7 +331,7 @@
               <ng-template #volumeTemplate>
                 <label for="bib-volume" class="form-label">Volume:</label>
                 <input type="text" class="form-control" formControlName="volume" id="bib-volume"
-                      [ngStyle]="{'background-color': (volume.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                      [class.invalid-input]="volume.invalid && showValidationErrors">
                   @if (volume.invalid && showValidationErrors) {
                     @if (volume.hasError('numericError')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -350,7 +359,7 @@
                 <label for="bib-place-of-publication" class="form-label">Place of publication:</label>
                 @if (editFormConfig.requirePlaceOfPublication){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="placeOfPublication" id="bib-place-of-publication"
-                        [ngStyle]="{'background-color': (editFormConfig.requirePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                        [class.invalid-input]="editFormConfig.requirePlaceOfPublication && placeOfPublication.invalid && showValidationErrors">
                   @if (editFormConfig.requirePlaceOfPublication && placeOfPublication.invalid && showValidationErrors) {
                     @if (placeOfPublication.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -366,7 +375,7 @@
                                                               @else{ Publisher: }</label>
                 @if (editFormConfig.requirePublisher){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="publisher" id="bib-publisher"
-                        [ngStyle]="{'background-color': (editFormConfig.requirePublisher && publisher.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                        [class.invalid-input]="editFormConfig.requirePublisher && publisher.invalid && showValidationErrors">
                   @if (editFormConfig.requirePublisher && publisher.invalid && showValidationErrors) {
                     @if (publisher.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -382,7 +391,7 @@
                                                                      @else{Year of publication:}</label>
                 @if (editFormConfig.requirePublicationYear){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="publicationYear" id="bib-publication-year"
-                        [ngStyle]="{'background-color': (publicationYear.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                        [class.invalid-input]="publicationYear.invalid && showValidationErrors">
                   @if (publicationYear.invalid && showValidationErrors) {
                     @if (publicationYear.hasError('pattern')){
                       <div style="color:rgb(210, 74, 74)">
@@ -402,7 +411,7 @@
                 <label for="bib-page-numbers" class="form-label">Page range:</label>
                 @if (editFormConfig.requirePageNumbers){<span style="color: rgb(210, 74, 74)">*</span>}
                 <input type="text" class="form-control" formControlName="pageNumbers" id="bib-book"
-                        [ngStyle]="{'background-color': (pageNumbers.invalid && showValidationErrors) ? 'rgb(255, 200, 200)' : 'white'}">
+                        [class.invalid-input]="pageNumbers.invalid && showValidationErrors">
                   @if (pageNumbers.invalid && showValidationErrors) {
                     @if (pageNumbers.hasError('pageNumError')){
                       <div style="color:rgb(210, 74, 74)">

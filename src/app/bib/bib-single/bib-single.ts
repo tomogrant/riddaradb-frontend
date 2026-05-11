@@ -15,6 +15,7 @@ import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
 import { BibMapper } from '../common/bib-mapper';
 import { IBibVm } from '../common/IBibVm';
+import Quill from 'quill';
 
 @Component({
   selector: 'app-bibs',
@@ -71,6 +72,8 @@ export class BibSingle {
   initialisedBibVm: IBibVm = {
     id: 0,
     publicationType: PublicationType.UNDEFINED,
+    primarySource: false,
+    recommended: false,
     bibliographyEntry: ""
   }
 
@@ -129,7 +132,9 @@ export class BibSingle {
     requirePlaceOfPublication: false,
     requirePublisher: false,
     requirePublicationYear: false,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: false
   }
 
   //GETTERS FOR EDITFORM
@@ -184,8 +189,9 @@ export class BibSingle {
   get description(){
     return this.editForm.get('description') as FormControl;
   }
-
+  
   ngOnInit() {
+
     this.initialiseFormAndValidators();
     this.parseParams();
   }
@@ -228,6 +234,7 @@ export class BibSingle {
         //Set up config and validation for chosen publication type
         this.setConfig(this.convertUiToEnum(publicationType));
         this.setUpValidation();
+        console.log("Publication type: " + this.activeBibVm.publicationType);
       }
     })
   }

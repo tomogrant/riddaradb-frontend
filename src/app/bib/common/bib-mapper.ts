@@ -13,17 +13,56 @@ export class BibMapper{
         var vm: IBibVm = {
             id: dto.id,
             publicationType: dto.publicationType,
+            primarySource: false,
+            recommended: dto.recommended,
             bibliographyEntry: ""
         }
 
-        if (dto.publicationType === PublicationType.JOURNAL_ARTICLE){
-            vm.bibliographyEntry = this.buildJournalArticle(dto);
+        switch (vm.publicationType){
+            case PublicationType.JOURNAL_ARTICLE: 
+                vm.primarySource = false;
+                vm.bibliographyEntry = this.buildJournalArticle(dto);
+                break;
+            case PublicationType.BOOK_CHAPTER: 
+                vm.primarySource = false;
+                vm.bibliographyEntry = this.buildBookChapter(dto);
+                break;
+            case PublicationType.EDITION:
+                vm.primarySource = true;
+                vm.bibliographyEntry = this.buildEdition(dto);
+                break;
+            case PublicationType.TRANSLATION:
+                vm.primarySource = true;
+                vm.bibliographyEntry = this.buildTranslation(dto);
+                break;
+            case PublicationType.MONOGRAPH:
+                vm.primarySource = false;
+                vm.bibliographyEntry = this.buildMonograph(dto);
+                break;
+            case PublicationType.EDITED_COLLECTION:
+                vm.primarySource = false;
+                vm.bibliographyEntry = this.buildEditedCollection(dto);
+                break;
+            case PublicationType.THESIS:
+                vm.primarySource = false;
+                vm.bibliographyEntry = this.buildThesis(dto);
+                break;
+            case PublicationType.WEBSITE:
+                vm.primarySource = false;
+                vm.bibliographyEntry = this.buildWebsite(dto);
+                break;
+            case PublicationType.OTHER:
+                vm.primarySource = false;
+                vm.bibliographyEntry = this.buildOther(dto);
+                break;
+            default:
+                console.log("Publication type not set!");
         }
 
         return vm;
     }
 
-    buildJournalArticle(dto: IBib){
+    buildJournalArticle(dto: IBib): string{
 
         var str = "";
 
@@ -54,257 +93,269 @@ export class BibMapper{
         return str;
     }
 
-    //     @if (dto.publicationType === PublicationType.JOURNAL_ARTICLE ){
+    buildBookChapter(dto: IBib): string{
+        var str = "";
 
-    //       }
+        if (dto.authors !== ''){
+            if (dto.editors === '' && dto.translators === '') {str = str + (dto.authors + ". ");}
+            else { str = str + (dto.authors + ", ") }
+        }
+        if (dto.editors !== ''){
+            if (dto.authors !== '' && dto.translators === ''){str = str + ("ed. " + dto.editors + ". ");}
+            else {str = str + (dto.editors + ", ed., ");}
+        }
 
-    //       <!--  BOOK CHAPTER -->
-    //       @if (dto.publicationType === PublicationType.BOOK_CHAPTER ){
-    //         @if (dto.authors !== ''){
-    //           @if (dto.editors === '' && dto.translators === ''){<span>{{dto.authors}}. </span>}
-    //           @else {<span>{{dto.authors}}, </span>}
-    //         }
-    //         @if (dto.editors !== ''){
-    //           @if (dto.authors !== '' && dto.translators === ''){<span>ed. {{dto.editors}}. </span>}
-    //           @else {<span>{{dto.editors}}, ed., </span>}
-    //         }
+        if (dto.translators !== ''){
+            if (dto.authors !== '' && dto.editors !== ''){str = str + (dto.translators + ", trans., ");}
+            else {str = str + ("tr. " + dto.translators +". ");}
+        }
 
-    //         @if (dto.translators !== ''){
-    //           @if (dto.authors !== '' && dto.editors !== ''){<span>{{dto.translators}}, trans., </span>}
-    //           @else { <span>tr. {{dto.translators}}. </span> }
-    //         }
+        str = str + ("'" + dto.title + "', in ");
 
-    //         <span>'{{ dto.title }}', in </span>
+        str = str + (dto.bookEditors + ", ed., ");
 
-    //         <span>{{dto.bookEditors}}, ed., </span>
+        str = str + ("<i>" + dto.book + "</i>");
 
-    //         <span><i>{{ dto.book }}</i></span>
+        if (dto.bookSeries !== "") {str = str + (". " + dto.bookSeries)};
 
-    //         @if(dto.bookSeries !== ''){<span>. {{dto.bookSeries}}</span>}
+        if (dto.volume !== "") {str = str + (" " + dto.volume);}
 
-    //         @if (dto.volume !== ''){<span> {{dto.volume}}</span>}
+        str = str + (". " + dto.placeOfPublication + ": ");
 
-    //         <span>. {{dto.placeOfPublication}}: </span>
+        str = str + (dto.publisher + ", ");
 
-    //         <span>{{ dto.publisher }}, </span>
+        str = str + (dto.publicationYear + ", ");
 
-    //         <span>{{dto.publicationYear}}, </span>
+        if (dto.pageNumbers.includes('-')){str = str + ("pp. " + dto.pageNumbers + ".");}
+        else {(str = str + ("p. " + dto.pageNumbers + "."));}
 
-    //         @if (dto.pageNumbers.includes('-')){
-    //           <span>pp. {{dto.pageNumbers}}.</span>
-    //         }
-    //         @else {
-    //           <span>p. {{dto.pageNumbers}}.</span>
-    //         }
-    //       }
+        return str;
 
-    //       <!-- EDITION -->
-    //       @if (dto.publicationType === PublicationType.EDITION ){
-    //         <span>{{dto.editors}}, ed. </span>
+    }
 
-    //         <span><i>{{ dto.title }}</i></span>
+    buildEdition(dto: IBib): string{
+        var str = "";
 
-    //         @if(dto.bookSeries !== ''){<span>. {{dto.bookSeries}}</span>}
+        str = str + (dto.editors + ", ed. ");
 
-    //         @if (dto.volume !== ''){<span> {{dto.volume}}</span>}
+        str = str + ("<i>" + dto.title + "</i>");
 
-    //         @if (dto.numOfVolumes !== ''){
-    //           @if (stringToInt(dto.numOfVolumes) > 1){
-    //             <span>, {{dto.numOfVolumes}} vols.</span>
-    //           }
-    //           @else {
-    //             <span>, {{dto.volume}} vol.</span>
-    //           }
-    //         }
+        if (dto.bookSeries !== ""){str = str + (". " + dto.bookSeries);}
 
-    //         <span>. {{dto.placeOfPublication}}: </span>
+        if (dto.volume !== ""){str = str + (" " + dto.volume);}
 
-    //         <span>{{ dto.publisher }}, </span>
+        if (dto.numOfVolumes !== ""){
+            if (!Number.isNaN(Number.parseInt(dto.numOfVolumes))){
+                if (Number.parseInt(dto.numOfVolumes) > 1){
+                    str = str + (", " + dto.numOfVolumes + " vols");
+                }
+                else{
+                    str = str + (", " + dto.numOfVolumes + "vol");
+                }
+            }
+        }
 
-    //         <span>{{dto.publicationYear}}.</span>
-    //       }
+        str = str + (". " + dto.placeOfPublication + ": ");
 
-    //       <!-- TRANSLATION -->
-    //       @if (dto.publicationType === PublicationType.TRANSLATION ){
+        str = str + (dto.publisher + ", ");
 
-    //         <span>{{dto.translators}}, trans.</span>
+        str = str + (dto.publicationYear + ".");
 
-    //         @if (dto.editors !== ''){
-    //           <span>, ed. {{dto.editors}}.</span>
-    //         }
+        return str;
+    }
 
-    //         <span><i> {{ dto.title }}</i></span>
+    buildTranslation(dto: IBib){
 
-    //         @if(dto.bookSeries !== ''){<span>. {{dto.bookSeries}}</span>}
+        var str = "";
 
-    //         @if (dto.volume !== ''){<span> {{dto.volume}}</span>}
+        if (dto.editors !== ""){str = str + (dto.editors + ", ed, ");}
 
-    //         @if (dto.numOfVolumes !== ''){
-    //           @if (stringToInt(dto.numOfVolumes) > 1){
-    //             <span>, {{dto.numOfVolumes}} vols</span>
-    //           }
-    //           @else {
-    //             <span>, {{dto.volume}} vol</span>
-    //           }
-    //         }
 
-    //         <span>. {{dto.placeOfPublication}}: </span>
+        if (dto.editors === ""){str = str + (dto.translators + ", trans. ");}
+        else {str = str + ("trans. " + dto.translators + ". ");}
 
-    //         <span>{{ dto.publisher }}, </span>
+        str = str + ("<i>" + dto.title + "</i>");
 
-    //         <span>{{dto.publicationYear}}.</span>
-    //       }
+        if (dto.bookSeries !== ""){str = str + (". " + dto.bookSeries);}
 
-    //       <!-- MONOGRAPH -->
-    //       @if (dto.publicationType === PublicationType.MONOGRAPH ){
+        if (dto.volume !== ""){str = str + (" " + dto.volume);}
 
-    //         <span>{{dto.authors}}. </span>
+        if (dto.numOfVolumes !== ""){
+            if (!Number.isNaN(Number.parseInt(dto.numOfVolumes))){
+                if (Number.parseInt(dto.numOfVolumes) > 1){
+                    str = str + (", " + dto.numOfVolumes + " vols");
+                }
+                else{
+                    str = str + (", " + dto.numOfVolumes + "vol");
+                }
+            }
+        }
 
-    //         <span><i> {{ dto.title }}</i></span>
+        str = str + (". " + dto.placeOfPublication + ": ");
 
-    //         @if(dto.bookSeries !== ''){<span>. {{dto.bookSeries}}</span>}
+        str = str + (dto.publisher + ", ");
 
-    //         @if (dto.volume !== ''){<span> {{dto.volume}}</span>}
+        str = str + (dto.publicationYear + ".");
 
-    //         @if (dto.numOfVolumes !== ''){
-    //           @if (stringToInt(dto.numOfVolumes) > 1){
-    //             <span>, {{dto.numOfVolumes}} vols</span>
-    //           }
-    //           @else {
-    //             <span>, {{dto.volume}} vol</span>
-    //           }
-    //         }
+        return str;
+    }
 
-    //         <span>. {{dto.placeOfPublication}}: </span>
+    buildMonograph(dto: IBib){
 
-    //         <span>{{ dto.publisher }}, </span>
+        var str = "";
 
-    //         <span>{{dto.publicationYear}}.</span>
-    //       }
+        str = str + (dto.authors + ". ");
 
-    //       <!-- EDITED COLLECTION -->
-    //       @if (dto.publicationType === PublicationType.EDITED_COLLECTION ){
-    //         <span>{{dto.editors}}, ed. </span>
+        str = str + ("<i>" + dto.title + "</i>");
 
-    //         <span><i>{{ dto.title }}</i></span>
+        if (dto.bookSeries !== ""){str = str + (". " + dto.bookSeries);}
 
-    //         @if(dto.bookSeries !== ''){<span>. {{dto.bookSeries}}</span>}
+        if (dto.volume !== ""){str = str + (" " + dto.volume);}
 
-    //         @if (dto.volume !== ''){<span> {{dto.volume}}</span>}
+        if (dto.numOfVolumes !== ""){
+            if (!Number.isNaN(Number.parseInt(dto.numOfVolumes))){
+                if (Number.parseInt(dto.numOfVolumes) > 1){
+                    str = str + (", " + dto.numOfVolumes + " vols");
+                }
+                else{
+                    str = str + (", " + dto.numOfVolumes + "vol");
+                }
+            }
+        }
 
-    //         @if (dto.numOfVolumes !== ''){
-    //           @if (stringToInt(dto.numOfVolumes) > 1){
-    //             <span>, {{dto.numOfVolumes}} vols.</span>
-    //           }
-    //           @else {
-    //             <span>, {{dto.numOfVolumes}} vol.</span>
-    //           }
-    //         }
+        str = str + (". " + dto.placeOfPublication + ": ");
 
-    //         <span>. {{dto.placeOfPublication}}: </span>
+        str = str + (dto.publisher + ", ");
 
-    //         <span>{{ dto.publisher }}, </span>
+        str = str + (dto.publicationYear + ".");
 
-    //         <span>{{dto.publicationYear}}.</span>
-    //       }
+        return str;
+    }
 
-    //       <!-- THESIS -->
-    //       @if (dto.publicationType === PublicationType.THESIS ){
-    //         <span>{{dto.authors}}. </span>
+    buildEditedCollection(dto: IBib){
 
-    //         <span>'{{ dto.title}}'. </span>
+        var str = "";
 
-    //         <span>Unpubl. doctoral dissertation, </span>
+        str = str + (dto.editors + ", ed. ");
 
-    //         <span>{{dto.publisher}}, </span>
+        str = str + ("<i>" + dto.title + "</i>");
 
-    //         <span>{{dto.publicationYear}}.</span>
-    //       }
+        if (dto.bookSeries !== ""){str = str + (". " + dto.bookSeries);}
 
-    //       <!-- WEBSITE -->
-    //       @if (dto.publicationType === PublicationType.WEBSITE ){
-    //         @if (dto.authors !== ''){<span>{{dto.authors}}. </span>}
+        if (dto.volume !== ""){str = str + (" " + dto.volume);}
 
-    //         <span>{{dto.title}}. </span>
+        if (dto.numOfVolumes !== ""){
+            if (!Number.isNaN(Number.parseInt(dto.numOfVolumes))){
+                if (Number.parseInt(dto.numOfVolumes) > 1){
+                    str = str + (", " + dto.numOfVolumes + " vols");
+                }
+                else{
+                    str = str + (", " + dto.numOfVolumes + "vol");
+                }
+            }
+        }
 
-    //         <span><i><a href="{{dto.url}}">{{ dto.url }}</a>. </i></span>
+        str = str + (". " + dto.placeOfPublication + ": ");
 
-    //         <span>Last accessed: </span>
+        str = str + (dto.publisher + ", ");
 
-    //         <span>{{dto.publicationYear}}.</span>
-    //       }
+        str = str + (dto.publicationYear + ".");
 
-    //       <!--  OTHER -->
-    //       @if (dto.publicationType === PublicationType.OTHER ){
-    //         @if (dto.authors !== ''){
-    //           @if (dto.editors === '' && dto.translators === ''){<span>{{dto.authors}}. </span>}
-    //           @else {<span>{{dto.authors}}, </span>}
-    //         }
-    //         @if (dto.editors !== ''){
-    //           @if (dto.authors !== '' && dto.translators === ''){<span>ed. {{dto.editors}}. </span>}
-    //           @else {<span>{{dto.editors}}, ed., </span>}
-    //         }
+        return str;
+    }
 
-    //         @if (dto.translators !== ''){
-    //           @if (dto.authors !== '' && dto.editors !== ''){<span>{{dto.translators}}, trans., </span>}
-    //           @else { <span>tr. {{dto.translators}}. </span> }
-    //         }
+    buildThesis(dto: IBib){
 
-    //         @if (dto.title !== ''){
-    //           <span>'{{ dto.title }}'. </span>
-    //         }
+        var str = "";
 
-    //         @if (dto.url !== ''){
-    //           <span><i><a href="{{dto.url}}">{{ dto.url }}</a>. </i></span>
-    //         }
+        str = str + (dto.authors + ". ");
 
-    //         @if (dto.bookEditors !== ''){
-    //         <span>{{dto.bookEditors}}, ed., </span>
-    //         }
+        str = str + ("'" + dto.title + "'. ");
 
-    //         @if (dto.book){
-    //         <span><i>{{ dto.book }}</i></span>
-    //         }
+        str = str + ("Unpubl. doctoral dissertation, ")
 
-    //         @if(dto.bookSeries !== ''){<span>. {{dto.bookSeries}}</span>}
+        str = str + (dto.publisher + ", ");
 
-    //         @if (dto.volume !== ''){<span> {{dto.volume}}, </span>}
+        str = str + (dto.publicationYear + ".");
 
-    //         @if (dto.numOfVolumes !== ''){
-    //           @if (stringToInt(dto.numOfVolumes) > 1){
-    //             <span>{{dto.numOfVolumes}} vols.</span>
-    //           }
-    //           @else {
-    //             <span>{{dto.numOfVolumes}} vol. </span>
-    //           }
-    //         }
+        return str;
+    }
 
-    //         @if (dto.placeOfPublication){
-    //         <span> {{dto.placeOfPublication}}: </span>
-    //         }
+    buildWebsite(dto: IBib){
 
-    //         @if (dto.publisher !== ''){
-    //         <span>{{ dto.publisher }}, </span>
-    //         }
+        var str = "";
 
+        if (dto.authors !== ""){str = str + (dto.authors + ". ");}
 
-    //         @if (dto.publicationYear !== ''){
-    //         <span>{{dto.publicationYear}}, </span>
-    //         }
+        str = str + (dto.title + ". ");
 
-    //         @if (dto.pageNumbers !== ''){
-    //           @if (dto.pageNumbers.includes('-')){
-    //             <span>pp. {{dto.pageNumbers}}.</span>
-    //           }
-    //           @else {
-    //             <span>p. {{dto.pageNumbers}}.</span>
-    //           }
-    //         }
-    //       }
-    //     }
+        str = str + ("<i><a href='" + dto.url + "'>" +  dto.url + "</a>. </i>");
 
-    //     return vm;
+        str = str + ("Year accessed: ");
 
-    // }
-    
+        str = str + (dto.publicationYear + ".");
+
+        return str;
+    }
+
+    buildOther(dto: IBib){
+
+        var str = "";
+
+        if (dto.authors !== ''){
+            if (dto.editors === '' && dto.translators === '') {str = str + (dto.authors + ". ");}
+            else { str = str + (dto.authors + ", ") }
+        }
+        if (dto.editors !== ''){
+            if (dto.authors !== '' && dto.translators === ''){str = str + ("ed. " + dto.editors + ". ");}
+            else {str = str + (dto.editors + ", ed., ");}
+        }
+
+        if (dto.translators !== ''){
+            if (dto.authors !== '' && dto.editors !== ''){str = str + (dto.translators + ", trans., ");}
+            else {str = str + ("tr. " + dto.translators +". ");}
+        }
+
+        if (dto.title !== "") {str = str + ("'" + dto.title + "'. ");}
+
+        if (dto.url !== "") {str = str + ("<i><a href='" + dto.url + "'>" +  dto.url + "</a>. </i>");}
+
+        if (dto.bookEditors !== "") {str = str + (dto.bookEditors + ", ed. ");}
+
+        if (dto.book !== "") {str = str + ("<i>" + dto.book + "</i>. ");}
+
+        if (dto.bookSeries !== "") 
+            {
+                if (dto.volume !== ""){str = str + ("" + dto.bookSeries + " ")}
+                else{str = str + ("" + dto.bookSeries + ". ")}
+
+            };
+
+        if (dto.volume !== "") {str = str + (" " + dto.volume + ". ");}
+
+        if (dto.numOfVolumes !== ""){
+            if (!Number.isNaN(Number.parseInt(dto.numOfVolumes))){
+                if (Number.parseInt(dto.numOfVolumes) > 1){
+                    str = str + (", " + dto.numOfVolumes + " vols. ");
+                }
+                else{
+                    str = str + (", " + dto.numOfVolumes + "vol. ");
+                }
+            }
+        }
+
+        if (dto.placeOfPublication !== "") {str = str + (dto.placeOfPublication + ". ");}
+
+        if (dto.publisher !== "") {str = str + (dto.publisher + ". ");}
+
+        if (dto.publicationYear !== "") {str = str + (dto.publicationYear + ". ");}
+
+        if (dto.pageNumbers !== ""){
+            if (dto.pageNumbers.includes('-')){str = str + ("pp. " + dto.pageNumbers + ".");}
+            else {(str = str + ("p. " + dto.pageNumbers + "."));}
+        }
+
+        return str;
+
+    }
 }   

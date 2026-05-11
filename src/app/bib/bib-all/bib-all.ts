@@ -1,17 +1,18 @@
-import { FormGroup, FormControl, AbstractControl, 
-        ValidationErrors, ReactiveFormsModule, Validators,
-        ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
 import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { Modal } from 'bootstrap';
 import { Mode } from '../../shared/Enums';
 import { BibService } from '../common/bib.service';
 import { IBib, PublicationType } from '../common/IBib';
+import { BibMapper } from '../common/bib-mapper';
 import { ISagaVm } from '../../sagas/common/ISagaVm';
 import { SagaService } from '../../sagas/common/saga.service';
 import { ISagaVersionDto } from '../../sagas/common/ISagaVersionDto';
 import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
+import { IBibVm } from '../common/IBibVm';
+import { takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-bibs',
@@ -22,12 +23,16 @@ import { CommonModule } from '@angular/common';
 })
 export class BibAll {
   constructor(private bibService: BibService, 
-              private sagaService: SagaService,
+              private bibMapper: BibMapper,
               private router: Router
             ) {}
 
   pageTitle = 'Bibliography entries';
   bibs: IBib[] = [];
+
+  bibsVm: IBibVm[] = [];
+  primarySources: IBibVm[] = [];
+  secondarySources: IBibVm[] = [];
 
   editionsTranslations: IBib[] = [];
   secondary: IBib[] = [];
@@ -39,44 +44,49 @@ export class BibAll {
   readonly Mode = Mode;
   mode: Mode = Mode.NONE;
 
+  filterForm = new FormGroup({
+    filter: new FormControl('', {nonNullable: true})
+});
+
+  get filter(){
+    return this.filterForm.get('filter') as FormControl;
+  }
+
   ngOnInit() {
       this.displayBibs();
-    }
 
-  sortBibEntries(){
-    for (let bib of this.bibs){
-      switch(bib.publicationType){
-        case (PublicationType.EDITION):
-        case (PublicationType.TRANSLATION):
-          this.editionsTranslations.push(bib);
-          break;
-        case (PublicationType.OTHER):
-          this.other.push(bib);
-          break;
-        case (PublicationType.UNDEFINED):
-          console.log("Bibliography entry " + bib.authors + ", " + bib.title + " is undefined!");
-          break;
-        default:
-          this.secondary.push(bib);
-          break;
-      }
+      this.filter.valueChanges.pipe()
+        .subscribe(value => this.updateFilter(value));
     }
-  }
 
   addBib(){
     this.router.navigate([`bib/action/add`]);
   }
 
-  stringToInt(string: string){
-    return Number(parseInt(string));
+  updateFilter(searchTerm: string){
+    console.log("search term: " + searchTerm);
+    //Filtered, alphabetised results based on search term. 
+    const filteredResults = this.bibsVm.filter(bib =>
+      bib.bibliographyEntry.toLowerCase().includes(searchTerm.toLowerCase())
+    ).sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
+
+
+    //Further filter into primary and secondary bibliography entries
+    this.primarySources = filteredResults.filter(bib => bib.primarySource == true);
+    this.secondarySources = filteredResults.filter(bib => bib.primarySource == false);
   }
 
   //READ
   displayBibs(){
     this.bibService.getBibEntries().subscribe({
       next: receivedBibs => {
-        this.bibs = receivedBibs.sort((a, b) => a.authors.localeCompare(b.authors));
-        this.sortBibEntries();
+        this.bibs = receivedBibs;
+        this.bibs.forEach(bib => {
+          this.bibsVm.push(this.bibMapper.mapDtoToVm(bib));
+        });
+
+        console.log("bibsVM: " + this.bibsVm);
+        this.updateFilter('');
       },
       error: err => console.log('Error fetching bibs: ' + err)
     });

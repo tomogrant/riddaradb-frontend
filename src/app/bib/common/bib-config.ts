@@ -30,6 +30,8 @@ export type EditFormConfig = Record<PublicationType, {
     requirePublisher: boolean;
     requirePublicationYear: boolean;
     requirePageNumbers: boolean;
+
+    titleHasItalics: boolean;
   }>;
   
   export const editFormConfigs: EditFormConfig = {
@@ -62,7 +64,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: false,
     requirePublisher: false,
     requirePublicationYear: false,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: false
     },
     [PublicationType.JOURNAL_ARTICLE]: {
     includeAuthors: true,
@@ -93,7 +97,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: false,
     requirePublisher: false,
     requirePublicationYear: true,
-    requirePageNumbers: true
+    requirePageNumbers: true,
+
+    titleHasItalics: true
     },
     [PublicationType.BOOK_CHAPTER]: {
     includeAuthors: true,
@@ -124,7 +130,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: true,
     requirePublisher: true,
     requirePublicationYear: true,
-    requirePageNumbers: true
+    requirePageNumbers: true,
+
+    titleHasItalics: true
     },
     [PublicationType.EDITION]: {
     includeAuthors: false,
@@ -155,7 +163,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: true,
     requirePublisher: true,
     requirePublicationYear: true,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: false
     },
     [PublicationType.TRANSLATION]: {
     includeAuthors: false,
@@ -186,7 +196,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: true,
     requirePublisher: true,
     requirePublicationYear: true,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: false
     },
     [PublicationType.MONOGRAPH]: {
     includeAuthors: true,
@@ -202,7 +214,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePlaceOfPublication: true,
     includePublisher: true,
     includePublicationYear: true,
-    includePageNumbers: true,
+    includePageNumbers: false,
     includeRecommended: true,
     includeDescription: true,
 
@@ -217,7 +229,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: true,
     requirePublisher: true,
     requirePublicationYear: true,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: false
     },
     [PublicationType.EDITED_COLLECTION]: {
     includeAuthors: false,
@@ -248,7 +262,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: true,
     requirePublisher: true,
     requirePublicationYear: true,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: false
     },
     [PublicationType.THESIS]: {
     includeAuthors: true,
@@ -279,7 +295,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: true,
     requirePublisher: true,
     requirePublicationYear: true,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: true
     },
     [PublicationType.WEBSITE]: {
     includeAuthors: true,
@@ -310,7 +328,9 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: false,
     requirePublisher: false,
     requirePublicationYear: false,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: true
     },
     [PublicationType.OTHER]: {
     includeAuthors: true,
@@ -341,6 +361,8 @@ export type EditFormConfig = Record<PublicationType, {
     requirePlaceOfPublication: false,
     requirePublisher: false,
     requirePublicationYear: false,
-    requirePageNumbers: false
+    requirePageNumbers: false,
+
+    titleHasItalics: true
     }
   };

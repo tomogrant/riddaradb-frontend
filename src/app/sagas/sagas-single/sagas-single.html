@@ -58,7 +58,7 @@
         <div class="modal-body">
           <form [formGroup]="editForm">
             <div class="container-fluid">
-              <div class="row">
+              <div class="row mb-3">
 
                 <div class="col">
                   <!-- TITLE FIELD -->
@@ -104,10 +104,20 @@
                 
 
               <div class="row">
+                <div class="col">
                 <!-- DESCRIPTION FIELD -->
                   <label for="saga-version-title" class="form-label">Description:</label>
-                  <quill-editor class="quill-editor" formControlName="description" id="saga-version-title" placeholder="Saga version description">
+                  <quill-editor class="quill-editor" formControlName="description" id="saga-version-title" placeholder="Saga version description"
+                  [modules]="
+                    {
+                      toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }], 
+                      ] 
+                    }">
                   </quill-editor>
+                </div>
               </div>
 
               <div class="row mt-3">
