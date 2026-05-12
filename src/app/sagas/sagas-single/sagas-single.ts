@@ -15,6 +15,8 @@ import { ISagaVersionDto } from '../common/ISagaVersionDto';
 import { SagaMapper } from '../common/saga-mapper';
 import { SagaDate } from '../common/SagaDate';
 import { Mode } from '../../shared/Enums';
+import { IBibVm } from '../../bib/common/IBibVm';
+import { BibMapper } from '../../bib/common/bib-mapper';
 
 @Component({
   selector: 'app-saga-entry',
@@ -30,7 +32,8 @@ export class SagasSingle implements OnInit {
     private route: ActivatedRoute,
     private sagasService: SagaService,
     private bibService: BibService,
-    private sagaMapper: SagaMapper
+    private sagaMapper: SagaMapper,
+    private bibMapper: BibMapper
   ) {}
 
     readonly PublicationType = PublicationType;
@@ -64,9 +67,14 @@ export class SagasSingle implements OnInit {
 
   activeSagaVersion: ISagaVersionVm = this.initialisedSagaVersion;
   activeSagaVersionBibDtos: IBib[] = [];
+  activeSagaVersionBibVms: IBibVm[] = [];
+  activeSagaVersionPrimarySources: IBibVm[] = [];
+  activeSagaVersionSecondarySources: IBibVm[] = [];
   activeSagaVersionBibIds: number[] = [];
 
   bibs: IBib[] = [];
+  bibVms: IBibVm[] = [];
+  filteredBibVms: IBibVm[] = [];
 
   showValidationErrors: boolean = false;
 
@@ -74,7 +82,8 @@ export class SagasSingle implements OnInit {
     title: new FormControl('', [Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]),
     date: new FormControl('Select a date:', dateNotSelected()),
     description: new FormControl(''),
-    isTranslated: new FormControl(false)
+    isTranslated: new FormControl(false),
+    bibFilter: new FormControl('', {nonNullable: true})
   });
 
   get title() {
@@ -88,15 +97,23 @@ export class SagasSingle implements OnInit {
     return this.editForm.get('date') as FormControl;
   }
 
+  get bibFilter(){
+    return this.editForm.get('bibFilter') as FormControl;
+  }
+
   ngOnInit() {
     this.displaySaga();
+
+    this.bibFilter.valueChanges.pipe().subscribe({
+      next: value => this.updateBibFilter(value)
+    })
   }
 
   //---------------
   //  FIELD LOGIC
   //---------------
 
-  boxChecked(bib: IBib){
+  boxChecked(bib: IBibVm){
     if (this.activeSagaVersionBibIds.includes(bib.id)){
       return true;
     }
@@ -105,7 +122,7 @@ export class SagasSingle implements OnInit {
     }
   }
 
-  addRemoveBibEntry(bib: IBib){
+  addRemoveBibEntry(bib: IBibVm){
 
     if (this.activeSagaVersionBibIds.includes(bib.id)){
       this.activeSagaVersionBibIds.splice(this.activeSagaVersionBibIds.indexOf(bib.id), 1);
@@ -113,8 +130,12 @@ export class SagasSingle implements OnInit {
     else {
       this.activeSagaVersionBibIds.push(bib.id);
     }
+  }
 
-    console.log(this.activeSagaVersionBibIds);
+  updateBibFilter(searchTerm: string){
+
+    this.filteredBibVms = this.bibVms.filter(bib =>
+      bib.bibliographyEntry.toLowerCase().includes(searchTerm.toLowerCase()));
   }
 
   mapToUi(sagaDate: SagaDate){
@@ -201,6 +222,7 @@ export class SagasSingle implements OnInit {
     this.selectSagaVersion(id); 
     this.showValidationErrors = false;
     this.fillInputFields();
+    this.updateBibFilter('');
   }
 
   addSagaVersion(){
@@ -208,6 +230,7 @@ export class SagasSingle implements OnInit {
     this.activeSagaVersion = this.initialisedSagaVersion;
     this.showValidationErrors = false;
     this.emptyInputFields();
+    this.updateBibFilter('');
   }
 
   selectSagaVersion(id: number){
@@ -286,6 +309,8 @@ export class SagasSingle implements OnInit {
             this.bibService.getBibEntries().subscribe({
               next: bibEntries => {
                 this.bibs = bibEntries;
+                this.bibs.forEach(bib => this.bibVms.push(this.bibMapper.mapDtoToVm(bib)));
+                this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
               }
             })
           },

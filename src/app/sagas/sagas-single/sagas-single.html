@@ -1,41 +1,64 @@
 @if (sagaEntry) {
   <div class="card-body">
-    @for (version of sagaVersions; track version.id) {
-      <!-- Title and buttons -->
-      <h3 style="margin-bottom: 1rem"><i>{{ version.title }}</i>
-      <button (click)="editSagaVersion(version.id);"
-                type="button" style="margin-left: 0.5rem" 
-                class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Edit</button>
-      <button (click)="selectSagaVersion(version.id)" [disabled]="sagaVersions.length < 2"
-                type="button" style="margin-left: 0.5rem"
-                class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
-      </h3>
+    <div class="container">
+      @for (version of sagaVersions; track version.id) {
+        <div class="row">
+          <!-- Title and buttons -->
+          <h3 style="margin-bottom: 1rem"><i>{{ version.title }}</i>
+          <button (click)="editSagaVersion(version.id);"
+                    type="button" style="margin-left: 0.5rem" 
+                    class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Edit</button>
+          <button (click)="selectSagaVersion(version.id)" [disabled]="sagaVersions.length < 2"
+                    type="button" style="margin-left: 0.5rem"
+                    class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
+          </h3>
+        </div>
+        <div class="row">
+          <!-- Date -->
+          @if(version.date != SagaDate.UNDEFINED){
+            <div><strong>Date: </strong>
+            {{ mapToUi(version.date) }}
+            <p></p>
+            </div>
+          }
+        </div>
+        <div class="row">
+          <!-- Description -->
+          <div class [innerHTML]="version.description"></div>
+        </div>
 
-      <!-- Date -->
-      @if(version.date != SagaDate.UNDEFINED){
-      <div><strong>Date: </strong>
-       {{ mapToUi(version.date) }}
-      <p></p>
-      </div>
-      }
+        <!-- Bibliography -->
+        @if (activeSagaVersionPrimarySources.length > 0){
+          <div class="row">
+            <h3>Editions and translations</h3>
+          </div>
+          @for (bib of activeSagaVersionPrimarySources; track $index){
+            <div class="row mb-1">
+              <span><a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a></span>
+            </div>
+          }
+          <p></p>
+          <p></p>
+        }
 
-      <!-- Description -->
-      <div class [innerHTML]="version.description"></div>
-      <p></p>
-
-      <!-- Bibliography -->
-      @if (version.bibDto.length > 0){
-        <p><strong>Bibliography:</strong></p> 
-        @for (bib of version.bibDto; track $index){
-          <p>
-            {{ bib.title }}
-            {{ bib.authors }}
-          </p>
+        @if (activeSagaVersionSecondarySources.length > 0){
+          <div class="row">
+            <h3>Secondary sources</h3>
+          </div>
+          @for (bib of activeSagaVersionSecondarySources; track $index){
+            <div class="row mb-1">
+              <span><a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a></span>
+            </div>
+          }
+          <p></p>
+          <p></p>
         }
       }
-    }
-    <button (click)="addSagaVersion();" 
-        type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
+
+      
+      <button (click)="addSagaVersion();" 
+          type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
+    </div>
   </div>
 }
 
@@ -122,286 +145,31 @@
 
               <div class="row mt-3">
                 <div class="col">
-                <!-- BIBLIOGRAPHY ENTRIES -->
-                @for (bib of bibs; track $index){
-                <div class="form-check">
 
-                    <input class="form-check-input" type="checkbox" [checked]="boxChecked(bib)" (change)="addRemoveBibEntry(bib)">
-                    <label class="form-check-label">
-                      @if (bib.publicationType === PublicationType.JOURNAL_ARTICLE ){
-                        @if (bib.authors !== ''){
-                          @if (bib.editors === '' && bib.translators === ''){<span>{{bib.authors}}. </span>}
-                          @else {<span>{{bib.authors}}, </span>}
+                  <!-- BIBLIOGRAPHY ENTRIES -->
+
+                  <div class="accordion" id="bib-accordion-container">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#bib-accordion" aria-expanded="false" aria-controls="bib-accordion">
+                          Relevant scholarship
+                        </button>
+                      </h2>
+                      <div id="bib-accordion" class="accordion-collapse collapse show" data-bs-parent="#bib-accordion-container">
+                        <div class="accordion-body">
+                          <input type="text" class="form-control" formControlName="bibFilter" id="bibFilter" placeholder="Filter relevant scholarship...">
+                          @for (bib of filteredBibVms; track $index){
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [checked]="boxChecked(bib)" (change)="addRemoveBibEntry(bib)">
+                                <label class="form-check-label"><span [innerHTML]="bib.bibliographyEntry"></span></label>
+                            </div>
                           }
-                        @if (bib.editors !== ''){
-                          @if (bib.authors !== '' && bib.translators === ''){<span>ed. {{bib.editors}}. </span>}
-                          @else {<span>{{bib.editors}}, ed., </span>}
-                        }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                        @if (bib.translators !== ''){
-                          @if (bib.authors !== '' && bib.editors !== ''){<span>{{bib.translators}}, trans., </span>}
-                          @else { <span>tr. {{bib.translators}}. </span> }
-                        }
 
-                        <span>'{{ bib.title }}', </span>
-
-                        <span><i>{{ bib.book }} </i></span>
-
-                        @if (bib.volume !== ''){<span>{{bib.volume}} </span>}
-
-                        <span>({{bib.publicationYear}}), </span>
-
-                        <span>{{ bib.pageNumbers }}.</span>
-                      }
-
-                      <!--  BOOK CHAPTER -->
-                      @if (bib.publicationType === PublicationType.BOOK_CHAPTER ){
-                        @if (bib.authors !== ''){
-                          @if (bib.editors === '' && bib.translators === ''){<span>{{bib.authors}}. </span>}
-                          @else {<span>{{bib.authors}}, </span>}
-                        }
-                        @if (bib.editors !== ''){
-                          @if (bib.authors !== '' && bib.translators === ''){<span>ed. {{bib.editors}}. </span>}
-                          @else {<span>{{bib.editors}}, ed., </span>}
-                        }
-
-                        @if (bib.translators !== ''){
-                          @if (bib.authors !== '' && bib.editors !== ''){<span>{{bib.translators}}, trans., </span>}
-                          @else { <span>tr. {{bib.translators}}. </span> }
-                        }
-
-                        <span>'{{ bib.title }}', in </span>
-
-                        <span>{{bib.bookEditors}}, ed., </span>
-
-                        <span><i>{{ bib.book }}</i></span>
-
-                        @if(bib.bookSeries !== ''){<span>. {{bib.bookSeries}}</span>}
-
-                        @if (bib.volume !== ''){<span> {{bib.volume}}</span>}
-
-                        <span>. {{bib.placeOfPublication}}: </span>
-
-                        <span>{{ bib.publisher }}, </span>
-
-                        <span>{{bib.publicationYear}}, </span>
-
-                        @if (bib.pageNumbers.includes('-')){
-                          <span>pp. {{bib.pageNumbers}}.</span>
-                        }
-                        @else {
-                          <span>p. {{bib.pageNumbers}}.</span>
-                        }
-                      }
-
-                      <!-- EDITION -->
-                      @if (bib.publicationType === PublicationType.EDITION ){
-                        <span>{{bib.editors}}, ed. </span>
-
-                        <span><i>{{ bib.title }}</i></span>
-
-                        @if(bib.bookSeries !== ''){<span>. {{bib.bookSeries}}</span>}
-
-                        @if (bib.volume !== ''){<span> {{bib.volume}}</span>}
-
-                        @if (bib.numOfVolumes !== ''){
-                          @if (stringToInt(bib.numOfVolumes) > 1){
-                            <span>, {{bib.numOfVolumes}} vols.</span>
-                          }
-                          @else {
-                            <span>, {{bib.volume}} vol.</span>
-                          }
-                        }
-
-                        <span>. {{bib.placeOfPublication}}: </span>
-
-                        <span>{{ bib.publisher }}, </span>
-
-                        <span>{{bib.publicationYear}}.</span>
-                      }
-
-                      <!-- TRANSLATION -->
-                      @if (bib.publicationType === PublicationType.TRANSLATION ){
-
-                        <span>{{bib.translators}}, trans.</span>
-
-                        @if (bib.editors !== ''){
-                          <span>, ed. {{bib.editors}}.</span>
-                        }
-
-                        <span><i> {{ bib.title }}</i></span>
-
-                        @if(bib.bookSeries !== ''){<span>. {{bib.bookSeries}}</span>}
-
-                        @if (bib.volume !== ''){<span> {{bib.volume}}</span>}
-
-                        @if (bib.numOfVolumes !== ''){
-                          @if (stringToInt(bib.numOfVolumes) > 1){
-                            <span>, {{bib.numOfVolumes}} vols</span>
-                          }
-                          @else {
-                            <span>, {{bib.volume}} vol</span>
-                          }
-                        }
-
-                        <span>. {{bib.placeOfPublication}}: </span>
-
-                        <span>{{ bib.publisher }}, </span>
-
-                        <span>{{bib.publicationYear}}.</span>
-                      }
-
-                      <!-- MONOGRAPH -->
-                      @if (bib.publicationType === PublicationType.MONOGRAPH ){
-
-                        <span>{{bib.authors}}. </span>
-
-                        <span><i> {{ bib.title }}</i></span>
-
-                        @if(bib.bookSeries !== ''){<span>. {{bib.bookSeries}}</span>}
-
-                        @if (bib.volume !== ''){<span> {{bib.volume}}</span>}
-
-                        @if (bib.numOfVolumes !== ''){
-                          @if (stringToInt(bib.numOfVolumes) > 1){
-                            <span>, {{bib.numOfVolumes}} vols</span>
-                          }
-                          @else {
-                            <span>, {{bib.volume}} vol</span>
-                          }
-                        }
-
-                        <span>. {{bib.placeOfPublication}}: </span>
-
-                        <span>{{ bib.publisher }}, </span>
-
-                        <span>{{bib.publicationYear}}.</span>
-                      }
-
-                      <!-- EDITED COLLECTION -->
-                      @if (bib.publicationType === PublicationType.EDITED_COLLECTION ){
-                        <span>{{bib.editors}}, ed. </span>
-
-                        <span><i>{{ bib.title }}</i></span>
-
-                        @if(bib.bookSeries !== ''){<span>. {{bib.bookSeries}}</span>}
-
-                        @if (bib.volume !== ''){<span> {{bib.volume}}</span>}
-
-                        @if (bib.numOfVolumes !== ''){
-                          @if (stringToInt(bib.numOfVolumes) > 1){
-                            <span>, {{bib.numOfVolumes}} vols.</span>
-                          }
-                          @else {
-                            <span>, {{bib.numOfVolumes}} vol.</span>
-                          }
-                        }
-
-                        <span>. {{bib.placeOfPublication}}: </span>
-
-                        <span>{{ bib.publisher }}, </span>
-
-                        <span>{{bib.publicationYear}}.</span>
-                      }
-
-                      <!-- THESIS -->
-                      @if (bib.publicationType === PublicationType.THESIS ){
-                        <span>{{bib.authors}}. </span>
-
-                        <span>'{{ bib.title}}'. </span>
-
-                        <span>Unpubl. doctoral dissertation, </span>
-
-                        <span>{{bib.publisher}}, </span>
-
-                        <span>{{bib.publicationYear}}.</span>
-                      }
-
-                      <!-- WEBSITE -->
-                      @if (bib.publicationType === PublicationType.WEBSITE ){
-                        @if (bib.authors !== ''){<span>{{bib.authors}}. </span>}
-
-                        <span>{{bib.title}}. </span>
-
-                        <span><i><a href="{{bib.url}}">{{ bib.url }}</a>. </i></span>
-
-                        <span>Last accessed: </span>
-
-                        <span>{{bib.publicationYear}}.</span>
-                      }
-
-                      <!--  OTHER -->
-                      @if (bib.publicationType === PublicationType.OTHER ){
-                        @if (bib.authors !== ''){
-                          @if (bib.editors === '' && bib.translators === ''){<span>{{bib.authors}}. </span>}
-                          @else {<span>{{bib.authors}}, </span>}
-                        }
-                        @if (bib.editors !== ''){
-                          @if (bib.authors !== '' && bib.translators === ''){<span>ed. {{bib.editors}}. </span>}
-                          @else {<span>{{bib.editors}}, ed., </span>}
-                        }
-
-                        @if (bib.translators !== ''){
-                          @if (bib.authors !== '' && bib.editors !== ''){<span>{{bib.translators}}, trans., </span>}
-                          @else { <span>tr. {{bib.translators}}. </span> }
-                        }
-
-                        @if (bib.title !== ''){
-                          <span>'{{ bib.title }}'. </span>
-                        }
-
-                        @if (bib.url !== ''){
-                          <span><i><a href="{{bib.url}}">{{ bib.url }}</a>. </i></span>
-                        }
-
-                        @if (bib.bookEditors !== ''){
-                        <span>{{bib.bookEditors}}, ed., </span>
-                        }
-
-                        @if (bib.book){
-                        <span><i>{{ bib.book }}</i></span>
-                        }
-
-                        @if(bib.bookSeries !== ''){<span>. {{bib.bookSeries}}</span>}
-
-                        @if (bib.volume !== ''){<span> {{bib.volume}}, </span>}
-
-                        @if (bib.numOfVolumes !== ''){
-                          @if (stringToInt(bib.numOfVolumes) > 1){
-                            <span>{{bib.numOfVolumes}} vols.</span>
-                          }
-                          @else {
-                            <span>{{bib.numOfVolumes}} vol. </span>
-                          }
-                        }
-
-                        @if (bib.placeOfPublication){
-                        <span> {{bib.placeOfPublication}}: </span>
-                        }
-
-                        @if (bib.publisher !== ''){
-                        <span>{{ bib.publisher }}, </span>
-                        }
-
-
-                        @if (bib.publicationYear !== ''){
-                        <span>{{bib.publicationYear}}, </span>
-                        }
-
-                        @if (bib.pageNumbers !== ''){
-                          @if (bib.pageNumbers.includes('-')){
-                            <span>pp. {{bib.pageNumbers}}.</span>
-                          }
-                          @else {
-                            <span>p. {{bib.pageNumbers}}.</span>
-                          }
-                        }
-                      }
-                    </label>
-                  
-
-                </div>
-              }
                 </div>
               </div>
             </div>

@@ -85,7 +85,6 @@ export class BibAll {
           this.bibsVm.push(this.bibMapper.mapDtoToVm(bib));
         });
 
-        console.log("bibsVM: " + this.bibsVm);
         this.updateFilter('');
       },
       error: err => console.log('Error fetching bibs: ' + err)
