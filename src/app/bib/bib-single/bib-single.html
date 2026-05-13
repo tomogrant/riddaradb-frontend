@@ -1,21 +1,26 @@
 <div class="card-body">
-  <div class="container">
-    <div class="row">
+  <div class="container-fluid">
+    <div class="row mb-3">
       <div class="col">
-        <h2>Bibliography entry</h2>
-        <span [innerHTML]="activeBibVm.bibliographyEntry"></span>
-      </div>
-    <div>
-    <div class="row">
-      <div class="col">
-        @if (attachedSagaVersions.length > 1){
-          <h2>Relevant sagas</h2>
-          }
-          @for (saga of attachedSagaVersions; track $index){
-            <p><a href="sagas/{{saga.sagaId}}"><i>{{saga.title}}</i></a></p>
-          }
+        <h2 [innerHTML]="activeBibVm.bibliographyEntry"></h2>
       </div>
     </div>
+    <div class="row mb-3">
+      <div class="col">
+        <p [innerHTML]="activeBib.description"></p>
+      </div>
+    </div>
+    @if (attachedSagaVersions.length > 0){
+      <div class="row">
+        <div class="col">
+            <h3>Sagas mentioned</h3>
+            @for (saga of attachedSagaVersions; track $index){
+              <p><a href="sagas/{{saga.sagaId}}"><i>{{saga.title}}</i></a></p>
+            }
+        </div>
+      </div>
+    }
+
       
         <p></p>
         <!-- Edit button -->
@@ -26,8 +31,6 @@
           <!-- Delete button -->
           <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
          }
-      </div>
-    </div>
   </div>
 </div>
 
@@ -179,6 +182,7 @@
               @if ( editFormConfig.includeSagas ){
                 <div class="row mb-2">
                 <div class="col">
+                  <label class="form-label">Sagas mentioned:</label>
                   @for (version of sagaVersions; track $index){
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" [checked]="boxChecked(version)" (change)="addRemoveSagaVersion(version)">

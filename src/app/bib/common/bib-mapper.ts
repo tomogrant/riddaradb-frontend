@@ -15,6 +15,7 @@ export class BibMapper{
             publicationType: dto.publicationType,
             primarySource: false,
             recommended: dto.recommended,
+            description: dto.description,
             bibliographyEntry: ""
         }
 

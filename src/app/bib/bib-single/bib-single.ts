@@ -3,19 +3,16 @@ import { FormGroup, FormControl, AbstractControl,
         ValidatorFn } from '@angular/forms';
 import { Component } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { Modal, Collapse } from 'bootstrap';
+import { Modal } from 'bootstrap';
 import { Mode } from '../../shared/Enums';
 import { BibService } from '../common/bib.service';
 import { IBib, PublicationType } from '../common/IBib';
-import { editFormConfigs, EditFormConfig } from '../common/bib-config';
-import { ISagaVm } from '../../sagas/common/ISagaVm';
+import { editFormConfigs } from '../common/bib-config';
 import { SagaService } from '../../sagas/common/saga.service';
-import { ISagaVersionRequestDto } from '../../sagas/common/ISagaVersionRequestDto';
 import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
 import { BibMapper } from '../common/bib-mapper';
 import { IBibVm } from '../common/IBibVm';
-import Quill from 'quill';
 import { ISagaVersionVm } from '../../sagas/common/ISagaVersionVm';
 import { SagaMapper } from '../../sagas/common/saga-mapper';
 
@@ -197,9 +194,6 @@ export class BibSingle {
 
       this.attachedSagaVersions = this.sagaVersions.filter(sagaVersion => 
         this.activeBib.sagaVersionIds.includes(sagaVersion.id));
-      console.log(this.activeBib.sagaVersionIds);
-      console.log(this.sagaVersions);
-      console.log(this.attachedSagaVersions);
     });
   }
 
@@ -237,6 +231,7 @@ export class BibSingle {
       publicationType: PublicationType.UNDEFINED,
       primarySource: false,
       recommended: false,
+      description: "",
       bibliographyEntry: ""
     }
   }
@@ -251,11 +246,9 @@ export class BibSingle {
 
     this.type.valueChanges.pipe().subscribe({
       next: publicationType => {
-        console.log("Value changed");
-        //Set up config and validation for chosen publication type
+        //Set up config and validation for chosen publication type on form change
         this.setConfig(this.convertUiToEnum(publicationType));
         this.setUpValidation();
-        console.log("Publication type: " + this.activeBibVm.publicationType);
       }
     })
   }
@@ -421,6 +414,8 @@ export class BibSingle {
 
   submitAddOrEdit(){
 
+    //Updates the value and validity of all form controls in the edit form;
+    //updating the FormGroup alone is not sufficient. 
     Object.values(this.editForm.controls).forEach(formControl =>{
       formControl.updateValueAndValidity();
     });
@@ -446,6 +441,10 @@ export class BibSingle {
   }
 
   fillForm(){
+    //When editing an existing entry, this function populates the relevant fields. 
+    //Fields not required for the given publication type are reset to their initial
+    //values to avoid potential validation errors/unnecessary data being persisted
+    //in the DB. 
     if (this.editFormConfig.includeAuthors){this.authors.setValue(this.activeBib.authors);}
     else {this.authors.reset();}
 
@@ -497,6 +496,9 @@ export class BibSingle {
   }
 
   fillBibDto(){
+    //Fills the DTO with relevant data for persisting to the DB. Irrelevant fields
+    //for the given publication type are set to their default values so that 
+    //only relevant data is persisted. 
     this.activeBib.publicationType = this.convertUiToEnum(this.type.value);
 
     if (this.editFormConfig.includeAuthors) this.activeBib.authors = this.authors.value;
@@ -544,8 +546,15 @@ export class BibSingle {
     if (this.editFormConfig.includeRecommended) this.activeBib.recommended = this.recommended.value;
     else (this.activeBib.recommended = this.recommended.defaultValue);
 
-    if (this.editFormConfig.includeDescription) this.activeBib.description = this.description.value;
-    else (this.activeBib.description = this.description.defaultValue);
+    if (this.editFormConfig.includeDescription) {
+      //Quill replaces all empty spaces with the character &nbsp;. This causes the
+      //string in innerHTML to be treated as one line, which causes it to run off
+      //the page. This is a fix. 
+      this.activeBib.description = this.description.value.replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
+    }
+    else {
+      (this.activeBib.description = this.description.defaultValue);
+    }
   }
 
   navigateToBibEntryPage(id: number){
@@ -554,10 +563,6 @@ export class BibSingle {
 
   navigateToBibAllPage(){
     this.router.navigate([`bib`]);
-  }
-
-  stringToInt(string: string){
-    return Number(parseInt(string));
   }
 
   //---------------

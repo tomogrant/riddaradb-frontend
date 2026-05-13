@@ -90,7 +90,7 @@
                   <!-- TITLE FIELD -->
                   <label for="saga-version-title" class="form-label">Title:</label><span style="color: rgb(210, 74, 74)">*</span>
                   <input type="text" class="form-control" formControlName="title" id="saga-version-title" placeholder="Saga version title"
-                          [ngStyle]="{'background-color': (title.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                          [class.invalid-input]="title.invalid && showValidationErrors">
                   @if (title.invalid && showValidationErrors) {
                     @if (title.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
@@ -109,7 +109,7 @@
                 <div class="col">
                   <label for="saga-version-title" class="form-label">Date:</label><span style="color: rgb(210, 74, 74)">*</span>
                   <select class="form-select" formControlName="date" id="saga-version-date"
-                          [ngStyle]="{'background-color': (date.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                          [class.invalid-input]="date.invalid && showValidationErrors">
                     <option disabled selected>Select a date:</option>
                     <option>1250-1300</option>
                     <option>1300-1350</option>

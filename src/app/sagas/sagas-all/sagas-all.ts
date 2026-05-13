@@ -8,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { SagaService } from '../common/saga.service';
 import { ISagaVm } from '../common/ISagaVm';
 import { SagaMapper } from '../common/saga-mapper';
-import { ISagaVersionResponseDto } from '../common/ISagaVersionResponseDto';
 import { SagaDate } from '../common/SagaDate';
 import { Mode } from '../../shared/Enums';
 import { ISagaVersionVm } from '../common/ISagaVersionVm';

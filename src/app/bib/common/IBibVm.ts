@@ -5,5 +5,6 @@ export interface IBibVm{
     publicationType: PublicationType;
     primarySource: boolean;
     recommended: boolean;
+    description: string;
     bibliographyEntry: string;
 }

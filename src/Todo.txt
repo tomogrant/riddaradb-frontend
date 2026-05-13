@@ -1,4 +1,3 @@
 TODO
-* Add sagas to the bibliography entry edit menu
-* Add a blue glow around the Quill boxes when focused but not invalid
-* Make validation consistent in text boxes across all modules
+* Clean up and annotate the code. The website is now far enough along that logic 
+    can be copied for new pages, so this needs to work as clearly as possible.
