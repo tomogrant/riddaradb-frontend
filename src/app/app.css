@@ -1,34 +1,8 @@
-
-.header {
-  padding: 1.5rem;
-  margin: 0
+.nav-item{
+  font-size: 1.25rem;
 }
 
-.bgImgCentre{
-  background-image: url('/img/ms.jpg');
-  background-repeat: no-repeat;
-  background-position: center;
-  position: relative;
+.navbar-brand{
+  font-size: 1.5rem;
 }
 
-.navbar {
-  justify-content: center;
-  display: flex;
-  gap: 1.5rem;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #ddd;
-}
-.navbar a {
-  text-decoration: none;
-  color: #000000;
-  font-weight: 500;
-  font-size: 1.1rem;
-  transition: color 0.2s;
-}
-.navbar a.active {
-  color: #d32fba;
-  border-bottom: 2px solid #d32f2f;
-}
-.navbar a:hover {
-  color: #1565c0;
-}

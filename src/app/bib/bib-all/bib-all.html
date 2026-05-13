@@ -1,9 +1,9 @@
+<div class="py-4 page-header">
+  <h1>Bibliography</h1>
+</div>
 <div class="card-body">
   <div class="container" >
-    <div class="row">
-      <h1><i>Bibliography</i></h1>
-    </div>
-    <div class="row mb-4" style="background-color: lightgray; padding: 10px">
+    <div class="row mb-4">
       <div class="col-3">
         <form [formGroup]="filterForm">
         <input type="text" class="form-control" formControlName="filter" placeholder="Filter bibliography entries...">
@@ -13,11 +13,14 @@
 
     @if (primarySources.length > 0){
       <div class="row">
-        <h3>Editions and translations</h3>
+        <h3 style="font-variant: small-caps;">Editions and translations</h3>
       </div>
       @for (bib of primarySources; track $index){
         <div class="row mb-1">
-          <span><a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a></span>
+          <span>
+          @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
+          <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+          </span>
         </div>
       }
       <p></p>
@@ -26,11 +29,14 @@
 
     @if (secondarySources.length > 0){
       <div class="row">
-        <h3>Secondary sources</h3>
+        <h3 style="font-variant: small-caps;">Secondary sources</h3>
       </div>
       @for (bib of secondarySources; track $index){
         <div class="row mb-1">
-          <span><a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a></span>
+          <span>
+            @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
+            <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+          </span>
         </div>
       }
     }

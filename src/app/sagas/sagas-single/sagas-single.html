@@ -1,10 +1,14 @@
+<div class="py-4 page-header">
+  <h1><i>{{sagaEntry.title}}</i></h1>
+</div>
+
 @if (sagaEntry) {
   <div class="card-body">
     <div class="container">
       @for (version of sagaVersions; track $index) {
         <div class="row">
           <!-- Title and buttons -->
-          <h2 style="margin-bottom: 1rem"><i>{{ version.title }}</i>
+          <h2 class="mb-1"><i>{{ version.title }}</i>
           <button (click)="editSagaVersion(version.id);"
                     type="button" style="margin-left: 0.5rem" 
                     class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Edit</button>
@@ -22,7 +26,7 @@
             </div>
           }
         </div>
-        <div class="row mb-3">
+        <div class="row mb-4">
           <!-- Description -->
           <div class [innerHTML]="version.description"></div>
         </div>
@@ -30,11 +34,14 @@
         <!-- Bibliography -->
         @if (version.primarySources.length > 0){
           <div class="row">
-            <h3>Editions and translations</h3>
+            <h3 style="font-variant: small-caps;">Editions and translations</h3>
           </div>
           @for (bib of version.primarySources; track $index){
             <div class="row mb-1">
-              <span><a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a></span>
+              <span>
+                @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
+                <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+              </span>
             </div>
           }
           <p></p>
@@ -42,11 +49,14 @@
 
         @if (version.secondarySources.length > 0){
           <div class="row">
-            <h3>Secondary sources</h3>
+            <h3 style="font-variant: small-caps;">Secondary sources</h3>
           </div>
           @for (bib of version.secondarySources; track $index){
             <div class="row mb-1">
-              <span><a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a></span>
+              <span>
+                @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
+                <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+              </span>
             </div>
           }
           <p></p>
