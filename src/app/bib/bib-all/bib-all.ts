@@ -7,7 +7,7 @@ import { IBib, PublicationType } from '../common/IBib';
 import { BibMapper } from '../common/bib-mapper';
 import { ISagaVm } from '../../sagas/common/ISagaVm';
 import { SagaService } from '../../sagas/common/saga.service';
-import { ISagaVersionDto } from '../../sagas/common/ISagaVersionDto';
+import { ISagaVersionRequestDto } from '../../sagas/common/ISagaVersionRequestDto';
 import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
 import { IBibVm } from '../common/IBibVm';

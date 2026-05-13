@@ -3,31 +3,33 @@ import { FormGroup, FormControl, AbstractControl,
         ValidatorFn } from '@angular/forms';
 import { Component } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { Modal } from 'bootstrap';
+import { Modal, Collapse } from 'bootstrap';
 import { Mode } from '../../shared/Enums';
 import { BibService } from '../common/bib.service';
 import { IBib, PublicationType } from '../common/IBib';
 import { editFormConfigs, EditFormConfig } from '../common/bib-config';
 import { ISagaVm } from '../../sagas/common/ISagaVm';
 import { SagaService } from '../../sagas/common/saga.service';
-import { ISagaVersionDto } from '../../sagas/common/ISagaVersionDto';
+import { ISagaVersionRequestDto } from '../../sagas/common/ISagaVersionRequestDto';
 import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
 import { BibMapper } from '../common/bib-mapper';
 import { IBibVm } from '../common/IBibVm';
 import Quill from 'quill';
+import { ISagaVersionVm } from '../../sagas/common/ISagaVersionVm';
+import { SagaMapper } from '../../sagas/common/saga-mapper';
 
 @Component({
   selector: 'app-bibs',
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule],
   templateUrl: './bib-single.html',
-  styleUrl: './bib-single.css',
   providers: [BibService]
 })
 export class BibSingle {
   constructor(private bibService: BibService, 
               private sagaService: SagaService,
               private bibMapper: BibMapper,
+              private sagaMapper: SagaMapper,
               private route: ActivatedRoute,
               private router: Router) {}
 
@@ -35,50 +37,18 @@ export class BibSingle {
 
   urlPattern = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
 
-  editionsTranslations: IBib[] = [];
-  secondary: IBib[] = [];
-  other: IBib[] = [];
-
-  bibVm: IBibVm[] = [];
-
   publicationTypesUi: string[] = [];
 
   readonly PublicationType = PublicationType;
   readonly Mode = Mode;
   mode: Mode = Mode.NONE;
 
-  initialisedBib: IBib = {
-    id: 0,
-    publicationType: PublicationType.UNDEFINED,
-    authors: "",
-    editors: "",
-    translators: "",
-    title: "",
-    url: "",
-    bookEditors: "",
-    book: "",
-    bookSeries: "",
-    volume: "",
-    numOfVolumes: "",
-    placeOfPublication: "",
-    publisher: "",
-    publicationYear: "",
-    pageNumbers: "",
-    sagaVersionIds: [],
-    recommended: false,
-    description: ""
-  }
+  activeBib: IBib = this.initialiseBib();
+  activeBibVm: IBibVm = this.initialiseBibVm();
 
-  initialisedBibVm: IBibVm = {
-    id: 0,
-    publicationType: PublicationType.UNDEFINED,
-    primarySource: false,
-    recommended: false,
-    bibliographyEntry: ""
-  }
-
-  activeBib: IBib = this.initialisedBib;
-  activeBibVm: IBibVm = this.initialisedBibVm;
+  sagaVersions: ISagaVersionVm[] = [];
+  attachedSagaVersions: ISagaVersionVm[] = [];
+  sagaVersionIds: number[] = [];
 
   editForm = new FormGroup({
     type: new FormControl('Select publication type:', {nonNullable: true}),
@@ -120,6 +90,7 @@ export class BibSingle {
     includePageNumbers: false,
     includeRecommended: false,
     includeDescription: false,
+    includeSagas: false,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: false,
@@ -200,6 +171,7 @@ export class BibSingle {
     this.route.paramMap.subscribe(params => {
       //ADD MODE
       if (params.get('mode') == 'add'){
+        this.getSagas();
         this.addBib();
       }
       else {
@@ -209,16 +181,65 @@ export class BibSingle {
           this.bibService.getBibEntryById(id).subscribe(receivedEntry => {
             this.activeBib = receivedEntry;
             this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
-            console.log(this.activeBibVm.bibliographyEntry);
+            this.getSagas();
           });
         }
       }
     });
   }
 
+  getSagas(){
+    this.sagaService.getSagaVersions().subscribe(sagas => 
+    {
+      this.sagaVersions = [];
+      sagas.forEach(saga => this.sagaVersions.push(this.sagaMapper.mapSagaVersionResponseDtoToVm(saga)));
+      this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+
+      this.attachedSagaVersions = this.sagaVersions.filter(sagaVersion => 
+        this.activeBib.sagaVersionIds.includes(sagaVersion.id));
+      console.log(this.activeBib.sagaVersionIds);
+      console.log(this.sagaVersions);
+      console.log(this.attachedSagaVersions);
+    });
+  }
+
   //---------------
   //  FIELD LOGIC
   //---------------
+
+  initialiseBib(): IBib{
+    return {
+      id: 0,
+      publicationType: PublicationType.UNDEFINED,
+      authors: "",
+      editors: "",
+      translators: "",
+      title: "",
+      url: "",
+      bookEditors: "",
+      book: "",
+      bookSeries: "",
+      volume: "",
+      numOfVolumes: "",
+      placeOfPublication: "",
+      publisher: "",
+      publicationYear: "",
+      pageNumbers: "",
+      sagaVersionIds: [],
+      recommended: false,
+      description: ""
+    }
+  }
+
+  initialiseBibVm(): IBibVm{
+    return {
+      id: 0,
+      publicationType: PublicationType.UNDEFINED,
+      primarySource: false,
+      recommended: false,
+      bibliographyEntry: ""
+    }
+  }
 
   initialiseFormAndValidators(){
     //Populate array with strings from backend enum
@@ -348,10 +369,29 @@ export class BibSingle {
   //  USER CHOICE
   //---------------
 
+    boxChecked(sagaVersion: ISagaVersionVm){
+    if (this.activeBib.sagaVersionIds.includes(sagaVersion.id)){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
+  addRemoveSagaVersion(sagaVersion: ISagaVersionVm){
+
+    if (this.activeBib.sagaVersionIds.includes(sagaVersion.id)){
+      this.activeBib.sagaVersionIds.splice(this.activeBib.sagaVersionIds.indexOf(sagaVersion.id), 1);
+    }
+    else {
+      this.activeBib.sagaVersionIds.push(sagaVersion.id);
+    }
+  }
+
   addBib(){
     this.mode = Mode.ADD;
 
-    this.activeBib = this.initialisedBib;
+    this.activeBib = this.initialiseBib();
     this.openAddModal();
   }
 
@@ -367,10 +407,6 @@ export class BibSingle {
     }
 
     this.fillForm();
-  }
-
-  deleteBib(){
-
   }
 
   openAddModal(){
@@ -615,6 +651,13 @@ export class BibSingle {
       error: err => {
         console.log('Error updating bib: ' + err)
       }
+    });
+  }
+
+  deleteBib(){
+  this.bibService.deleteBib(this.activeBib.id).subscribe({
+    next: bibEntry => this.navigateToBibAllPage(),
+    error: err=> console.log("problem with deleting")
     })
   }
 }

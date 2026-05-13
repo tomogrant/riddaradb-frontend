@@ -1,7 +1,7 @@
 import { FormGroup, FormControl, AbstractControl, 
         ValidationErrors, ReactiveFormsModule, Validators,
         ValidatorFn } from '@angular/forms';
-import { Modal } from 'bootstrap';
+import { Collapse, Modal } from 'bootstrap';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -10,13 +10,12 @@ import { IBib, PublicationType } from '../../bib/common/IBib';
 import { BibService } from '../../bib/common/bib.service';
 import { ISagaVm } from '../common/ISagaVm';
 import { SagaService } from '../common/saga.service';
-import { ISagaVersionVm } from '../common/ISagaVersionVm'
-import { ISagaVersionDto } from '../common/ISagaVersionDto';
 import { SagaMapper } from '../common/saga-mapper';
 import { SagaDate } from '../common/SagaDate';
 import { Mode } from '../../shared/Enums';
 import { IBibVm } from '../../bib/common/IBibVm';
 import { BibMapper } from '../../bib/common/bib-mapper';
+import { ISagaVersionVm } from '../common/ISagaVersionVm';
 
 @Component({
   selector: 'app-saga-entry',
@@ -51,26 +50,17 @@ export class SagasSingle implements OnInit {
 
   sagaVersions: ISagaVersionVm[] = [];
 
-  initialisedSagaVersion: ISagaVersionVm = {
+  activeSagaVersion: ISagaVersionVm = {
     id: 0,
     title: '',
     description: '',
     date: SagaDate.UNDEFINED,
+    isTranslated: false,
     sagaId: 0,
-    bibDto: [],
-    folkloreIds: [],
-    personIds: [],
-    placeIds: [],
-    objectIds: [],
-    msIds: []
+    bibIds: [],
+    primarySources: [],
+    secondarySources: []
   };
-
-  activeSagaVersion: ISagaVersionVm = this.initialisedSagaVersion;
-  activeSagaVersionBibDtos: IBib[] = [];
-  activeSagaVersionBibVms: IBibVm[] = [];
-  activeSagaVersionPrimarySources: IBibVm[] = [];
-  activeSagaVersionSecondarySources: IBibVm[] = [];
-  activeSagaVersionBibIds: number[] = [];
 
   bibs: IBib[] = [];
   bibVms: IBibVm[] = [];
@@ -79,8 +69,8 @@ export class SagasSingle implements OnInit {
   showValidationErrors: boolean = false;
 
   editForm = new FormGroup({
-    title: new FormControl('', [Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]),
-    date: new FormControl('Select a date:', dateNotSelected()),
+    title: new FormControl('', [Validators.required, this.titleUnique(this.sagaVersions, this.activeSagaVersion.title)]),
+    date: new FormControl('Select a date:', this.dateNotSelected()),
     description: new FormControl(''),
     isTranslated: new FormControl(false),
     bibFilter: new FormControl('', {nonNullable: true})
@@ -102,7 +92,7 @@ export class SagasSingle implements OnInit {
   }
 
   ngOnInit() {
-    this.displaySaga();
+    this.getSaga();
 
     this.bibFilter.valueChanges.pipe().subscribe({
       next: value => this.updateBibFilter(value)
@@ -113,8 +103,22 @@ export class SagasSingle implements OnInit {
   //  FIELD LOGIC
   //---------------
 
+  initialiseSagaVersion(): ISagaVersionVm{
+    return {
+    id: 0,
+    title: '',
+    description: '',
+    date: SagaDate.UNDEFINED,
+    isTranslated: false,
+    sagaId: 0,
+    bibIds: [],
+    primarySources: [],
+    secondarySources: []
+    };
+  }
+
   boxChecked(bib: IBibVm){
-    if (this.activeSagaVersionBibIds.includes(bib.id)){
+    if (this.activeSagaVersion.bibIds.includes(bib.id)){
       return true;
     }
     else{
@@ -124,11 +128,11 @@ export class SagasSingle implements OnInit {
 
   addRemoveBibEntry(bib: IBibVm){
 
-    if (this.activeSagaVersionBibIds.includes(bib.id)){
-      this.activeSagaVersionBibIds.splice(this.activeSagaVersionBibIds.indexOf(bib.id), 1);
+    if (this.activeSagaVersion.bibIds.includes(bib.id)){
+      this.activeSagaVersion.bibIds.splice(this.activeSagaVersion.bibIds.indexOf(bib.id), 1);
     }
     else {
-      this.activeSagaVersionBibIds.push(bib.id);
+      this.activeSagaVersion.bibIds.push(bib.id);
     }
   }
 
@@ -205,13 +209,9 @@ export class SagasSingle implements OnInit {
 
   resetValidators(){
       this.title.clearValidators();
-      this.title.addValidators([Validators.required, titleUnique(this.sagaEntry.sagaVersions, this.activeSagaVersion.title)]);
+      this.title.addValidators([Validators.required, this.titleUnique(this.sagaVersions, this.activeSagaVersion.title)]);
       this.title.updateValueAndValidity();
     }
-
-  stringToInt(string: string){
-    return Number(parseInt(string));
-  }
 
   //---------------
   //  USER CHOICE
@@ -223,26 +223,36 @@ export class SagasSingle implements OnInit {
     this.showValidationErrors = false;
     this.fillInputFields();
     this.updateBibFilter('');
+    this.hideAccordion();
   }
 
   addSagaVersion(){
     this.mode = Mode.ADD;
-    this.activeSagaVersion = this.initialisedSagaVersion;
+    this.activeSagaVersion = this.initialiseSagaVersion();
     this.showValidationErrors = false;
     this.emptyInputFields();
     this.updateBibFilter('');
+    this.hideAccordion();
+  }
+
+  hideAccordion(){
+    var accordions = document.getElementsByClassName('accordion-collapse');
+    for (var element of accordions){
+      var accordionInstance = Collapse.getOrCreateInstance(element);
+      if (accordionInstance != null){
+        accordionInstance.hide();
+      }
+    }
   }
 
   selectSagaVersion(id: number){
-    let sagaVersion = this.sagaEntry.sagaVersions.find(i => i.id === id);
+    let sagaVersion = this.sagaVersions.find(i => i.id === id);
     if (typeof sagaVersion === 'undefined') {
       console.log("Saga not found");
-      this.activeSagaVersion = this.initialisedSagaVersion;
+      this.activeSagaVersion = this.initialiseSagaVersion();
     }
     else{
       this.activeSagaVersion = sagaVersion;
-      this.activeSagaVersionBibDtos = sagaVersion.bibDto;
-      this.activeSagaVersionBibIds = this.activeSagaVersion.bibDto.flatMap(bib => bib.id);
     }
   }
 
@@ -283,32 +293,37 @@ export class SagasSingle implements OnInit {
 
   //CREATE
   postSagaVersion(){
-
     this.formToVm();
-    var sagaVersionDto = this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion);
-    sagaVersionDto.bibIds = this.activeSagaVersionBibIds;
 
-    this.sagasService.postSagaVersion(sagaVersionDto).subscribe({
+    this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(this.activeSagaVersion)).subscribe({
       next: receivedSagaVersion => {
         console.log("saga version posted: " + receivedSagaVersion);
-        this.displaySaga();
+        this.getSaga();
       },
       error: err => console.log("Error with posting saga version: " + err)
     })
   }
 
   //READ
-  displaySaga(){
+  getSaga(){
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
       if (!Number.isNaN(id)) {
+        //If saga id is valid, get saga
         this.sagasService.getSagaById(id).subscribe({
           next: receivedEntry => {
             this.sagaEntry = receivedEntry;
-            this.sagaVersions = this.sagaEntry.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+
+            //Create sorted list of saga version VMs
+            this.sagaVersions = [];
+            this.sagaEntry.sagaVersions.forEach(version => this.sagaVersions.push(this.sagaMapper.mapSagaVersionResponseDtoToVm(version)));
+            this.sagaVersions = this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+
+            //Create sorted list of bibliography entry VMs
             this.bibService.getBibEntries().subscribe({
               next: bibEntries => {
                 this.bibs = bibEntries;
+                this.bibVms = [];
                 this.bibs.forEach(bib => this.bibVms.push(this.bibMapper.mapDtoToVm(bib)));
                 this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
               }
@@ -324,13 +339,11 @@ export class SagasSingle implements OnInit {
   updateSagaVersion(){
     
     this.formToVm();
-    var sagaVersionDto = this.sagaMapper.mapSagaVersionVmToDto(this.activeSagaVersion);
-    sagaVersionDto.bibIds = this.activeSagaVersionBibIds;
 
-    this.sagasService.putSagaVersion(sagaVersionDto).subscribe({
+    this.sagasService.putSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(this.activeSagaVersion)).subscribe({
       next: receivedSagaVersion => {
         console.log("Saved successfully! " + receivedSagaVersion);
-        this.displaySaga();
+        this.getSaga();
       },
       error: err => {
         console.log("Problem with saving.");
@@ -341,40 +354,41 @@ export class SagasSingle implements OnInit {
   //DELETE
   deleteSagaVersion(){
   this.sagasService.deleteSagaVersion(this.activeSagaVersion.id).subscribe({
-    next: sagaVersion => this.displaySaga(),
+    next: sagaVersion => this.getSaga(),
     error: err=> console.log("problem with deleting")
     })
   }
-}
+
 
   //---------------
   // CUSTOM VALIDATION
   //---------------
 
-export function titleUnique(sagas: ISagaVersionVm[], sagaName: string): ValidatorFn {
-  return (control:AbstractControl) : ValidationErrors | null => {
 
-      const value = control.value;
+  titleUnique(sagas: ISagaVersionVm[], sagaName: string): ValidatorFn {
+    return (control:AbstractControl) : ValidationErrors | null => {
 
-      if (!value) {
-          return null;
+        const value = control.value;
+
+        if (!value) {
+            return null;
+        }
+
+      let saga = sagas.find(saga => saga.title.toLowerCase() === value.toLowerCase());
+      if (typeof saga === 'undefined') {
+        return null;
       }
-
-    let saga = sagas.find(saga => saga.title.toLowerCase() === value.toLowerCase());
-    if (typeof saga === 'undefined') {
-      return null;
-    }
-    else if(value !== sagaName){
-      return { nameNotUnique: true };
-    }
-    else{
-      return null;
+      else if(value !== sagaName){
+        return { nameNotUnique: true };
+      }
+      else{
+        return null;
+      }
     }
   }
-}
 
-export function dateNotSelected(): ValidatorFn {
-  return (control:AbstractControl) : ValidationErrors | null => {
+  dateNotSelected(): ValidatorFn {
+    return (control:AbstractControl) : ValidationErrors | null => {
 
       const value = control.value;
 
@@ -390,5 +404,6 @@ export function dateNotSelected(): ValidatorFn {
       else{
         return null;
       }
+    }
   }
 }

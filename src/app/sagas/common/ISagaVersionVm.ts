@@ -1,16 +1,14 @@
-import { IBib } from "../../bib/common/IBib";
-import { SagaDate } from './SagaDate';
+import { IBibVm } from "../../bib/common/IBibVm";
+import { SagaDate } from "./SagaDate";
 
 export interface ISagaVersionVm {
-  id: number;
-  title: string;
-  description: string;
-  date: SagaDate;
-  sagaId: number;
-  bibDto: IBib[];
-  folkloreIds: number[];
-  personIds: number[];
-  placeIds: number[];
-  objectIds: number[];
-  msIds: number[];
-} 
+    id: number;
+    title: string;
+    description: string;
+    date: SagaDate;
+    isTranslated: boolean;
+    sagaId: number;
+    bibIds: number[];
+    primarySources: IBibVm[];
+    secondarySources: IBibVm[];
+}

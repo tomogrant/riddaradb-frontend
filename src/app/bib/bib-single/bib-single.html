@@ -2,14 +2,21 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        @if (activeBibVm != null){
-
-          <!-- JOURNAL ARTICLE -->
-            <span [innerHTML]="activeBibVm.bibliographyEntry"></span>
-        }
-          
+        <h2>Bibliography entry</h2>
+        <span [innerHTML]="activeBibVm.bibliographyEntry"></span>
       </div>
-      <div>
+    <div>
+    <div class="row">
+      <div class="col">
+        @if (attachedSagaVersions.length > 1){
+          <h2>Relevant sagas</h2>
+          }
+          @for (saga of attachedSagaVersions; track $index){
+            <p><a href="sagas/{{saga.sagaId}}"><i>{{saga.title}}</i></a></p>
+          }
+      </div>
+    </div>
+      
         <p></p>
         <!-- Edit button -->
          @if (mode !== Mode.ADD){
@@ -17,9 +24,7 @@
                 type="button" style="margin-right: 0.25rem" 
                 class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddBib">Edit</button>
           <!-- Delete button -->
-          <button (click)="deleteBib()"
-                type="button"
-                class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
+          <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
          }
       </div>
     </div>
@@ -170,6 +175,20 @@
                 </div>
               </div>
               }
+
+              @if ( editFormConfig.includeSagas ){
+                <div class="row mb-2">
+                <div class="col">
+                  @for (version of sagaVersions; track $index){
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" [checked]="boxChecked(version)" (change)="addRemoveSagaVersion(version)">
+                      <label class="form-check-label"><i>{{version.title}}</i></label>
+                    </div>
+                  }
+                </div>
+              </div>
+              }
+              
               
 
               <!-- ============= -->
@@ -459,6 +478,25 @@
           <button (click)="mode === Mode.ADD ? navigateToBibAllPage() : null" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <button (click)="submitAddOrEdit()" type="submit" class="btn btn-primary" [disabled]="type.value === 'Select publication type:'">Save</button>
         </div>
+    </div>
+  </div>
+</div>
+
+<!--Delete modal-->
+<div class="modal fade" id="deleteBib" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete bibliography entry?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+        <button (click)='deleteBib()' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+      </div>
     </div>
   </div>
 </div>

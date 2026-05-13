@@ -8,9 +8,10 @@ import { CommonModule } from '@angular/common';
 import { SagaService } from '../common/saga.service';
 import { ISagaVm } from '../common/ISagaVm';
 import { SagaMapper } from '../common/saga-mapper';
-import { ISagaVersionVm } from '../common/ISagaVersionVm';
+import { ISagaVersionResponseDto } from '../common/ISagaVersionResponseDto';
 import { SagaDate } from '../common/SagaDate';
 import { Mode } from '../../shared/Enums';
+import { ISagaVersionVm } from '../common/ISagaVersionVm';
 
 @Component({
   selector: 'app-sagas',
@@ -41,19 +42,18 @@ export class SagasAll implements OnInit {
     sagaVersions: []
 
   };
+
     initialisedSagaVersion: ISagaVersionVm = {
-    id: 0,
-    title: '',
-    description: '',
-    date: SagaDate.UNDEFINED,
-    sagaId: 0,
-    bibDto: [],
-    folkloreIds: [],
-    personIds: [],
-    placeIds: [],
-    objectIds: [],
-    msIds: []
-  };
+        id: 0,
+        title: '',
+        description: '',
+        date: SagaDate.UNDEFINED,
+        isTranslated: false,
+        sagaId: 0,
+        bibIds: [],
+        primarySources: [],
+        secondarySources: []
+    };
   
   activeSaga: ISagaVm = this.initialisedSaga;
 
@@ -160,7 +160,7 @@ export class SagasAll implements OnInit {
         var newSagaVersion = this.initialisedSagaVersion;
         newSagaVersion.title = this.title.value;
         newSagaVersion.sagaId = receivedSaga.id;
-        this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToDto(newSagaVersion)).subscribe({
+        this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(newSagaVersion)).subscribe({
           next: receivedSagaVersion => {
             console.log("saga version posted successfully: " + receivedSagaVersion);
             this.displaySagas();

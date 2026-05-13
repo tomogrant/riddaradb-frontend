@@ -1,58 +1,68 @@
 import { Injectable } from '@angular/core';
 import { ISagaDto } from './ISagaDto';
 import { ISagaVm } from './ISagaVm';
-import { ISagaVersionDto } from './ISagaVersionDto';
+import { ISagaVersionRequestDto } from './ISagaVersionRequestDto';
+import { ISagaVersionResponseDto } from './ISagaVersionResponseDto';
 import { ISagaVersionVm } from './ISagaVersionVm';
-import { SagaDate } from './SagaDate';
+import { IBibVm } from '../../bib/common/IBibVm';
+import { BibMapper } from '../../bib/common/bib-mapper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SagaMapper {
-
-  sagaDto: ISagaDto = {
-    id: 0,
-    title: '',
-    description: '',
-    translated: false,
-    sagaVersionIds: []
-  }
-
-  sagaVersionDto: ISagaVersionDto = {
-    id: 0,
-    title: '',
-    description: '',
-    date: SagaDate.UNKNOWN,
-    isTranslated: false,
-    sagaId: 0,
-    bibIds: [],
-    folkloreIds: [],
-    personIds: [],
-    placeIds: [],
-    objectIds: [],
-    msIds: []
-    }
+  constructor(private bibMapper: BibMapper){}
 
   mapSagaVmToDto(vm: ISagaVm): ISagaDto {
 
-    this.sagaDto.id = vm.id;
-    this.sagaDto.title = vm.title;
-    this.sagaDto.description = vm.description;
-    this.sagaDto.translated = vm.translated;
-    this.sagaDto.sagaVersionIds = vm.sagaVersions.flatMap(sagaVersion => sagaVersion.id);
-
-    return this.sagaDto;
+    return {
+      id: vm.id,
+      title: vm.title,
+      description: vm.description,
+      translated: vm.translated,
+      sagaVersionIds: vm.sagaVersions.flatMap(sagaVersion => sagaVersion.id)
+    }
   }
 
-  mapSagaVersionVmToDto(vm: ISagaVersionVm): ISagaVersionDto {
-    this.sagaVersionDto.id = vm.id,
-    this.sagaVersionDto.title = vm.title,
-    this.sagaVersionDto.description = vm.description,
-    this.sagaVersionDto.date = vm.date,
-    this.sagaVersionDto.sagaId = vm.sagaId,
-    this.sagaVersionDto.bibIds = vm.bibDto.flatMap(bib => bib.id);
+  mapSagaVersionVmToRequestDto(vm: ISagaVersionVm): ISagaVersionRequestDto {
 
-    return this.sagaVersionDto;
+    return {
+      id: vm.id,
+      title: vm.title,
+      description: vm.description,
+      date: vm.date,
+      sagaId: vm.sagaId,
+      bibIds: vm.bibIds,
+      folkloreIds: [],
+      personIds: [],
+      placeIds: [],
+      objectIds: [],
+      msIds: []
+    }
+
   }
   
+  mapSagaVersionResponseDtoToVm(dto: ISagaVersionResponseDto): ISagaVersionVm {
+
+    var bibVms: IBibVm[] = [];
+
+    dto.bibDto.forEach(bibDto =>{
+      bibVms.push(this.bibMapper.mapDtoToVm(bibDto));
+    });
+
+    bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
+
+    return {
+      id: dto.id,
+      title: dto.title,
+      description: dto.description,
+      date: dto.date,
+      isTranslated: false,
+      sagaId: dto.sagaId,
+      bibIds: bibVms.flatMap(bib => bib.id),
+      primarySources: bibVms.filter(bib => bib.primarySource == true),
+      secondarySources: bibVms.filter(bib => bib.primarySource == false)
+    };
+  }
+
 }

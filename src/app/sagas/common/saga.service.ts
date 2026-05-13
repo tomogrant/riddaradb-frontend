@@ -2,9 +2,9 @@ import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from '@angular/core';
 import { ISagaVm } from './ISagaVm';
 import { Observable, catchError, tap, throwError } from "rxjs";
-import { ISagaVersionDto } from "./ISagaVersionDto";
+import { ISagaVersionRequestDto } from "./ISagaVersionRequestDto";
 import { ISagaDto } from "./ISagaDto";
-import { ISagaVersionVm } from "./ISagaVersionVm";
+import { ISagaVersionResponseDto } from "./ISagaVersionResponseDto";
 
 @Injectable({
   providedIn: 'root'
@@ -56,33 +56,39 @@ export class SagaService {
     //SAGA VERSIONS
 
     //CREATE SAGA VERSION
-    postSagaVersion(sagaVersion: ISagaVersionDto): Observable<ISagaVersionDto>{
+    postSagaVersion(sagaVersion: ISagaVersionRequestDto): Observable<ISagaVersionRequestDto>{
         console.log('Posting saga version: ' + JSON.stringify(sagaVersion));
-        return this.httpClient.post<ISagaVersionDto>(`${this.sagasMain}/postsagaversion`, sagaVersion)
+        return this.httpClient.post<ISagaVersionRequestDto>(`${this.sagasMain}/postsagaversion`, sagaVersion)
         .pipe(tap(data => console.log('Saga version posted: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
+    getSagaVersions(): Observable<ISagaVersionResponseDto[]>{
+        return this.httpClient.get<ISagaVersionResponseDto[]>(`${this.sagasMain}/getsagaversions`)
+        .pipe(tap(data => console.log('All saga version data got: ' + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
+
     //READ SAGA VERSION BY ID
-    getSagaVersionById(id: number): Observable<ISagaVersionVm>{
-        return this.httpClient.get<ISagaVersionVm>(`${this.sagasMain}/getsagaversionbyid/${id}`)
+    getSagaVersionById(id: number): Observable<ISagaVersionResponseDto>{
+        return this.httpClient.get<ISagaVersionResponseDto>(`${this.sagasMain}/getsagaversionbyid/${id}`)
         .pipe(tap(data => console.log(`Saga version with ID ${id}: ` + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
     //UPDATE SAGA VERSION DTO
-    putSagaVersion(sagaVersion: ISagaVersionDto): Observable<ISagaVersionDto>{
+    putSagaVersion(sagaVersion: ISagaVersionRequestDto): Observable<ISagaVersionRequestDto>{
         console.log('Updating saga version: ' + JSON.stringify(sagaVersion));
-        return this.httpClient.put<ISagaVersionDto>(`${this.sagasMain}/putsagaversion`, sagaVersion)
-        .pipe(tap(data => console.log('Saga version posted: ' + JSON.stringify(data))),
+        return this.httpClient.put<ISagaVersionRequestDto>(`${this.sagasMain}/putsagaversion`, sagaVersion)
+        .pipe(tap(data => console.log('Saga version put: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
 
     //DELETE SAGA VERSION BY ID
-    deleteSagaVersion(id: number): Observable<ISagaVersionDto>{
+    deleteSagaVersion(id: number): Observable<ISagaVersionRequestDto>{
         console.log("request sent: " + `${this.sagasMain}/deletesagaversion/${id}`);
-        return this.httpClient.delete<ISagaVersionDto>(`${this.sagasMain}/deletesagaversion/${id}`);
+        return this.httpClient.delete<ISagaVersionRequestDto>(`${this.sagasMain}/deletesagaversion/${id}`);
     }
 
     private errorHandler (error: HttpErrorResponse){

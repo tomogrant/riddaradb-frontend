@@ -1,4 +1,4 @@
-import { ISagaVersionDto } from "./ISagaVersionDto";
+import { ISagaVersionRequestDto } from "./ISagaVersionRequestDto";
 
 export interface ISagaDto {
   id: number;

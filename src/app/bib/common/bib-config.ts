@@ -17,6 +17,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: boolean;
     includeRecommended: boolean;
     includeDescription: boolean;
+    includeSagas: boolean;
 
     requireAuthorsEditorsTranslators: boolean;
     requireAuthors: boolean;
@@ -52,6 +53,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: false,
     includeRecommended: false,
     includeDescription: false,
+    includeSagas: false,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: false,
@@ -85,6 +87,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: true,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: true,
     requireAuthors: false,
@@ -118,6 +121,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: true,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: true,
     requireAuthors: false,
@@ -151,6 +155,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: false,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: false,
@@ -184,6 +189,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: true,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: false,
@@ -217,6 +223,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: false,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: true,
@@ -250,6 +257,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: false,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: false,
@@ -283,6 +291,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: false,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: true,
@@ -316,6 +325,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: false,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: false,
@@ -349,6 +359,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePageNumbers: true,
     includeRecommended: true,
     includeDescription: true,
+    includeSagas: true,
 
     requireAuthorsEditorsTranslators: false,
     requireAuthors: false,
