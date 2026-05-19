@@ -69,10 +69,9 @@ export class SagasSingle implements OnInit {
   showValidationErrors: boolean = false;
 
   editForm = new FormGroup({
-    title: new FormControl('', [Validators.required, this.titleUnique(this.sagaVersions, this.activeSagaVersion.title)]),
-    date: new FormControl('Select a date:', this.dateNotSelected()),
+    title: new FormControl('', {nonNullable: true, validators: [Validators.required, this.titleUnique(this.sagaVersions, this.activeSagaVersion.title)]} ),
+    date: new FormControl('Select a date:', { nonNullable: true, validators: this.dateNotSelected() }),
     description: new FormControl(''),
-    isTranslated: new FormControl(false),
     bibFilter: new FormControl('', {nonNullable: true})
   });
 
@@ -201,9 +200,9 @@ export class SagasSingle implements OnInit {
   }
 
   emptyInputFields(){
-    this.title.setValue("");
-    this.description.setValue("");
-    this.date.setValue('Select a date:');
+    this.title.reset();
+    this.description.reset();
+    this.date.reset();
 
   }
 
@@ -287,7 +286,12 @@ export class SagasSingle implements OnInit {
     this.activeSagaVersion.title = this.title.value;
 
     //Ugly fix until Quill releases update
-    this.activeSagaVersion.description = String(this.description.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
+    if (this.description.value == null){
+      this.activeSagaVersion.description = '';
+    }
+    else {
+      this.activeSagaVersion.description = String(this.description.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
+    }
     this.activeSagaVersion.date = this.mapFromUi(this.date.value);
   }
 
@@ -298,7 +302,10 @@ export class SagasSingle implements OnInit {
     this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(this.activeSagaVersion)).subscribe({
       next: receivedSagaVersion => {
         console.log("saga version posted: " + receivedSagaVersion);
-        this.getSaga();
+        this.sagaVersions.push(this.sagaMapper.mapSagaVersionResponseDtoToVm(receivedSagaVersion));
+        this.sagaVersions = this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+
+        //this.getSaga();
       },
       error: err => console.log("Error with posting saga version: " + err)
     })
@@ -343,7 +350,8 @@ export class SagasSingle implements OnInit {
     this.sagasService.putSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(this.activeSagaVersion)).subscribe({
       next: receivedSagaVersion => {
         console.log("Saved successfully! " + receivedSagaVersion);
-        this.getSaga();
+        this.sagaVersions[this.sagaVersions.indexOf(this.activeSagaVersion)] = this.sagaMapper.mapSagaVersionResponseDtoToVm(receivedSagaVersion);
+        //this.getSaga();
       },
       error: err => {
         console.log("Problem with saving.");
@@ -353,10 +361,11 @@ export class SagasSingle implements OnInit {
 
   //DELETE
   deleteSagaVersion(){
-  this.sagasService.deleteSagaVersion(this.activeSagaVersion.id).subscribe({
-    next: sagaVersion => this.getSaga(),
-    error: err=> console.log("problem with deleting")
-    })
+    this.sagaVersions.splice(this.sagaVersions.indexOf(this.activeSagaVersion), 1);
+    this.sagasService.deleteSagaVersion(this.activeSagaVersion.id).subscribe({
+      next: sagaVersion => console.log(sagaVersion + "deleted"),
+      error: err=> console.log("problem with deleting")
+      })
   }
 
 

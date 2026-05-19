@@ -1,0 +1,10 @@
+<div class="py-4 page-header">
+  <h1>Folkloric motifs</h1>
+</div>
+<div class="card-body">
+    @for (rootId of $rootIds(); track rootId){
+        <app-motif-node 
+        [$nodeId]="rootId">
+        </app-motif-node>
+    }
+</div>

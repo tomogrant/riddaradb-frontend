@@ -1,0 +1,33 @@
+<div class="container">
+    <div class="row mb-2">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    {{ $node()?.motifCode }}
+                    {{ $node()?.motifName }}
+
+                    @if($node()?.hasChildren){
+                        <button (click) = "toggle()">
+                            {{$expanded() ? 'Collapse' : 'Expand'}}
+                        </button>
+                    }
+                </div>
+                @if ($node()?.sagaVersionIds?.length){
+                    <div class="card-body">
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+    @if ($expanded() && $node()?.childIds){
+        @for(child of $node()?.childIds ?? []; track $index){
+        <app-motif-node 
+            [$nodeId]="child">
+        </app-motif-node>
+        }
+    }
+
+</div>
+

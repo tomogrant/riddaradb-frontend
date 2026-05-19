@@ -5,10 +5,10 @@
   <div class="container">
     @for(saga of sagas; track saga.id){
       <div class="row">
-        <div class="col-2">
-          <i><a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a></i>
+        <div class="col-2 ms-3">
+          <h4><i><a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a></i></h4>
         </div>
-        <div class="col-2" style="margin: 0.25rem">
+        <div class="col-2">
           <!-- Edit button -->
           <button (click)="editSaga(saga.id);"
                   type="button" style="margin-right: 0.25rem" 
@@ -21,7 +21,7 @@
       </div>
     }
     <div class="row">
-      <div class="col-sm">
+      <div class="col-sm ms-3">
         <button (click)="addSaga();" 
                 type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
       </div>

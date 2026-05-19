@@ -566,70 +566,6 @@ export class BibSingle {
   }
 
   //---------------
-  //  CUSTOM VALIDATION
-  //---------------
-
-  authorsEditorsTranslatorsNotProvided(): ValidatorFn {
-  return (control:AbstractControl) : ValidationErrors | null => {
-
-    const value = control.value;
-
-    if (value.authors.trim() !== "" ||
-        value.editors.trim() !== "" ||
-        value.translators.trim() !== ""
-    ) {
-      return null;
-    }
-    else{
-      return { authorsEditorsTranslatorsNotProvided: true }
-    }
-  }
-}
-
-  numericError(): ValidatorFn {
-  return (control:AbstractControl) : ValidationErrors | null => {
-
-    const value = control.value;
-
-    if (value !== ''){
-      if (isNaN(value) || value < 1){
-        console.log("Entry invalid!")
-        return { numericError: true }
-      }
-      else{
-        return null;
-      }
-    }
-    else{
-      return null;
-    }
-  }
-}
-
-  pageNumError(): ValidatorFn {
-  return (control:AbstractControl) : ValidationErrors | null => {
-
-    const value = control.value;
-    const pageRangePattern = /[0-9]-[0-9]/;
-
-    if (value !== ''){
-      if (pageRangePattern.test(value)){
-        return null;
-      }
-      else if (isNaN(value) || value < 1){
-        return { pageNumError: true }
-      }
-      else{
-        return null;
-      }
-    }
-    else{
-      return null;
-    }
-  }
-}
-
-  //---------------
   //  CRUD
   //---------------
 
@@ -651,7 +587,8 @@ export class BibSingle {
     this.bibService.putBib(this.activeBib).subscribe({
       next: receivedBib =>{
         console.log("bibliography entry updated: " + receivedBib);
-        this.parseParams();
+          this.activeBib = receivedBib;
+          this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
       },
       error: err => {
         console.log('Error updating bib: ' + err)
@@ -664,5 +601,69 @@ export class BibSingle {
     next: bibEntry => this.navigateToBibAllPage(),
     error: err=> console.log("problem with deleting")
     })
+  }
+
+    //---------------
+  //  CUSTOM VALIDATION
+  //---------------
+
+    authorsEditorsTranslatorsNotProvided(): ValidatorFn {
+    return (control:AbstractControl) : ValidationErrors | null => {
+
+      const value = control.value;
+
+      if (value.authors.trim() !== "" ||
+          value.editors.trim() !== "" ||
+          value.translators.trim() !== ""
+      ) {
+        return null;
+      }
+      else{
+        return { authorsEditorsTranslatorsNotProvided: true }
+      }
+    }
+  }
+
+    numericError(): ValidatorFn {
+    return (control:AbstractControl) : ValidationErrors | null => {
+
+      const value = control.value;
+
+      if (value !== ''){
+        if (isNaN(value) || value < 1){
+          console.log("Entry invalid!")
+          return { numericError: true }
+        }
+        else{
+          return null;
+        }
+      }
+      else{
+        return null;
+      }
+    }
+  }
+
+    pageNumError(): ValidatorFn {
+    return (control:AbstractControl) : ValidationErrors | null => {
+
+      const value = control.value;
+      const pageRangePattern = /[0-9]-[0-9]/;
+
+      if (value !== ''){
+        if (pageRangePattern.test(value)){
+          return null;
+        }
+        else if (isNaN(value) || value < 1){
+          return { pageNumError: true }
+        }
+        else{
+          return null;
+        }
+      }
+      else{
+        return null;
+      }
+    }
   }
 }

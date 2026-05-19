@@ -33,15 +33,6 @@ export class SagasAll implements OnInit {
 
   sagas: ISagaVm[] = [];
 
-  initialisedSaga: ISagaVm = {
-    id: 0,
-    title: '',
-    description: '',
-    translated: false,
-    sagaVersions: []
-
-  };
-
     initialisedSagaVersion: ISagaVersionVm = {
         id: 0,
         title: '',
@@ -54,10 +45,10 @@ export class SagasAll implements OnInit {
         secondarySources: []
     };
   
-  activeSaga: ISagaVm = this.initialisedSaga;
+  activeSaga: ISagaVm = this.initialiseSaga();
 
   editForm = new FormGroup(
-    {title: new FormControl('', [Validators.required, titleUnique(this.sagas, this.activeSaga.title)]),
+    {title: new FormControl('', [Validators.required, this.titleUnique(this.sagas, this.activeSaga.title)]),
     translated: new FormControl(false)
     });
 
@@ -77,9 +68,20 @@ export class SagasAll implements OnInit {
   //  FIELD LOGIC
   //---------------
 
+  initialiseSaga(){
+    return {
+    id: 0,
+    title: '',
+    description: '',
+    translated: false,
+    sagaVersions: []
+  };
+
+  }
+
   resetValidators(){
     this.title.clearValidators();
-    this.title.addValidators([Validators.required, titleUnique(this.sagas, this.activeSaga.title)]);
+    this.title.addValidators([Validators.required, this.titleUnique(this.sagas, this.activeSaga.title)]);
     this.title.updateValueAndValidity();
   }
 
@@ -108,7 +110,7 @@ export class SagasAll implements OnInit {
   addSaga(){
     //Sets mode,resets field validation, initialises selected saga and empties fields ready for user input
     this.mode = Mode.ADD;
-    this.activeSaga = this.initialisedSaga;
+    this.activeSaga = this.initialiseSaga();
     this.showValidationErrors = false;
     this.emptyInputFields();
   }
@@ -117,7 +119,7 @@ export class SagasAll implements OnInit {
     let saga = this.sagas.find(i => i.id === id);
     if (typeof saga === 'undefined') {
       console.log("Saga not found");
-      this.activeSaga = this.initialisedSaga;
+      this.activeSaga = this.initialiseSaga();
     }
     else{
       console.log("saga with ID " + saga.id + " found.");
@@ -151,26 +153,18 @@ export class SagasAll implements OnInit {
 
   //CREATE
   postSaga(){
-    this.activeSaga = this.initialisedSaga;
+    //This should actually be handled in the backend
+    this.activeSaga = this.initialiseSaga();
     this.activeSaga.title = this.title.value;
     this.activeSaga.translated = this.translated.value;
-    this.sagasService.postSaga(this.sagaMapper.mapSagaVmToDto(this.activeSaga)).subscribe({
+    this.sagasService.postSagaWithSagaVersion(this.sagaMapper.mapSagaVmToDto(this.activeSaga)).subscribe({
       next: receivedSaga => {
-        var newSagaVersion = this.initialisedSagaVersion;
-        newSagaVersion.title = this.title.value;
-        newSagaVersion.sagaId = receivedSaga.id;
-        this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(newSagaVersion)).subscribe({
-          next: receivedSagaVersion => {
-            console.log("saga version posted successfully: " + receivedSagaVersion);
-            this.displaySagas();
-          },
-          error: err => {
-            console.log("Problem with saving saga version");
-          }
-        })
+        console.log("received saga: " + receivedSaga);
+        this.sagas.push(receivedSaga);
+        this.sagas = this.sagas.sort((a, b) => a.title.localeCompare(b.title));
       },
       error: err => {
-        console.log("Problem with saving saga");
+        console.log("Problem with saving saga with saga version");
       }
     })
   }
@@ -180,8 +174,6 @@ export class SagasAll implements OnInit {
     this.sagasService.getSagas().subscribe({
       next: receivedSagas => {
         this.sagas = receivedSagas.sort((a, b) => a.title.localeCompare(b.title));
-        //The custom validation method titleUnique does not get updated every time
-        //the sagas list does, so this parameter needs manually passing. 
       },
       error: err => console.log('Error fetching sagas: ' + err)
     });
@@ -194,7 +186,8 @@ export class SagasAll implements OnInit {
     this.sagasService.putSaga(this.sagaMapper.mapSagaVmToDto(this.activeSaga)).subscribe({
       next: receivedSaga => {
         console.log("Saved successfully! " + receivedSaga);
-        this.displaySagas();
+        this.sagas[this.sagas.indexOf(this.activeSaga)] = receivedSaga;
+        //this.displaySagas();
       },
       error: err => {
         console.log("Problem with saving.");
@@ -204,18 +197,19 @@ export class SagasAll implements OnInit {
 
   //DELETE
   deleteSaga(){
+    this.sagas.splice(this.sagas.indexOf(this.activeSaga));
     this.sagasService.deleteSaga(this.activeSaga.id).subscribe({
-      next: saga => this.displaySagas(),
-      error: err=> console.log("problem with deleting")
+      next: saga => console.log(this.activeSaga + "deleted"),
+      //this.displaySagas(),
+      error: err=> console.log("problem with deleting saga")
       })
     }
-}
 
   //---------------
   //CUSTOM VALIDATION
   //---------------
 
-  export function titleUnique(sagas: ISagaVm[], sagaName: string): ValidatorFn {
+    titleUnique(sagas: ISagaVm[], sagaName: string): ValidatorFn {
     return (control:AbstractControl) : ValidationErrors | null => {
 
 
@@ -241,4 +235,7 @@ export class SagasAll implements OnInit {
         return null;
       }
     }
+  }
 }
+
+  
