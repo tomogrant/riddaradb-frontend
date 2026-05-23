@@ -1,5 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, input, signal, computed } from '@angular/core'; 
 import { MotifStore } from '../motif.store';
+import { MotifModalService } from '../motif-modal.service';
+
 
 @Component({
   selector: 'app-motif-node',
@@ -10,10 +12,25 @@ import { MotifStore } from '../motif.store';
 })
 export class MotifNode {
   motifStore = inject(MotifStore);
+  motifModalService = inject (MotifModalService);
 
   $nodeId = input.required<number>();
 
-  $node = computed(() => this.motifStore.getMotifNode(this.$nodeId()));
+  $node = computed(() => this.motifStore.$motifNodes().get(this.$nodeId()));
+
+  // children = computed(() => {
+  //   console.log("Recalculating children...")
+  //   const node = this.$node();
+
+  //   if (!node?.childIds){
+  //     return [];
+  //   }
+
+  //   return node.childIds
+  //     .map(id => this.motifStore.getMotifNode(id))
+  //     .filter((node): node is IMotif => node !== undefined)
+  //     .sort((a, b) => a.motifCode.localeCompare(b.motifCode));
+  // });
 
   //True if the motif store has expanded this motif node. 
   $expanded = computed(() => this.motifStore.$expandedNodes().has(this.$nodeId()));
@@ -29,6 +46,23 @@ export class MotifNode {
     if (this.$node()?.hasChildren && !this.$node()?.childIds){
       this.motifStore.getMotifChildren(this.$nodeId());
     }
+  }
+
+  openAddModal(){
+    console.log("Add button clicked");
+    this.motifModalService.openAddModal(this.$nodeId());
+  }
+
+  openEditModal(){
+    this.motifModalService.openEditModal(this.$nodeId());
+  }
+
+  openDeleteModal(){
+    this.motifModalService.openDeleteModal(this.$nodeId());
+  }
+
+  resetModal(){
+    this.motifModalService.closeModal();
   }
 
 }

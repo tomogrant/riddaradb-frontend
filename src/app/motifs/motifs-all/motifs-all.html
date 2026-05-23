@@ -1,10 +1,104 @@
 <div class="py-4 page-header">
   <h1>Folkloric motifs</h1>
 </div>
-<div class="card-body">
+
+<div class="card-body page-container tree">
+    <div class="mb-3">
+        <div class="me-1">
+            <a type="button" class="btn btn-success" (click)="openAddModal()">
+                Add motif
+            </a>
+        </div>
+    </div>
+
     @for (rootId of $rootIds(); track rootId){
         <app-motif-node 
-        [$nodeId]="rootId">
+            [$nodeId]="rootId">
         </app-motif-node>
     }
+</div>
+
+<!--Add/dit modal-->
+<div class="modal fade" id="editAddModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <form>
+
+        <!-- Header -->
+        <div class="modal-header">
+            @if ($modalState()?.mode == Mode.ADD){<h1 class="modal-title fs-5" id="staticBackdropLabel">Add motif</h1>}
+            @else {<h1 class="modal-title fs-5" id="staticBackdropLabel">Edit motif</h1>}
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="setModalStateToClose()"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="container">
+                @if ($modalState()?.mode == Mode.ADD && $currentNode()){
+                    <div class="row">
+                        <div class="col">
+                            <label for="motif-motif-code" class="form-label">Motif parent</label>
+                            <input type="text" class="form-control" id="motif-motif-code" [value]="$currentNode()?.motifCode + ' ' + $currentNode()?.motifName" disabled>
+                        </div>
+                    </div>
+                }
+                
+                <div class="row">
+                    <div class="col">
+                        <label for="motif-motif-code" class="form-label">Motif code:</label><span style="color: rgb(210, 74, 74)">*</span>
+                        <input type="text" class="form-control" [formField]="editForm.motifCode" id="motif-motif-code">
+                        @if (editForm.motifCode().invalid() && showValidationErrors){
+                            <div style="color:rgb(210, 74, 74)">
+                                <small>Please enter a motif code.</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="motif-motif-name" class="form-label">Motif name:</label><span style="color: rgb(210, 74, 74)">*</span>
+                        <input type="text" class="form-control" [formField]="editForm.motifName" id="motif-motif-name">
+                        @if (editForm.motifName().invalid() && showValidationErrors){
+                            <div style="color:rgb(210, 74, 74)">
+                                <small>Please enter a motif name.</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                       <label for="motif-motif-description" class="form-label">Description:</label>
+                        <input type="text" class="form-control" [formField]="editForm.description" id="motif-motif-description">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">Close</button>
+          <button type="button" class="btn btn-primary" (click)="submitForm()">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--Delete modal-->
+<div class="modal fade" id="deleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete motif?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure? This will delete any sub-motifs.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">Back</button>
+        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" (click)="deleteMotif()">Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
