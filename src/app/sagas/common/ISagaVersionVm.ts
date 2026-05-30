@@ -1,4 +1,5 @@
 import { IBibVm } from "../../bib/common/IBibVm";
+import { ISagaMotif } from "./ISagaMotif";
 import { SagaDate } from "./SagaDate";
 
 export interface ISagaVersionVm {
@@ -11,4 +12,5 @@ export interface ISagaVersionVm {
     bibIds: number[];
     primarySources: IBibVm[];
     secondarySources: IBibVm[];
+    sagaMotifs: ISagaMotif[]
 }

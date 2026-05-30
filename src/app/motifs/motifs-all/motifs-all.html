@@ -22,7 +22,6 @@
 <div class="modal fade" id="editAddModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
-      <form>
 
         <!-- Header -->
         <div class="modal-header">
@@ -33,45 +32,84 @@
 
         <!-- Body -->
         <div class="modal-body">
-            <div class="container">
-                @if ($modalState()?.mode == Mode.ADD && $currentNode()){
+            <form>
+                <div class="container">
+                    @if ($modalState()?.mode == Mode.ADD && $currentNode()){
+                        <div class="row">
+                            <div class="col">
+                                <label for="motif-motif-code" class="form-label">Motif parent</label>
+                                <input type="text" class="form-control" id="motif-motif-code" [value]="$currentNode()?.motifCode + ' ' + $currentNode()?.motifName" disabled>
+                            </div>
+                        </div>
+                    }
+                    
                     <div class="row">
                         <div class="col">
-                            <label for="motif-motif-code" class="form-label">Motif parent</label>
-                            <input type="text" class="form-control" id="motif-motif-code" [value]="$currentNode()?.motifCode + ' ' + $currentNode()?.motifName" disabled>
+                            <label for="motif-motif-code" class="form-label">Motif code:</label><span style="color: rgb(210, 74, 74)">*</span>
+                            <input type="text" class="form-control" [formField]="editForm.motifCode" id="motif-motif-code">
+                            @if (editForm.motifCode().invalid() && showValidationErrors){
+                                <div style="color:rgb(210, 74, 74)">
+                                    <small>Please enter a motif code.</small>
+                                </div>
+                            }
                         </div>
                     </div>
-                }
-                
-                <div class="row">
-                    <div class="col">
-                        <label for="motif-motif-code" class="form-label">Motif code:</label><span style="color: rgb(210, 74, 74)">*</span>
-                        <input type="text" class="form-control" [formField]="editForm.motifCode" id="motif-motif-code">
-                        @if (editForm.motifCode().invalid() && showValidationErrors){
-                            <div style="color:rgb(210, 74, 74)">
-                                <small>Please enter a motif code.</small>
+                    <div class="row">
+                        <div class="col">
+                            <label for="motif-motif-name" class="form-label">Motif name:</label><span style="color: rgb(210, 74, 74)">*</span>
+                            <input type="text" class="form-control" [formField]="editForm.motifName" id="motif-motif-name">
+                            @if (editForm.motifName().invalid() && showValidationErrors){
+                                <div style="color:rgb(210, 74, 74)">
+                                    <small>Please enter a motif name.</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                        <label for="motif-motif-description" class="form-label">Description:</label>
+                            <input type="text" class="form-control" [formField]="editForm.description" id="motif-motif-description">
+                        </div>
+                    </div>
+
+                    <div class="row my-3">
+                        <div class="col">
+                            Assign sagas to this motif:
+                        </div>
+                    </div>
+                    <div class="row my-2">
+                        <div class="col-1">
+                            ✓
+                        </div>
+                        <div class="col">
+                            Saga
+                        </div>
+                        <div class="col">
+                            Page/chapter number
+                        </div>
+                    </div>
+                    <hr>
+
+                    @for (saga of $sagas(); track saga.id){
+                        <div class="row mb-1">
+                            <div class="col-1">
+                                <input class="form-check-input" type="checkbox" 
+                                    [checked]="selectedSagaMap().has(saga.id)"
+                                    (change)="checkboxUpdate(saga.id)">
                             </div>
-                        }
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="motif-motif-name" class="form-label">Motif name:</label><span style="color: rgb(210, 74, 74)">*</span>
-                        <input type="text" class="form-control" [formField]="editForm.motifName" id="motif-motif-name">
-                        @if (editForm.motifName().invalid() && showValidationErrors){
-                            <div style="color:rgb(210, 74, 74)">
-                                <small>Please enter a motif name.</small>
+                            <div class="col">
+                                <label class="form-check-label"><i>{{saga.title}}</i></label>
                             </div>
-                        }
-                    </div>
+                            <div class="col">
+                                <input type="text" class="form-control" #pageChapterNumber 
+                                    [value]="selectedSagaMap().has(saga.id) ? selectedSagaMap().get(saga.id) : ''" 
+                                    [disabled]="!selectedSagaMap().has(saga.id)"
+                                    (change)="pageChapterNumberUpdate(saga.id, pageChapterNumber.value)">
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div class="row">
-                    <div class="col">
-                       <label for="motif-motif-description" class="form-label">Description:</label>
-                        <input type="text" class="form-control" [formField]="editForm.description" id="motif-motif-description">
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
 
         <!-- Footer -->
@@ -79,7 +117,6 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">Close</button>
           <button type="button" class="btn btn-primary" (click)="submitForm()">Save</button>
         </div>
-      </form>
     </div>
   </div>
 </div>

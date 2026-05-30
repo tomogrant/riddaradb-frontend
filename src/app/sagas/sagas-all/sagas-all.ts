@@ -42,7 +42,8 @@ export class SagasAll implements OnInit {
         sagaId: 0,
         bibIds: [],
         primarySources: [],
-        secondarySources: []
+        secondarySources: [],
+        sagaMotifs: []
     };
   
   activeSaga: ISagaVm = this.initialiseSaga();

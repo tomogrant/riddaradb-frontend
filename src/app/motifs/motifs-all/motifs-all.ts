@@ -9,6 +9,8 @@ import { MotifModalService } from '../common/motif-modal.service';
 import { Mode } from '../../shared/Enums';
 import { QuillModule } from 'ngx-quill';
 import { SagaService } from '../../sagas/common/saga.service';
+import { ISagaVersionTitleDto } from '../../sagas/common/ISagaVersionTitleDto';
+import { IMotifForm } from '../common/IMotifForm';
 
 @Component({
   selector: 'app-motifs-all',
@@ -29,28 +31,40 @@ export class MotifsAll {
 
   private motifStore = inject(MotifStore);
   private motifModalService = inject(MotifModalService);
-  private sagaService = inject(SagaService);
 
   readonly Mode = Mode;
 
   showValidationErrors: boolean = false;
 
-  $editModel = signal({
+  $sagas = computed(() => this.motifStore.$sagaTitles());
+
+  $editModel = signal<IMotifForm>({
     motifCode: '',
     motifName: '',
-    description: ''
+    description: '',
+    sagas: []
   });
 
   editForm = form(this.$editModel, (fieldPath => {
     required(fieldPath.motifCode), {message: 'Motif code is required.'},
     required(fieldPath.motifName), {message: 'Motif name is required.'}
-  }))
+  }));
 
 
   //SIGNALS
   $rootIds = this.motifStore.$rootIds;
 
   $modalState = this.motifModalService.$modalState;
+
+  readonly selectedSagaMap = computed(() => {
+    const map = new Map<number, string | null>();
+
+    for (const saga of this.$editModel().sagas) {
+      map.set(saga.sagaVersionId, saga.pageChapterNumber);
+    }
+
+    return map;
+  });
 
   //Current node is whatever is sent by the recursive motif node component. 
   //In the case of adding, this is the parent ID, if this exists. 
@@ -67,11 +81,45 @@ export class MotifsAll {
 
   ngOnInit(){
     this.motifStore.getRootMotifs();
-    this.getSagas();
+    this.motifStore.getSagaTitles();
   }
 
-  getSagas(){
-    
+  checkboxUpdate(id: number){
+    this.$editModel.update(current => {
+      const sagas = current.sagas;
+      const index = sagas.findIndex(saga => saga.sagaVersionId === id);
+      //Saga already associated with motif; remove
+      if (index >= 0){
+        sagas.splice(index, 1);
+      }
+      //Saga not associated with motif; add
+      else{
+        sagas.push({
+          sagaVersionId: id,
+          pageChapterNumber: ''
+        });
+      }
+
+      return {
+        ...current,
+        sagas: sagas
+      }
+    });
+  }
+
+  pageChapterNumberUpdate(id: number, pageChapterNumber: string){
+    this.$editModel.update(current => {
+      const sagas = current.sagas;
+      const index = sagas.findIndex(saga => saga.sagaVersionId === id);
+      if (index >= 0){
+        sagas[index].pageChapterNumber = pageChapterNumber;
+      }
+
+      return {
+        ...current,
+        sagas: sagas
+      }
+    });
   }
 
   openAddModal(){
@@ -82,16 +130,21 @@ export class MotifsAll {
     this.showValidationErrors = false;
     const currentNode = this.$currentNode();
     if (this.$modalState()?.mode == Mode.ADD){
-      this.editForm.motifCode().value.set('');
-      this.editForm.motifName().value.set('');
-      this.editForm.description().value.set('');
+      this.$editModel.set({
+        motifCode: '',
+        motifName: '',
+        description: '',
+        sagas: []
+      });
     }
     if (this.$modalState()?.mode == Mode.EDIT){
-      if (!currentNode)
-        return;
-      this.editForm.motifCode().value.set(currentNode.motifCode);
-      this.editForm.motifName().value.set(currentNode.motifName);
-      this.editForm.description().value.set(currentNode.description);
+      if (!currentNode) return;
+      this.$editModel.set({
+        motifCode: currentNode.motifCode,
+        motifName: currentNode.motifName,
+        description: currentNode.description,
+        sagas: currentNode.sagaMotifs
+      });
     }
   }
 
@@ -125,20 +178,20 @@ export class MotifsAll {
             motifCode: this.editForm.motifCode().value(),
             motifName: this.editForm.motifName().value(),
             description: this.editForm.description().value(),
+            sagaMotifs: this.editForm.sagas().value(),
             //If adding child node, set parent. Otherwise, if there's no parent (root node), pass 0.
             parentId: !currentNode ? 0 : currentNode.id
         });
       }
       if (this.$modalState()?.mode == Mode.EDIT){
-        if (!currentNode)
-          return;
-        console.log(currentNode.hasChildren);
+        if (!currentNode) return;
         this.motifStore.putMotifNode({
           ...currentNode,
           motifCode: this.editForm.motifCode().value(),
           motifName: this.editForm.motifName().value(),
           description: this.editForm.description().value(),
-          hasChildren: currentNode.hasChildren
+          hasChildren: currentNode.hasChildren,
+          sagaMotifs: this.editForm.sagas().value()
         });
       }
 

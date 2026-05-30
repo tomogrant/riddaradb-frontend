@@ -1,6 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, input, signal, computed } from '@angular/core'; 
+import { OnInit, Component, ChangeDetectionStrategy, inject, input, signal, computed } from '@angular/core'; 
 import { MotifStore } from '../motif.store';
 import { MotifModalService } from '../motif-modal.service';
+import { ISagaVersionTitleDto } from '../../../sagas/common/ISagaVersionTitleDto';
+import { SagaService } from '../../../sagas/common/saga.service';
 
 
 @Component({
@@ -13,10 +15,11 @@ import { MotifModalService } from '../motif-modal.service';
 export class MotifNode {
   motifStore = inject(MotifStore);
   motifModalService = inject (MotifModalService);
+  sagaService = inject(SagaService);
 
   $nodeId = input.required<number>();
-
   $node = computed(() => this.motifStore.$motifNodes().get(this.$nodeId()));
+  $sagas = computed(() => this.motifStore.$sagaTitles());
 
   // children = computed(() => {
   //   console.log("Recalculating children...")
@@ -34,6 +37,26 @@ export class MotifNode {
 
   //True if the motif store has expanded this motif node. 
   $expanded = computed(() => this.motifStore.$expandedNodes().has(this.$nodeId()));
+
+  $assignedSagas = computed(() => {
+    const node = this.$node();
+    if (!node) return;
+
+    const sagaVersions = [];
+    for (const sagaMotif of node.sagaMotifs){
+      const sagaTitle = this.$sagas().find(saga => saga.id === sagaMotif.sagaVersionId)?.title;
+      if (sagaTitle){
+        sagaVersions.push({
+          sagaId: sagaMotif.sagaVersionId,
+          sagaTitle: sagaTitle,
+          pageChapterNumber: sagaMotif.pageChapterNumber
+        });
+      }
+    }
+
+    console.log(sagaVersions.length);
+    return sagaVersions.sort((a, b) => a.sagaTitle.localeCompare(b.sagaTitle));
+  });
 
   toggle(){
     if (this.$expanded()){

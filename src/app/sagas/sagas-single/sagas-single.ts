@@ -16,6 +16,7 @@ import { Mode } from '../../shared/Enums';
 import { IBibVm } from '../../bib/common/IBibVm';
 import { BibMapper } from '../../bib/common/bib-mapper';
 import { ISagaVersionVm } from '../common/ISagaVersionVm';
+import { IMotif } from '../../motifs/common/IMotif';
 
 @Component({
   selector: 'app-saga-entry',
@@ -59,12 +60,15 @@ export class SagasSingle implements OnInit {
     sagaId: 0,
     bibIds: [],
     primarySources: [],
-    secondarySources: []
+    secondarySources: [],
+    sagaMotifs: []
   };
 
   bibs: IBib[] = [];
   bibVms: IBibVm[] = [];
   filteredBibVms: IBibVm[] = [];
+
+  motifs: IMotif[] = [];
 
   showValidationErrors: boolean = false;
 
@@ -112,7 +116,8 @@ export class SagasSingle implements OnInit {
     sagaId: 0,
     bibIds: [],
     primarySources: [],
-    secondarySources: []
+    secondarySources: [],
+    sagaMotifs: []
     };
   }
 
@@ -325,6 +330,9 @@ export class SagasSingle implements OnInit {
             this.sagaVersions = [];
             this.sagaEntry.sagaVersions.forEach(version => this.sagaVersions.push(this.sagaMapper.mapSagaVersionResponseDtoToVm(version)));
             this.sagaVersions = this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+            for (var sagaVersion of this.sagaVersions){
+              sagaVersion.sagaMotifs.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, {numeric: true}))
+            }
 
             //Create sorted list of bibliography entry VMs
             this.bibService.getBibEntries().subscribe({
@@ -334,7 +342,7 @@ export class SagasSingle implements OnInit {
                 this.bibs.forEach(bib => this.bibVms.push(this.bibMapper.mapDtoToVm(bib)));
                 this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
               }
-            })
+            });
           },
           error: err => console.log(err)
         });

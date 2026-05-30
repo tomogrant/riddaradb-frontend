@@ -1,6 +1,8 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { IMotif } from "./IMotif";
 import { MotifService } from "./motif.service";
+import { SagaService } from "../../sagas/common/saga.service";
+import { ISagaVersionTitleDto } from "../../sagas/common/ISagaVersionTitleDto";
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +11,9 @@ import { MotifService } from "./motif.service";
 export class MotifStore {
 
     motifService = inject(MotifService);
+    sagaService = inject(SagaService);
+
+    $sagaTitles = signal(new Array<ISagaVersionTitleDto>);
 
     //Motifs without parents; entry-points into the trees
     $rootIds = signal(new Set<number>);
@@ -19,6 +24,12 @@ export class MotifStore {
     //Sets to control which nodes are displayed
     $expandedNodes = signal(new Set<number>());
     $visibleNodes = signal(new Set<number>());
+
+    getSagaTitles(){
+        this.sagaService.getSagaVersionTitles().subscribe(sagas => 
+            this.$sagaTitles.set(sagas.sort((a, b) => a.title.localeCompare(b.title))));
+    }
+
 
     filterMap(map: Map<number, IMotif>): Map<number, IMotif>{
         return new Map([...map].sort((a, b) => a[1].motifCode.localeCompare(b[1].motifCode)));

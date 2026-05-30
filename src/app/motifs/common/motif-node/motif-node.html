@@ -10,11 +10,18 @@
                 </div>
             </div>
 
-            @if ($node()?.description){
+
+
             <div class="card-body">
-                {{ $node()?.description }}
+                @for(saga of $assignedSagas(); track $index){
+                    <div>
+                        <a href="sagas/{{saga.sagaId}}"><span><i>{{saga.sagaTitle}}</i></span></a>
+                        @if (saga.pageChapterNumber != ''){
+                            <span>, {{saga.pageChapterNumber}}</span>
+                        }
+                    </div>   
+                }
             </div>
-            }
             
             <div class="card-footer" style="background-color: white">
                 <span class="me-1">

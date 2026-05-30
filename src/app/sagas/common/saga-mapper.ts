@@ -61,7 +61,8 @@ export class SagaMapper {
       sagaId: dto.sagaId,
       bibIds: bibVms.flatMap(bib => bib.id),
       primarySources: bibVms.filter(bib => bib.primarySource == true),
-      secondarySources: bibVms.filter(bib => bib.primarySource == false)
+      secondarySources: bibVms.filter(bib => bib.primarySource == false),
+      sagaMotifs: dto.sagaMotifs
     };
   }
 

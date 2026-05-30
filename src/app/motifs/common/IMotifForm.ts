@@ -1,15 +1,9 @@
-export interface IMotif {
-
-    id: number;
+export interface IMotifForm {
     motifCode: string;
     motifName: string;
     description: string;
-    parentId: number;
-    childIds?: number[];
-    hasChildren?: boolean;
-    sagaMotifs: {
+    sagas: {
         sagaVersionId: number;
         pageChapterNumber: string | null;
-    }[];
-
+    }[]
 }

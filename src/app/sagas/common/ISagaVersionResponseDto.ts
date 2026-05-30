@@ -1,4 +1,5 @@
 import { IBib } from "../../bib/common/IBib";
+import { ISagaMotif } from "./ISagaMotif";
 import { SagaDate } from './SagaDate';
 
 export interface ISagaVersionResponseDto {
@@ -8,7 +9,7 @@ export interface ISagaVersionResponseDto {
   date: SagaDate;
   sagaId: number;
   bibDto: IBib[];
-  folkloreIds: number[];
+  sagaMotifs: ISagaMotif[];
   personIds: number[];
   placeIds: number[];
   objectIds: number[];
