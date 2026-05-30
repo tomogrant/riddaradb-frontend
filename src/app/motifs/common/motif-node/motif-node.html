@@ -10,11 +10,13 @@
                 </div>
             </div>
 
+            @if ($node()?.description){
             <div class="card-body">
                 {{ $node()?.description }}
             </div>
+            }
             
-            <div class="card-footer">
+            <div class="card-footer" style="background-color: white">
                 <span class="me-1">
                     <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">
                         Edit

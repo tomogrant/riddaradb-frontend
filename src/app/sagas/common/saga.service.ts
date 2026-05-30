@@ -5,6 +5,7 @@ import { Observable, catchError, tap, throwError } from "rxjs";
 import { ISagaVersionRequestDto } from "./ISagaVersionRequestDto";
 import { ISagaDto } from "./ISagaDto";
 import { ISagaVersionResponseDto } from "./ISagaVersionResponseDto";
+import { ISagaVersionTitleDto } from "./ISagaVersionTitleDto";
 
 @Injectable({
   providedIn: 'root'
@@ -80,6 +81,12 @@ export class SagaService {
     getSagaVersionById(id: number): Observable<ISagaVersionResponseDto>{
         return this.httpClient.get<ISagaVersionResponseDto>(`${this.sagasMain}/getsagaversionbyid/${id}`)
         .pipe(tap(data => console.log(`Saga version with ID ${id}: ` + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
+
+    getSagaVersionTitles(): Observable<ISagaVersionTitleDto[]>{
+        return this.httpClient.get<ISagaVersionTitleDto[]>(`${this.sagasMain}/getsagaversiontitles`)
+        .pipe(tap(data => console.log('All saga version title data got: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 

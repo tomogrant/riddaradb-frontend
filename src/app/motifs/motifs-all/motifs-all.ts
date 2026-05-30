@@ -8,6 +8,7 @@ import { MotifStore } from '../common/motif.store';
 import { MotifModalService } from '../common/motif-modal.service';
 import { Mode } from '../../shared/Enums';
 import { QuillModule } from 'ngx-quill';
+import { SagaService } from '../../sagas/common/saga.service';
 
 @Component({
   selector: 'app-motifs-all',
@@ -28,6 +29,7 @@ export class MotifsAll {
 
   private motifStore = inject(MotifStore);
   private motifModalService = inject(MotifModalService);
+  private sagaService = inject(SagaService);
 
   readonly Mode = Mode;
 
@@ -41,7 +43,6 @@ export class MotifsAll {
 
   editForm = form(this.$editModel, (fieldPath => {
     required(fieldPath.motifCode), {message: 'Motif code is required.'},
-
     required(fieldPath.motifName), {message: 'Motif name is required.'}
   }))
 
@@ -66,6 +67,11 @@ export class MotifsAll {
 
   ngOnInit(){
     this.motifStore.getRootMotifs();
+    this.getSagas();
+  }
+
+  getSagas(){
+    
   }
 
   openAddModal(){

@@ -15,6 +15,7 @@ import { BibMapper } from '../common/bib-mapper';
 import { IBibVm } from '../common/IBibVm';
 import { ISagaVersionVm } from '../../sagas/common/ISagaVersionVm';
 import { SagaMapper } from '../../sagas/common/saga-mapper';
+import { ISagaVersionTitleDto } from '../../sagas/common/ISagaVersionTitleDto';
 
 @Component({
   selector: 'app-bibs',
@@ -43,8 +44,8 @@ export class BibSingle {
   activeBib: IBib = this.initialiseBib();
   activeBibVm: IBibVm = this.initialiseBibVm();
 
-  sagaVersions: ISagaVersionVm[] = [];
-  attachedSagaVersions: ISagaVersionVm[] = [];
+  sagaVersions: ISagaVersionTitleDto[] = [];
+  attachedSagaVersions: ISagaVersionTitleDto[] = [];
   sagaVersionIds: number[] = [];
 
   editForm = new FormGroup({
@@ -186,10 +187,10 @@ export class BibSingle {
   }
 
   getSagas(){
-    this.sagaService.getSagaVersions().subscribe(sagas => 
+    this.sagaService.getSagaVersionTitles().subscribe(sagas => 
     {
       this.sagaVersions = [];
-      sagas.forEach(saga => this.sagaVersions.push(this.sagaMapper.mapSagaVersionResponseDtoToVm(saga)));
+      sagas.forEach(saga => this.sagaVersions.push(saga));
       this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
 
       this.attachedSagaVersions = this.sagaVersions.filter(sagaVersion => 
@@ -362,7 +363,7 @@ export class BibSingle {
   //  USER CHOICE
   //---------------
 
-    boxChecked(sagaVersion: ISagaVersionVm){
+    boxChecked(sagaVersion: ISagaVersionTitleDto){
     if (this.activeBib.sagaVersionIds.includes(sagaVersion.id)){
       return true;
     }
@@ -371,7 +372,7 @@ export class BibSingle {
     }
   }
 
-  addRemoveSagaVersion(sagaVersion: ISagaVersionVm){
+  addRemoveSagaVersion(sagaVersion: ISagaVersionTitleDto){
 
     if (this.activeBib.sagaVersionIds.includes(sagaVersion.id)){
       this.activeBib.sagaVersionIds.splice(this.activeBib.sagaVersionIds.indexOf(sagaVersion.id), 1);
@@ -416,7 +417,7 @@ export class BibSingle {
 
     //Updates the value and validity of all form controls in the edit form;
     //updating the FormGroup alone is not sufficient. 
-    Object.values(this.editForm.controls).forEach(formControl =>{
+    Object.values(this.editForm.controls).forEach(formControl => {
       formControl.updateValueAndValidity();
     });
 
