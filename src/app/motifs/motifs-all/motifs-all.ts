@@ -1,15 +1,12 @@
-import {OnInit, Component, inject, effect, computed, signal} from '@angular/core';
-import {form, FormField, minLength, required} from '@angular/forms/signals';
-import { MotifService } from '../common/motif.service';
+import {Component, inject, effect, computed, signal} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import {form, FormField, required} from '@angular/forms/signals';
 import { MotifNode } from '../common/motif-node/motif-node';
 import { Modal } from 'bootstrap';
-import { IMotif } from '../common/IMotif';
 import { MotifStore } from '../common/motif.store';
 import { MotifModalService } from '../common/motif-modal.service';
 import { Mode } from '../../shared/Enums';
 import { QuillModule } from 'ngx-quill';
-import { SagaService } from '../../sagas/common/saga.service';
-import { ISagaVersionTitleDto } from '../../sagas/common/ISagaVersionTitleDto';
 import { IMotifForm } from '../common/IMotifForm';
 
 @Component({
@@ -31,6 +28,7 @@ export class MotifsAll {
 
   private motifStore = inject(MotifStore);
   private motifModalService = inject(MotifModalService);
+  private route = inject(ActivatedRoute);
 
   readonly Mode = Mode;
 
@@ -50,6 +48,11 @@ export class MotifsAll {
     required(fieldPath.motifName), {message: 'Motif name is required.'}
   }));
 
+  $searchModel = signal({
+    searchTerm: ''
+  });
+
+  searchForm = form(this.$searchModel);
 
   //SIGNALS
   $rootIds = this.motifStore.$rootIds;
@@ -82,6 +85,14 @@ export class MotifsAll {
   ngOnInit(){
     this.motifStore.getRootMotifs();
     this.motifStore.getSagaTitles();
+
+    this.route.paramMap.subscribe(params => {
+
+      const searchTerm = params.get('searchterm');
+      if (!searchTerm) return;
+      this.searchForm.searchTerm().value.set(searchTerm);
+      this.motifStore.search(searchTerm);
+    });
   }
 
   checkboxUpdate(id: number){
@@ -120,6 +131,15 @@ export class MotifsAll {
         sagas: sagas
       }
     });
+  }
+
+  submitSearchRequest(){
+    this.motifStore.search(this.$searchModel().searchTerm);
+  }
+
+  clearSearch(){
+    this.searchForm.searchTerm().value.set('');
+    this.motifStore.clearSearch();
   }
 
   openAddModal(){

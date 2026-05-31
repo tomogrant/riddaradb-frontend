@@ -66,14 +66,13 @@
         @if (version.sagaMotifs.length){
           <div class="row">
             <h3 style="font-variant: small-caps;">Motifs</h3>
-            @for (sagaMotif of version.sagaMotifs; track $index){
-              <span>
-                <span><b>{{sagaMotif.motifCode}}</b></span>
-                <span> {{sagaMotif.motifName}}</span>
+            @for (sagaMotif of version.sagaMotifs; track sagaMotif.motifId){
+              <a href="motifs/{{sagaMotif.motifCode}}">
+                <b>{{sagaMotif.motifCode}}</b> {{sagaMotif.motifName}}
                 @if (sagaMotif.pageChapterNumber !== ''){
                   <span>, {{sagaMotif.pageChapterNumber}}.</span>
                 }
-              </span>
+              </a>
               
             }
           </div>

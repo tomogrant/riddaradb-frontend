@@ -1,66 +1,71 @@
-<div class="row mb-3">
-    <div class="col-4">
-        <div class="card">
-            <div class="card-header">
-                <div class="row">
-                    <div class="col">
-                        <b>{{ $node()?.motifCode }}</b>
-                        {{ $node()?.motifName }}
+@if (!$searchActive() || ($searchActive() && $visible())){
+    <div class="row mb-3">
+        <div class="col-4">
+            <div class="card" style="background-color: rgb(255, 254, 249);">
+                <div class="card-header" [class.result]="$result()">
+                    <div class="row">
+                        <div class="col">
+                            <b>{{ $node()?.motifCode }}</b>
+                            {{ $node()?.motifName }}
+                        </div>
                     </div>
                 </div>
-            </div>
 
 
-
-            <div class="card-body">
-                @for(saga of $assignedSagas(); track $index){
-                    <div>
-                        <a href="sagas/{{saga.sagaId}}"><span><i>{{saga.sagaTitle}}</i></span></a>
-                        @if (saga.pageChapterNumber != ''){
-                            <span>, {{saga.pageChapterNumber}}</span>
+                @if ($assignedSagas()?.length){
+                    <div class="card-body">
+                        @for(saga of $assignedSagas(); track $index){
+                            <div>
+                                <a href="sagas/{{saga.sagaId}}"><span><i>{{saga.sagaTitle}}</i></span></a>
+                                @if (saga.pageChapterNumber != ''){
+                                    <span>, {{saga.pageChapterNumber}}</span>
+                                }
+                            </div>   
                         }
-                    </div>   
+                    </div>
                 }
-            </div>
-            
-            <div class="card-footer" style="background-color: white">
-                <span class="me-1">
-                    <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">
-                        Edit
-                    </a>
-                </span>
-
-                <span class="me-1">
-                    <a class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
-                        Add sub-motif 
-                    </a>
-                </span>
-
-                <span>
-                    <a type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">
-                        Delete
-                    </a>
-                </span>
-
-                @if($node()?.hasChildren){
-                    <span style="float: right;">
-                        <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
-                            {{$expanded() ? '&minus;' : '&plus;'}}
+                
+                
+                <div class="card-footer">
+                    <span class="me-1">
+                        <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">
+                            Edit
                         </a>
                     </span>
-                }
+
+                    <span class="me-1">
+                        <a class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
+                            Add sub-motif 
+                        </a>
+                    </span>
+
+                    <span>
+                        <a type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">
+                            Delete
+                        </a>
+                    </span>
+
+                    @if($node()?.hasChildren){
+                        <span style="float: right;">
+                            <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
+                                {{$expanded() ? '&minus;' : '&plus;'}}
+                            </a>
+                        </span>
+                    }
+                </div>
+                
             </div>
-            
         </div>
-    </div>
-</div>    
-   
-<div class="child-wrapper">
-    @if ($expanded() && $node()?.childIds){
-        @for(child of $node()?.childIds; track $index){
-        <app-motif-node 
-            [$nodeId]="child">
-        </app-motif-node>
-        }
-    }
-</div>
+    </div>    
+    @if ($expanded()){
+        <div class="child-wrapper child-anim">
+            @if ($node()?.childIds){
+                @for(child of $node()?.childIds; track $index){
+                <app-motif-node
+                    [$nodeId]="child">
+                </app-motif-node>
+                }
+            }
+        </div>
+    }   
+}

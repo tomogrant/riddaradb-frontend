@@ -1,4 +1,23 @@
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .child-wrapper {
   margin-left: 4rem;
   margin-right: -4rem;
+}
+
+.child-anim{
+  animation: slideIn 0.7s ease-in forwards;
+}
+
+.result{
+  background-color: khaki;
 }

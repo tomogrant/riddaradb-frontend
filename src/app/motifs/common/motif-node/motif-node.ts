@@ -37,12 +37,16 @@ export class MotifNode {
 
   //True if the motif store has expanded this motif node. 
   $expanded = computed(() => this.motifStore.$expandedNodes().has(this.$nodeId()));
+  $visible = computed(() => this.motifStore.$visibleNodes().has(this.$nodeId()));
+  $searchActive = computed(() => this.motifStore.$searchActive());
+  $result = computed(() => this.motifStore.$resultNodes().has(this.$nodeId()));
 
   $assignedSagas = computed(() => {
     const node = this.$node();
     if (!node) return;
 
     const sagaVersions = [];
+
     for (const sagaMotif of node.sagaMotifs){
       const sagaTitle = this.$sagas().find(saga => saga.id === sagaMotif.sagaVersionId)?.title;
       if (sagaTitle){
@@ -54,7 +58,6 @@ export class MotifNode {
       }
     }
 
-    console.log(sagaVersions.length);
     return sagaVersions.sort((a, b) => a.sagaTitle.localeCompare(b.sagaTitle));
   });
 

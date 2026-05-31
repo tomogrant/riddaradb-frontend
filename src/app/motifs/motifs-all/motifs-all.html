@@ -3,19 +3,31 @@
 </div>
 
 <div class="card-body page-container tree">
-    <div class="mb-3">
-        <div class="me-1">
-            <a type="button" class="btn btn-success" (click)="openAddModal()">
-                Add motif
-            </a>
+
+    <!-- Search bar -->
+    <div class="row mb-4">
+        <div class="col-4">
+            <div class="input-group">
+                <input type="text" class="form-control" [formField]="searchForm.searchTerm" placeholder="Search motif entries...">
+                <a type="button" class="btn btn-outline-success" (click)="submitSearchRequest()">Search</a>
+                <a type="button" class="btn btn-outline-danger" (click)="clearSearch()">Clear</a>
+            </div>
         </div>
     </div>
 
+    <!-- Motif cards -->
     @for (rootId of $rootIds(); track rootId){
         <app-motif-node 
             [$nodeId]="rootId">
         </app-motif-node>
     }
+
+    <!-- Add motif button -->
+    <div class="mt-3">
+        <a type="button" class="btn btn-success" (click)="openAddModal()">
+            Add motif
+        </a>
+    </div>
 </div>
 
 <!--Add/edit modal-->
@@ -35,7 +47,7 @@
             <form>
                 <div class="container">
                     @if ($modalState()?.mode == Mode.ADD && $currentNode()){
-                        <div class="row">
+                        <div class="row mb-2">
                             <div class="col">
                                 <label for="motif-motif-code" class="form-label">Motif parent</label>
                                 <input type="text" class="form-control" id="motif-motif-code" [value]="$currentNode()?.motifCode + ' ' + $currentNode()?.motifName" disabled>
@@ -43,7 +55,7 @@
                         </div>
                     }
                     
-                    <div class="row">
+                    <div class="row mb-2">
                         <div class="col">
                             <label for="motif-motif-code" class="form-label">Motif code:</label><span style="color: rgb(210, 74, 74)">*</span>
                             <input type="text" class="form-control" [formField]="editForm.motifCode" id="motif-motif-code">
@@ -54,7 +66,7 @@
                             }
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-2">
                         <div class="col">
                             <label for="motif-motif-name" class="form-label">Motif name:</label><span style="color: rgb(210, 74, 74)">*</span>
                             <input type="text" class="form-control" [formField]="editForm.motifName" id="motif-motif-name">
@@ -65,7 +77,7 @@
                             }
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-2">
                         <div class="col">
                         <label for="motif-motif-description" class="form-label">Description:</label>
                             <input type="text" class="form-control" [formField]="editForm.description" id="motif-motif-description">

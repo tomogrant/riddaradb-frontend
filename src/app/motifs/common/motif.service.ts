@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError, tap } from 'rxjs';
 import { IMotif } from './IMotif';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { IMotifSearchResult } from './IMotifSearchResult';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,13 @@ export class MotifService {
         catchError(this.errorHandler));
     }
 
+    //SEARCH MOTIFS
+    searchMotifs(searchTerm: string): Observable<IMotifSearchResult[]>{
+        return this.httpClient.get<IMotifSearchResult[]>(`${this.motifMain}/searchmotifs/${searchTerm}`)
+        .pipe(tap(results => console.log('Search results: ' + JSON.stringify(results))),
+        catchError(this.errorHandler));
+    }
+
     //UPDATE MOTIF
     updateMotif(motif: IMotif): Observable<IMotif>{
         return this.httpClient.put<IMotif>(`${this.motifMain}/putmotif`, motif)
@@ -50,7 +58,6 @@ export class MotifService {
 
     //DELETE MOTIF BY ID
     deleteMotif(id: number): Observable<IMotif>{
-        console.log("request sent: " + `${this.motifMain}/deletemotif/${id}`);
         return this.httpClient.delete<IMotif>(`${this.motifMain}/deletemotif/${id}`);
     }
 

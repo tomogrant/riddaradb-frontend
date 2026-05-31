@@ -13,5 +13,6 @@ export const routes: Routes = [
     { path: 'bib', component: BibAll },
     { path: 'bib/:id', component: BibSingle },
     { path: 'bib/action/:mode', component: BibSingle },
-    { path: 'motifs', component: MotifsAll }
+    { path: 'motifs', component: MotifsAll },
+    { path: 'motifs/:searchterm', component: MotifsAll }
 ];

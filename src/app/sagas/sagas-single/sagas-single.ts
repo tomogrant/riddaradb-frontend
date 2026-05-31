@@ -3,7 +3,7 @@ import { FormGroup, FormControl, AbstractControl,
         ValidatorFn } from '@angular/forms';
 import { Collapse, Modal } from 'bootstrap';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { QuillModule } from 'ngx-quill'
 import { IBib, PublicationType } from '../../bib/common/IBib';
@@ -33,7 +33,8 @@ export class SagasSingle implements OnInit {
     private sagasService: SagaService,
     private bibService: BibService,
     private sagaMapper: SagaMapper,
-    private bibMapper: BibMapper
+    private bibMapper: BibMapper,
+    private router: Router
   ) {}
 
     readonly PublicationType = PublicationType;
@@ -220,6 +221,10 @@ export class SagasSingle implements OnInit {
   //---------------
   //  USER CHOICE
   //---------------
+
+  navigateToMotif(motifCode: string){
+    this.router.navigate([`motifs/${motifCode}`]);
+  }
 
   editSagaVersion(id: number){
     this.mode = Mode.EDIT;

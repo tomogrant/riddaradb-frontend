@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { IMotif } from "./IMotif";
+import { firstValueFrom } from "rxjs";
 import { MotifService } from "./motif.service";
 import { SagaService } from "../../sagas/common/saga.service";
 import { ISagaVersionTitleDto } from "../../sagas/common/ISagaVersionTitleDto";
@@ -24,6 +25,9 @@ export class MotifStore {
     //Sets to control which nodes are displayed
     $expandedNodes = signal(new Set<number>());
     $visibleNodes = signal(new Set<number>());
+    $resultNodes = signal(new Set<number>());
+
+    $searchActive = signal(false);
 
     getSagaTitles(){
         this.sagaService.getSagaVersionTitles().subscribe(sagas => 
@@ -33,6 +37,92 @@ export class MotifStore {
 
     filterMap(map: Map<number, IMotif>): Map<number, IMotif>{
         return new Map([...map].sort((a, b) => a[1].motifCode.localeCompare(b[1].motifCode)));
+    }
+
+    clearSearch(){
+        if (this.$searchActive()){
+            this.$searchActive.set(false);
+
+            this.clearExpandedNodes();
+            this.clearVisibleNodes();
+            this.clearResultNodes();
+        }
+
+    }
+
+    async search(searchTerm: string): Promise<void>{
+        const results = await firstValueFrom(this.motifService.searchMotifs(searchTerm));
+        
+        this.$searchActive.set(true);
+
+        this.clearExpandedNodes();
+        this.clearVisibleNodes();
+        this.clearResultNodes();
+
+        for (const result of results){
+            await this.loadAncestors(result.searchResultPath);
+
+            this.$visibleNodes.update(current => {
+                const next = new Set(current);
+                next.add(result.searchResultId);
+                return next;
+            });
+
+            this.$resultNodes.update(current => {
+                const next = new Set(current);
+                next.add(result.searchResultId);
+                return next;
+            });
+        }
+    }
+
+    async loadAncestors(ancestorIds: number[]){
+        for (const ancestorId of ancestorIds){
+            console.log("Ancestor ID: " + ancestorId);
+            const node = this.getMotifNode(ancestorId);
+            if (!node) return;
+
+            this.$expandedNodes.update(current => {
+                const next = new Set(current);
+                next.add(ancestorId);
+                return next;
+            });
+
+            this.$visibleNodes.update(current => {
+                const next = new Set(current);
+                next.add(ancestorId);
+                return next;
+            });
+
+            if(node.hasChildren && !node.childIds){
+                console.log("Getting motif children...");
+                await this.getMotifChildren(ancestorId);
+            }
+        }
+    }
+
+    clearExpandedNodes(){
+        this.$expandedNodes.update(current => {
+            const next = new Set(current);
+            next.clear();
+            return next;
+        });
+    }
+
+    clearVisibleNodes(){
+        this.$visibleNodes.update(current => {
+            const next = new Set(current);
+            next.clear();
+            return next;
+        });
+    }
+
+    clearResultNodes(){
+        this.$resultNodes.update(current => {
+            const next = new Set(current);
+            next.clear();
+            return next;
+        });
     }
 
     getRootMotifs(){
@@ -285,31 +375,28 @@ export class MotifStore {
         this.motifService.deleteMotif(id).subscribe();
     }
 
-    getMotifChildren(id: number){
-        this.motifService.getChildren(id).subscribe(children => {
-            this.$motifNodes.update(current => {
-                const next = new Map(current);
+    async getMotifChildren(id: number): Promise<void>{
+        const children = await firstValueFrom(this.motifService.getChildren(id));
+        this.$motifNodes.update(current => {
+            const next = new Map(current);
 
-                const sortedChildren = children.sort((a, b) => a.motifCode.localeCompare(b.motifCode));
+            const sortedChildren = children.sort((a, b) => a.motifCode.localeCompare(b.motifCode));
 
-                for (var child of sortedChildren){
-                    next.set(child.id, child);
-                }
+            for (var child of sortedChildren){
+                next.set(child.id, child);
+            }
 
-                const parentMotif = next.get(id);
-            
-                if (parentMotif){
-                    next.set(id, {
-                        ...parentMotif,
-                        childIds: sortedChildren.map(child => child.id)
-                    })
-                }
+            const parentMotif = next.get(id);
+        
+            if (parentMotif){
+                next.set(id, {
+                    ...parentMotif,
+                    childIds: sortedChildren.map(child => child.id)
+                })
+            }
 
-                return next;
-            });
+            return next;
         });
-
-
     }
 
     expand(id: number){
