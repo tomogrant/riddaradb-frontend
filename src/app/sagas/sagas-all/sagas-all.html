@@ -46,9 +46,9 @@
         <div class="modal-body">
             <div class="mb-3">
               <!-- SAGA TITLE -->
-              <label for="saga-version-title" class="form-label">Title:*</label>
+              <label for="saga-version-title" class="form-label">Title:</label><span style="color: rgb(210, 74, 74)">*</span>
               <input type="text" class="form-control" formControlName="title" id="saga-version-title"
-                      [ngStyle]="{'background-color': (title.invalid && showValidationErrors) ? 'rgb(210, 74, 74)' : 'white'}">
+                      [class.invalid-input]="title.invalid && showValidationErrors">
                 @if (title.invalid && showValidationErrors) {
                   @if (title.hasError('required')) {
                     <div style="color:rgb(210, 74, 74)">

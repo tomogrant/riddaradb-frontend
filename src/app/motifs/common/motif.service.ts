@@ -48,6 +48,13 @@ export class MotifService {
         catchError(this.errorHandler));
     }
 
+    //SEARCH MOTIFS
+    searchMotifsExactMatch(searchTerm: string): Observable<IMotifSearchResult[]>{
+        return this.httpClient.get<IMotifSearchResult[]>(`${this.motifMain}/searchmotifsexact/${searchTerm}`)
+        .pipe(tap(results => console.log('Search results: ' + JSON.stringify(results))),
+        catchError(this.errorHandler));
+    }
+
     //UPDATE MOTIF
     updateMotif(motif: IMotif): Observable<IMotif>{
         return this.httpClient.put<IMotif>(`${this.motifMain}/putmotif`, motif)

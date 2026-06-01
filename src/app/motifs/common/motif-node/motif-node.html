@@ -5,18 +5,39 @@
                 <div class="card-header" [class.result]="$result()">
                     <div class="row">
                         <div class="col">
-                            <b>{{ $node()?.motifCode }}</b>
-                            {{ $node()?.motifName }}
+                            @if ($result()){
+                                <b [innerHTML]="highlightText($node()?.motifCode)"></b>
+                                <span>&nbsp;</span>
+                                <span [innerHTML]="highlightText($node()?.motifName)"></span>
+                            }
+                            @else {
+                                <b>{{ $node()?.motifCode }}</b>
+                                {{ $node()?.motifName }}
+                            }
                         </div>
                     </div>
                 </div>
 
 
-                @if ($assignedSagas()?.length){
+                @if ($assignedSagas()?.length || $node()?.description != ''){
                     <div class="card-body">
+                        <div class="mb-2">
+                            @if ($result()){
+                                <span [innerHTML]="this.highlightText($node()?.description)"></span>
+                            }
+                            @else{
+                                {{$node()?.description}}
+                            }
+
+                        </div>
                         @for(saga of $assignedSagas(); track $index){
                             <div>
-                                <a href="sagas/{{saga.sagaId}}"><span><i>{{saga.sagaTitle}}</i></span></a>
+                                @if ($result()){
+                                    <i><a href="sagas/{{saga.sagaId}}" [innerHTML]="this.highlightText(saga.sagaTitle)"></a></i>
+                                }
+                                @else {
+                                    <a href="sagas/{{saga.sagaId}}"><i>{{saga.sagaTitle}}</i></a>
+                                }
                                 @if (saga.pageChapterNumber != ''){
                                     <span>, {{saga.pageChapterNumber}}</span>
                                 }
@@ -45,7 +66,7 @@
                         </a>
                     </span>
 
-                    @if($node()?.hasChildren){
+                    @if($node()?.hasChildren && !$searchActive()){
                         <span style="float: right;">
                             <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
                                 {{$expanded() ? '&minus;' : '&plus;'}}

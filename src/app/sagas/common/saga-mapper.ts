@@ -33,7 +33,6 @@ export class SagaMapper {
       date: vm.date,
       sagaId: vm.sagaId,
       bibIds: vm.bibIds,
-      folkloreIds: [],
       personIds: [],
       placeIds: [],
       objectIds: [],

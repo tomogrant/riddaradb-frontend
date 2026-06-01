@@ -17,6 +17,8 @@ import { ISagaVersionVm } from '../../sagas/common/ISagaVersionVm';
 import { SagaMapper } from '../../sagas/common/saga-mapper';
 import { ISagaVersionTitleDto } from '../../sagas/common/ISagaVersionTitleDto';
 
+// TODO: Adding saga to bibliography entry does not immediately show sagas. 
+
 @Component({
   selector: 'app-bibs',
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule],
@@ -587,9 +589,12 @@ export class BibSingle {
     this.fillBibDto();
     this.bibService.putBib(this.activeBib).subscribe({
       next: receivedBib =>{
-        console.log("bibliography entry updated: " + receivedBib);
+        console.log("bibliography entry updated; sagas got from backend: " + receivedBib.sagaVersionIds);
           this.activeBib = receivedBib;
           this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
+
+          this.attachedSagaVersions = this.sagaVersions.filter(sagaVersion => 
+            this.activeBib.sagaVersionIds.includes(sagaVersion.id));
       },
       error: err => {
         console.log('Error updating bib: ' + err)

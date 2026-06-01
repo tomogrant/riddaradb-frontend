@@ -83,15 +83,15 @@ export class MotifsAll {
   });
 
   ngOnInit(){
-    this.motifStore.getRootMotifs();
-    this.motifStore.getSagaTitles();
+    this.route.paramMap.subscribe(async params => {
 
-    this.route.paramMap.subscribe(params => {
+      await this.motifStore.getRootMotifs();
+      await this.motifStore.getSagaTitles();
 
       const searchTerm = params.get('searchterm');
       if (!searchTerm) return;
       this.searchForm.searchTerm().value.set(searchTerm);
-      this.motifStore.search(searchTerm);
+      this.motifStore.search(searchTerm, true);
     });
   }
 
@@ -134,12 +134,17 @@ export class MotifsAll {
   }
 
   submitSearchRequest(){
-    this.motifStore.search(this.$searchModel().searchTerm);
+    this.motifStore.search(this.$searchModel().searchTerm, false);
   }
 
   clearSearch(){
     this.searchForm.searchTerm().value.set('');
     this.motifStore.clearSearch();
+  }
+
+  collapseAll(){
+    if (!this.motifStore.$searchActive())
+      this.motifStore.collapseAll();
   }
 
   openAddModal(){

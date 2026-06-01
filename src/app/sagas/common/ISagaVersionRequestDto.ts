@@ -8,7 +8,6 @@ export interface ISagaVersionRequestDto {
   date: SagaDate;
   sagaId: number;
   bibIds: number[];
-  folkloreIds: number[];
   personIds: number[];
   placeIds: number[];
   objectIds: number[];

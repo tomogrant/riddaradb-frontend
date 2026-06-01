@@ -364,7 +364,6 @@ export class SagasSingle implements OnInit {
       next: receivedSagaVersion => {
         console.log("Saved successfully! " + receivedSagaVersion);
         this.sagaVersions[this.sagaVersions.indexOf(this.activeSagaVersion)] = this.sagaMapper.mapSagaVersionResponseDtoToVm(receivedSagaVersion);
-        //this.getSaga();
       },
       error: err => {
         console.log("Problem with saving.");

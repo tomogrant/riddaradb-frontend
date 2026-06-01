@@ -19,27 +19,14 @@ export class MotifNode {
 
   $nodeId = input.required<number>();
   $node = computed(() => this.motifStore.$motifNodes().get(this.$nodeId()));
-  $sagas = computed(() => this.motifStore.$sagaTitles());
 
-  // children = computed(() => {
-  //   console.log("Recalculating children...")
-  //   const node = this.$node();
-
-  //   if (!node?.childIds){
-  //     return [];
-  //   }
-
-  //   return node.childIds
-  //     .map(id => this.motifStore.getMotifNode(id))
-  //     .filter((node): node is IMotif => node !== undefined)
-  //     .sort((a, b) => a.motifCode.localeCompare(b.motifCode));
-  // });
-
-  //True if the motif store has expanded this motif node. 
   $expanded = computed(() => this.motifStore.$expandedNodes().has(this.$nodeId()));
   $visible = computed(() => this.motifStore.$visibleNodes().has(this.$nodeId()));
-  $searchActive = computed(() => this.motifStore.$searchActive());
   $result = computed(() => this.motifStore.$resultNodes().has(this.$nodeId()));
+
+  $searchActive = computed(() => this.motifStore.$searchActive());
+  $searchTerm = computed(() => this.motifStore.$searchTerm());
+  $sagas = computed(() => this.motifStore.$sagaTitles());
 
   $assignedSagas = computed(() => {
     const node = this.$node();
@@ -48,11 +35,12 @@ export class MotifNode {
     const sagaVersions = [];
 
     for (const sagaMotif of node.sagaMotifs){
-      const sagaTitle = this.$sagas().find(saga => saga.id === sagaMotif.sagaVersionId)?.title;
-      if (sagaTitle){
+      const saga = this.$sagas().find(saga => saga.id === sagaMotif.sagaVersionId);
+      if (saga){
         sagaVersions.push({
-          sagaId: sagaMotif.sagaVersionId,
-          sagaTitle: sagaTitle,
+          sagaVersionId: sagaMotif.sagaVersionId,
+          sagaTitle: saga.title,
+          sagaId: saga.sagaId,
           pageChapterNumber: sagaMotif.pageChapterNumber
         });
       }
@@ -60,6 +48,8 @@ export class MotifNode {
 
     return sagaVersions.sort((a, b) => a.sagaTitle.localeCompare(b.sagaTitle));
   });
+
+  parentSaga = new Map<number, number>();
 
   toggle(){
     if (this.$expanded()){
@@ -89,6 +79,15 @@ export class MotifNode {
 
   resetModal(){
     this.motifModalService.closeModal();
+  }
+
+  highlightText(textToHighlight: string | undefined) {
+    if (textToHighlight){
+        return textToHighlight.replace(this.$searchTerm(), ("<mark>" + this.$searchTerm() + "</mark>"));
+    }
+    else {
+      return null;
+    }
   }
 
 }

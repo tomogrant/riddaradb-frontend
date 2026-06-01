@@ -28,10 +28,11 @@ export class MotifStore {
     $resultNodes = signal(new Set<number>());
 
     $searchActive = signal(false);
+    $searchTerm = signal('');
 
-    getSagaTitles(){
-        this.sagaService.getSagaVersionTitles().subscribe(sagas => 
-            this.$sagaTitles.set(sagas.sort((a, b) => a.title.localeCompare(b.title))));
+    async getSagaTitles(){
+        const sagas = await firstValueFrom(this.sagaService.getSagaVersionTitles());
+        this.$sagaTitles.set(sagas.sort((a, b) => a.title.localeCompare(b.title)));
     }
 
 
@@ -42,6 +43,7 @@ export class MotifStore {
     clearSearch(){
         if (this.$searchActive()){
             this.$searchActive.set(false);
+            this.$searchTerm.set('');
 
             this.clearExpandedNodes();
             this.clearVisibleNodes();
@@ -50,16 +52,19 @@ export class MotifStore {
 
     }
 
-    async search(searchTerm: string): Promise<void>{
-        const results = await firstValueFrom(this.motifService.searchMotifs(searchTerm));
+    async search(searchTerm: string, exactSearch: boolean): Promise<void>{
+        const results = exactSearch ? await firstValueFrom(this.motifService.searchMotifsExactMatch(searchTerm))
+                                    : await firstValueFrom(this.motifService.searchMotifs(searchTerm));
         
         this.$searchActive.set(true);
+        this.$searchTerm.set(searchTerm);
 
         this.clearExpandedNodes();
         this.clearVisibleNodes();
         this.clearResultNodes();
 
         for (const result of results){
+            result.searchResultPath.sort((a, b) => a - b);
             await this.loadAncestors(result.searchResultPath);
 
             this.$visibleNodes.update(current => {
@@ -76,7 +81,7 @@ export class MotifStore {
         }
     }
 
-    async loadAncestors(ancestorIds: number[]){
+    async loadAncestors(ancestorIds: number[]): Promise<void>{
         for (const ancestorId of ancestorIds){
             console.log("Ancestor ID: " + ancestorId);
             const node = this.getMotifNode(ancestorId);
@@ -125,27 +130,27 @@ export class MotifStore {
         });
     }
 
-    getRootMotifs(){
-        this.motifService.getRootMotifs().subscribe(roots => {
-            this.$motifNodes.update(current => {
-                const next = new Map(current);
+    async getRootMotifs(): Promise<void>{
+        const roots = await firstValueFrom(this.motifService.getRootMotifs());
 
-                for (const root of roots){
-                    next.set(root.id, root);
-                }
+        this.$motifNodes.update(current => {
+            const next = new Map(current);
 
-                return next;
-            });
+            for (const root of roots){
+                next.set(root.id, root);
+            }
 
-            this.$rootIds.update(current => {
-                const next = new Set(current);
-                roots.forEach(root => next.add(root.id));
-
-                return next;
-            });
-
-            this.sortRootIds();
+            return next;
         });
+
+        this.$rootIds.update(current => {
+            const next = new Set(current);
+            roots.forEach(root => next.add(root.id));
+
+            return next;
+        });
+
+        this.sortRootIds();
     }
 
     addNewRootMotif(newRootMotif: IMotif){
@@ -412,6 +417,15 @@ export class MotifStore {
         this.$expandedNodes.update(current => {
             const next = new Set(current);
             next.delete(id);
+
+            return next;
+        });
+    }
+
+    collapseAll(){
+        this.$expandedNodes.update(current => {
+            const next = new Set(current);
+            next.clear();
 
             return next;
         });
