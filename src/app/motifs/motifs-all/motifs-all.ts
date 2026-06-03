@@ -1,5 +1,5 @@
 import {Component, inject, effect, computed, signal} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import {form, FormField, required} from '@angular/forms/signals';
 import { MotifNode } from '../common/motif-node/motif-node';
 import { Modal } from 'bootstrap';
@@ -59,6 +59,8 @@ export class MotifsAll {
 
   $modalState = this.motifModalService.$modalState;
 
+  $showColourCoding = computed(() => (this.motifStore.$showColourCoding()));
+
   readonly selectedSagaMap = computed(() => {
     const map = new Map<number, string | null>();
 
@@ -83,8 +85,13 @@ export class MotifsAll {
   });
 
   ngOnInit(){
-    this.route.paramMap.subscribe(async params => {
+    this.route.paramMap.subscribe(params => {
+      this.initialise(params);
+    });
+  }
 
+  async initialise(params: ParamMap){
+      this.motifStore.initialise();
       await this.motifStore.getRootMotifs();
       await this.motifStore.getSagaTitles();
 
@@ -92,7 +99,6 @@ export class MotifsAll {
       if (!searchTerm) return;
       this.searchForm.searchTerm().value.set(searchTerm);
       this.motifStore.search(searchTerm, true);
-    });
   }
 
   checkboxUpdate(id: number){
@@ -145,6 +151,10 @@ export class MotifsAll {
   collapseAll(){
     if (!this.motifStore.$searchActive())
       this.motifStore.collapseAll();
+  }
+
+  toggleColourCoding(){
+    this.motifStore.toggleColourCoding();
   }
 
   openAddModal(){

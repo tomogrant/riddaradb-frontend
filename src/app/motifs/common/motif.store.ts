@@ -29,12 +29,21 @@ export class MotifStore {
 
     $searchActive = signal(false);
     $searchTerm = signal('');
+    $showColourCoding = signal(false);
+
+    initialise(){
+        this.collapseAll();
+        this.clearVisibleNodes();
+        this.clearResultNodes();
+        this.$searchActive.set(false);
+        this.$searchTerm.set('');
+        this.$showColourCoding.set(false);
+    }
 
     async getSagaTitles(){
         const sagas = await firstValueFrom(this.sagaService.getSagaVersionTitles());
         this.$sagaTitles.set(sagas.sort((a, b) => a.title.localeCompare(b.title)));
     }
-
 
     filterMap(map: Map<number, IMotif>): Map<number, IMotif>{
         return new Map([...map].sort((a, b) => a[1].motifCode.localeCompare(b[1].motifCode)));
@@ -45,11 +54,15 @@ export class MotifStore {
             this.$searchActive.set(false);
             this.$searchTerm.set('');
 
-            this.clearExpandedNodes();
+            this.collapseAll();
             this.clearVisibleNodes();
             this.clearResultNodes();
         }
+    }
 
+    toggleColourCoding(){
+        this.$showColourCoding.set(!this.$showColourCoding());
+        console.log("Colour coding is on: " + this.$showColourCoding());
     }
 
     async search(searchTerm: string, exactSearch: boolean): Promise<void>{
@@ -59,7 +72,7 @@ export class MotifStore {
         this.$searchActive.set(true);
         this.$searchTerm.set(searchTerm);
 
-        this.clearExpandedNodes();
+        this.collapseAll();
         this.clearVisibleNodes();
         this.clearResultNodes();
 
@@ -104,14 +117,6 @@ export class MotifStore {
                 await this.getMotifChildren(ancestorId);
             }
         }
-    }
-
-    clearExpandedNodes(){
-        this.$expandedNodes.update(current => {
-            const next = new Set(current);
-            next.clear();
-            return next;
-        });
     }
 
     clearVisibleNodes(){

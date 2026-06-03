@@ -9,6 +9,10 @@
   }
 }
 
+.motif-card{
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .child-wrapper {
   margin-left: 4rem;
   margin-right: -4rem;
@@ -19,5 +23,6 @@
 }
 
 .result{
-  background-color: khaki;
+  border-color: khaki;
+  border-width: 5px;
 }

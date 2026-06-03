@@ -1,8 +1,8 @@
 @if (!$searchActive() || ($searchActive() && $visible())){
     <div class="row mb-3">
         <div class="col-4">
-            <div class="card" style="background-color: rgb(255, 254, 249);">
-                <div class="card-header" [class.result]="$result()">
+            <div class="card motif-card" [style.background-color]="$showColourCoding() ? nodeColour : 'rgb(255, 254, 249)'" [class.result]="$result()">
+                <div class="card-header">
                     <div class="row">
                         <div class="col">
                             @if ($result()){
@@ -83,7 +83,8 @@
             @if ($node()?.childIds){
                 @for(child of $node()?.childIds; track $index){
                 <app-motif-node
-                    [$nodeId]="child">
+                    [$nodeId]="child"
+                    [$depth]="$depth() + 1">
                 </app-motif-node>
                 }
             }

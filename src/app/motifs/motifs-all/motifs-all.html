@@ -5,21 +5,27 @@
 <div class="card-body page-container tree">
 
     <!-- Search bar -->
-    <div class="row mb-4">
-        <div class="col-4">
-            <div class="input-group">
-                <input type="text" class="form-control" [formField]="searchForm.searchTerm" placeholder="Search motif entries...">
-                <a type="button" class="btn btn-outline-success" (click)="submitSearchRequest()">Search</a>
-                <a type="button" class="btn btn-outline-danger" (click)="clearSearch()">Clear</a>
-                <a type="button" class="btn btn-outline-secondary" (click)="collapseAll()">Collapse all</a>
+    <div class="card mb-4 p-3" style="background-color: rgb(255, 254, 249); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+        <div class="row gx-3">
+            <div class="col-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" [formField]="searchForm.searchTerm" placeholder="Search motif entries...">
+                        <button type="button" class="btn btn-outline-success" (click)="submitSearchRequest()">Search</button>
+                        <button type="button" class="btn btn-outline-danger" (click)="clearSearch()">Clear</button>
+                    </div>
             </div>
+            <div class="col-3">
+                <button type="button" class="me-3 btn btn-outline-secondary" (click)="collapseAll()">Collapse all</button>
+                <button type="button" class="btn btn-outline-secondary" (click)="toggleColourCoding()">{{$showColourCoding() ? 'Hide colour coding' : 'Show colour coding'}}</button>
+            </div>  
         </div>
     </div>
 
     <!-- Motif cards -->
     @for (rootId of $rootIds(); track rootId){
         <app-motif-node 
-            [$nodeId]="rootId">
+            [$nodeId]="rootId"
+            [$depth]="1">
         </app-motif-node>
     }
 
@@ -101,6 +107,7 @@
                             Page/chapter number
                         </div>
                     </div>
+                    
                     <hr>
 
                     @for (saga of $sagas(); track saga.id){
