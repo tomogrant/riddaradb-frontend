@@ -5,66 +5,46 @@
 @if (sagaEntry) {
   <div class="card-body page-container">
     <div class="container">
-      @for (version of sagaVersions; track $index) {
-        <div class="row">
-          <!-- Title and buttons -->
-          <h2 class="mb-1"><i>{{ version.title }}</i>
-          <button (click)="editSagaVersion(version.id);"
-                    type="button" style="margin-left: 0.5rem" 
-                    class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Edit</button>
-          <button (click)="selectSagaVersion(version.id)" [disabled]="sagaVersions.length < 2"
-                    type="button" style="margin-left: 0.5rem"
-                    class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
-          </h2>
-        </div>
-        <div class="row">
+      <div class="mb-3">
+        <button (click)="editSaga();"
+            type="button" style="margin-left: 0.5rem" 
+            class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editSaga">Edit</button>
+        <button [disabled]="sagaVersions.length < 2"
+            type="button" style="margin-left: 0.5rem"
+            class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
+      </div>
+      
+      @if(sagaEntry.description != ''){
+        <div [innerHTML]="sagaEntry.description"></div>
+      }
+
+      <!-- SAGA VERSION -->
+      @for (version of sagaEntry.sagaVersions; track $index) {
+        @if (sagaEntry.sagaVersions.length > 1){
+          <div class="row">
+          <!-- Title -->
+            <h2 class="mb-1"><i>{{ version.title }}</i></h2>
+            </div>
+        }
           <!-- Date -->
           @if(version.date != SagaDate.UNDEFINED){
-            <div><strong>Date: </strong>
-            {{ mapToUi(version.date) }}
-            <p></p>
+            <div class="row mb-3">
+              <div><strong>Date: </strong>
+              {{ mapToUi(version.date) }}
+              </div>
             </div>
           }
-        </div>
-        <div class="row mb-4">
-          <!-- Description -->
-          <div class [innerHTML]="version.description"></div>
-        </div>
 
-        <!-- Bibliography -->
-        @if (version.primarySources.length > 0){
-          <div class="row">
-            <h3 style="font-variant: small-caps;">Editions and translations</h3>
-          </div>
-          @for (bib of version.primarySources; track $index){
-            <div class="row mb-1">
-              <span>
-                @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
-                <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
-              </span>
+          @if(version.description != ''){
+            <div class="row mb-3">
+              <!-- Description -->
+              <div class [innerHTML]="version.description"></div>
             </div>
           }
-          <p></p>
-        }
-
-        @if (version.secondarySources.length > 0){
-          <div class="row">
-            <h3 style="font-variant: small-caps;">Secondary sources</h3>
-          </div>
-          @for (bib of version.secondarySources; track $index){
-            <div class="row mb-1">
-              <span>
-                @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
-                <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
-              </span>
-            </div>
-          }
-          <p></p>
-        }
 
         <!-- Motifs -->
         @if (version.sagaMotifs.length){
-          <div class="row">
+          <div class="row mb-5">
             <h3 style="font-variant: small-caps;">Motifs</h3>
             @for (sagaMotif of version.sagaMotifs; track sagaMotif.motifId){
               <a href="motifs/{{sagaMotif.motifCode}}">
@@ -78,37 +58,62 @@
           </div>
         }
         
-
-        @if (sagaVersions.length > 1 && $index != sagaVersions.length-1){
-          <hr>
-          <p></p>
+        @if (sagaEntry.sagaVersions.length > 1 && $index != sagaEntry.sagaVersions.length-1){
+          <div class="mb-5">
+            <hr>
+          </div>
         }
       }
 
-      <div class="mt-2">
-        <button (click)="addSagaVersion();" 
-          type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
-      </div>
-      
+      <!-- Bibliography -->
+      @if (sagaEntry.primarySources.length > 0 || sagaEntry.secondarySources.length > 0){
+        <div class="row">
+          <h3 style="font-variant: small-caps;">Bibliography</h3>
+        </div>
+      }
+
+      @if (sagaEntry.primarySources.length > 0){
+        <div class="row">
+          <h3 style="font-variant: small-caps;">Editions and translations</h3>
+        </div>
+        @for (bib of sagaEntry.primarySources; track $index){
+          <div class="row mb-1">
+            <span>
+              @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
+              <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+            </span>
+          </div>
+        }
+        <p></p>
+      }
+
+      @if (sagaEntry.secondarySources.length > 0){
+        <div class="row">
+          <h3 style="font-variant: small-caps;">Secondary sources</h3>
+        </div>
+        @for (bib of sagaEntry.secondarySources; track $index){
+          <div class="row mb-1">
+            <span>
+              @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
+              <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+            </span>
+          </div>
+        }
+        <p></p>
+      }
     </div>
   </div>
 }
 
 <!-- MODALS -->
 
-<!--Add/edit modal-->
-<div class="modal fade" id="editAddSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<!--Edit modal-->
+<div class="modal fade" id="editSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-xl">
     <div class="modal-content">
         <div class="modal-header">
-          @if (mode === Mode.EDIT){
             <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga version</h1>
-          }
-          @else if (mode === Mode.ADD){
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Add saga version</h1>
-          }
-          
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form [formGroup]="editForm">
@@ -134,35 +139,28 @@
                   }
                 </div>
 
-                <!-- DATE FIELD -->
                 <div class="col">
-                  <label for="saga-version-title" class="form-label">Date:</label><span style="color: rgb(210, 74, 74)">*</span>
-                  <select class="form-select" formControlName="date" id="saga-version-date"
-                          [class.invalid-input]="date.invalid && showValidationErrors">
-                    <option disabled selected>Select a date:</option>
-                    <option>1250-1300</option>
-                    <option>1300-1350</option>
-                    <option>1350-1400</option>
-                    <option>1400-1450</option>
-                    <option>1450-1500</option>
-                    <option>1500-1550</option>
-                  </select>
-                  @if (date.invalid && showValidationErrors) {
-                    @if (date.hasError('dateNotSelected')) {
-                      <div style="color: rgb(210, 74, 74)">
-                          <small>Date is required.</small>
-                      </div>
-                    }
-                  }
+                  <span>Translated/original composition:</span>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" formControlName="translated" [value]=false>
+                    <label class="form-check-label">Original</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" formControlName="translated" [value]=true>
+                    <label class="form-check-label">
+                      Translated
+                    </label>
+                  </div>
                 </div>
+
               </div>
                 
 
               <div class="row">
                 <div class="col">
                 <!-- DESCRIPTION FIELD -->
-                  <label for="saga-version-description" class="form-label">Description:</label>
-                  <quill-editor class="quill-editor" formControlName="description" id="saga-version-description" placeholder="Saga version description"
+                  <label for="saga-description" class="form-label">Description:</label>
+                  <quill-editor class="quill-editor" formControlName="description" id="saga-description" placeholder="Saga description"
                   [modules]="
                     {
                       toolbar: [
@@ -175,10 +173,86 @@
                 </div>
               </div>
 
+              <hr>
+
+              <!-- SAGA VERSION FORMS -->
+              <div formArrayName="sagaVersionForms">
+                @for (sagaVersionForm of sagaVersionForms.controls; track sagaVersionForm.get('trackingId')?.value; let i = $index;){
+                  <div [formGroupName]="i">
+                    
+                    <!-- TITLE FIELD -->
+                     <div class="row mb-3">
+
+                        @if (sagaVersionForms.length > 1){
+                          <div class="col-5">
+                            <label for="saga-version-title" class="form-label">Title:</label><span style="color: rgb(210, 74, 74)">*</span>
+                            <input type="text" class="form-control" formControlName="title" id="saga-version-title" placeholder="Saga version title"  
+                              [class.invalid-input]="sagaVersionForm.get('title')?.invalid && showValidationErrors">
+                            @if (sagaVersionForm.get('title')?.invalid && showValidationErrors) {
+                              @if (sagaVersionForm.get('title')?.hasError('required')) {
+                                <div style="color:rgb(210, 74, 74)">
+                                    <small>Title is required.</small>
+                                </div>
+                              }
+                              <!-- @else if (sagaVersionForm.get('title')?.hasError('nameNotUnique')){
+                                <div style="color:rgb(210, 74, 74)">
+                                    <small>Saga already exists.</small>
+                                </div>
+                              } -->
+                            }
+                          </div>
+                        }
+                        
+                        <!-- DATE FIELD -->
+                        <div class="col-5">
+                          <label for="saga-version-date" class="form-label">Date:</label><span style="color: rgb(210, 74, 74)">*</span>
+                          <select class="form-select" formControlName="date" id="saga-version-date"
+                                  [class.invalid-input]="sagaVersionForm.get('date')?.invalid && showValidationErrors">
+                            <option disabled selected>Select a date:</option>
+                            <option>1250-1300</option>
+                            <option>1300-1350</option>
+                            <option>1350-1400</option>
+                            <option>1400-1450</option>
+                            <option>1450-1500</option>
+                            <option>1500-1550</option>
+                          </select>
+                          @if (sagaVersionForm.get('date')?.invalid && showValidationErrors) {
+                            @if (sagaVersionForm.get('date')?.hasError('dateNotSelected')) {
+                              <div style="color: rgb(210, 74, 74)">
+                                  <small>Date is required.</small>
+                              </div>
+                            }
+                          }
+                        </div>
+
+                        @if (sagaVersionForms.length > 1){
+                          <div class="col-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                              <button type="button" class="btn btn-outline-danger" (click)="removeSagaVersionForm(i)">Remove version</button>
+                            </div>
+                          </div>
+                      }
+
+                      </div>
+                  
+                  </div>
+                }
+              </div>
+
               <div class="row mt-3">
                 <div class="col">
+                  <div>
+                    <span class="me-2">
+                      <button class="btn btn-outline-success" (click)="addSagaVersionForm()">Add saga version</button>
+                    </span>
+                </div>
+                </div>
+              </div>
 
-                  <!-- BIBLIOGRAPHY ENTRIES -->
+              <!-- Bibliography entry selector -->
+              <div class="row mt-3">
+                <div class="col">
 
                   <div class="accordion" id="accordion-container">
                     <div class="accordion-item">
@@ -215,6 +289,7 @@
                   </div>
                 </div>
               </div>
+
             </div>
           </form>
         </div>
@@ -233,7 +308,7 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete <i>{{ activeSagaVersion.title }}</i>?</h1>
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete <i></i>?</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -241,7 +316,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteSagaVersion()' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
       </div>
     </div>
   </div>

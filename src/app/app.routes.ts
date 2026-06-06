@@ -10,6 +10,7 @@ export const routes: Routes = [
     { path: 'home', component: HomeComponent, pathMatch: 'full' },
     { path: 'sagas', component: SagasAll },
     { path: 'sagas/:id', component: SagasSingle },
+    { path: 'sagas/action/:mode', component: SagasSingle },
     { path: 'bib', component: BibAll },
     { path: 'bib/:id', component: BibSingle },
     { path: 'bib/action/:mode', component: BibSingle },

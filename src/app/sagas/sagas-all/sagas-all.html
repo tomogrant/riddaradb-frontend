@@ -8,104 +8,12 @@
         <div class="col-2 ms-3">
           <h4><i><a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a></i></h4>
         </div>
-        <div class="col-2">
-          <!-- Edit button -->
-          <button (click)="editSaga(saga.id);"
-                  type="button" style="margin-right: 0.25rem" 
-                  class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Edit</button>
-          <!-- Delete button -->
-          <button (click)="selectSaga(saga.id)"
-                  type="button"
-                  class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
-        </div>
       </div>
     }
     <div class="row">
       <div class="col-sm ms-3">
         <button (click)="addSaga();" 
                 type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!--Add/dit modal-->
-<div class="modal fade" id="editAddSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <form [formGroup]="editForm">
-        <div class="modal-header">
-          @if(mode === Mode.EDIT){
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga</h1>
-          }
-          @else if(mode === Mode.ADD){
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Add saga</h1>
-          }
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div class="mb-3">
-              <!-- SAGA TITLE -->
-              <label for="saga-version-title" class="form-label">Title:</label><span style="color: rgb(210, 74, 74)">*</span>
-              <input type="text" class="form-control" formControlName="title" id="saga-version-title"
-                      [class.invalid-input]="title.invalid && showValidationErrors">
-                @if (title.invalid && showValidationErrors) {
-                  @if (title.hasError('required')) {
-                    <div style="color:rgb(210, 74, 74)">
-                        <small>Title is required.</small>
-                    </div>
-                  }
-                  @else if (title.hasError('nameNotUnique')){
-                    <div style="color:rgb(210, 74, 74)" ngClass="{ $scope.title.$setUntouched(); }">
-                        <small>Saga already exists.</small>
-                    </div>
-                  }
-                }
-                <!-- @else {
-                  <div>
-                      <small>&nbsp;</small>
-                  </div>
-                } -->
-            </div>
-            <div class="mb-3">
-              <span>Translated/original composition:</span>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" formControlName="translated" [value]=false>
-                <label class="form-check-label">
-                  Original
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" formControlName="translated" [value]=true>
-                <label class="form-check-label">
-                  Translated
-                </label>
-              </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button (click)="submitAddOrEdit();" type="submit" class="btn btn-primary">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!--Delete modal-->
-<div class="modal fade" id="deleteSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete <i>{{ activeSaga.title }}</i>?</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteSaga()' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
       </div>
     </div>
   </div>

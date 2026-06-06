@@ -5,7 +5,7 @@ import { Mode } from '../../shared/Enums';
 import { BibService } from '../common/bib.service';
 import { IBib, PublicationType } from '../common/IBib';
 import { BibMapper } from '../common/bib-mapper';
-import { ISagaVm } from '../../sagas/common/ISagaVm';
+import { ISagaResponseDto } from '../../sagas/common/ISagaResponseDto';
 import { SagaService } from '../../sagas/common/saga.service';
 import { ISagaVersionRequestDto } from '../../sagas/common/ISagaVersionRequestDto';
 import { QuillModule } from 'ngx-quill';

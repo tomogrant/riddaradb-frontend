@@ -1,11 +1,12 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from '@angular/core';
-import { ISagaVm } from './ISagaVm';
+import { ISagaResponseDto } from './ISagaResponseDto';
 import { Observable, catchError, tap, throwError } from "rxjs";
 import { ISagaVersionRequestDto } from "./ISagaVersionRequestDto";
-import { ISagaDto } from "./ISagaDto";
+import { ISagaRequestDto } from "./ISagaRequestDto";
 import { ISagaVersionResponseDto } from "./ISagaVersionResponseDto";
 import { ISagaVersionTitleDto } from "./ISagaVersionTitleDto";
+import { ISagaTitleDto } from "./ISagaTitleDto";
 
 @Injectable({
   providedIn: 'root'
@@ -19,46 +20,52 @@ export class SagaService {
     //SAGAS
     
     //CREATE SAGA DTO
-    postSaga(saga: ISagaDto): Observable<ISagaDto>{
+    postSaga(saga: ISagaRequestDto): Observable<ISagaResponseDto>{
         console.log('Posting saga: ' + JSON.stringify(saga));
-        return this.httpClient.post<ISagaDto>(`${this.sagasMain}/postsaga`, saga)
+        return this.httpClient.post<ISagaResponseDto>(`${this.sagasMain}/postsaga`, saga)
         .pipe(tap(data => console.log('Saga posted: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
     //CREATE SAGA DTO WITH SAGA VERSION
-    postSagaWithSagaVersion(saga: ISagaDto): Observable<ISagaVm>{
-        return this.httpClient.post<ISagaVm>(`${this.sagasMain}/postsagawithversion`, saga)
+    postSagaWithSagaVersion(saga: ISagaRequestDto): Observable<ISagaResponseDto>{
+        return this.httpClient.post<ISagaResponseDto>(`${this.sagasMain}/postsagawithversion`, saga)
         .pipe(tap(data => console.log('Saga posted: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
     //READ ALL SAGA VMS
-    getSagas(): Observable<ISagaVm[]>{//Gets an observable of type ISaga[]. Can be accessed and subscribed to by other classes to access data. 
-        return this.httpClient.get<ISagaVm[]>(`${this.sagasMain}/getsagas`)
+    getSagas(): Observable<ISagaResponseDto[]>{//Gets an observable of type ISaga[]. Can be accessed and subscribed to by other classes to access data. 
+        return this.httpClient.get<ISagaResponseDto[]>(`${this.sagasMain}/getsagas`)
         .pipe(tap(data => console.log('All saga data got: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
     //READ SAGA VM BY ID
-    getSagaById(id: number): Observable<ISagaVm>{
-        return this.httpClient.get<ISagaVm>(`${this.sagasMain}/getsagabyid/${id}`)
+    getSagaById(id: number): Observable<ISagaResponseDto>{
+        return this.httpClient.get<ISagaResponseDto>(`${this.sagasMain}/getsagabyid/${id}`)
         .pipe(tap(data => console.log(`Saga with ID ${id}: ` + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
+    getSagaTitles(): Observable<ISagaTitleDto[]>{
+        return this.httpClient.get<ISagaTitleDto[]>(`${this.sagasMain}/getsagatitles`)
+        .pipe(tap(data => console.log('All saga title data got: ' + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
+
     //UPDATE SAGA DTO
-    putSaga(saga: ISagaDto): Observable<ISagaVm>{
+    putSaga(saga: ISagaRequestDto): Observable<ISagaResponseDto>{
         console.log('Updating saga: ' + JSON.stringify(saga));
-        return this.httpClient.put<ISagaVm>(`${this.sagasMain}/putsaga`, saga)
-        .pipe(tap(data => console.log('Saga posted: ' + JSON.stringify(data))),
+        return this.httpClient.put<ISagaResponseDto>(`${this.sagasMain}/putsaga`, saga)
+        .pipe(tap(data => console.log('Saga updated: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
     //DELETE SAGA BY ID
-    deleteSaga(id: number): Observable<ISagaDto>{
+    deleteSaga(id: number): Observable<ISagaRequestDto>{
         console.log("request sent: " + `${this.sagasMain}/deletesaga/${id}`);
-        return this.httpClient.delete<ISagaDto>(`${this.sagasMain}/deletesaga/${id}`);
+        return this.httpClient.delete<ISagaRequestDto>(`${this.sagasMain}/deletesaga/${id}`);
     }
 
     //SAGA VERSIONS

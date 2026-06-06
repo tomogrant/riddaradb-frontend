@@ -1,4 +1,4 @@
-import { FormGroup, FormControl, AbstractControl, 
+import { FormGroup, FormControl, FormArray, AbstractControl, 
         ValidationErrors, ReactiveFormsModule, Validators,
         ValidatorFn } from '@angular/forms';
 import { Collapse, Modal } from 'bootstrap';
@@ -8,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { QuillModule } from 'ngx-quill'
 import { IBib, PublicationType } from '../../bib/common/IBib';
 import { BibService } from '../../bib/common/bib.service';
-import { ISagaVm } from '../common/ISagaVm';
 import { SagaService } from '../common/saga.service';
 import { SagaMapper } from '../common/saga-mapper';
 import { SagaDate } from '../common/SagaDate';
@@ -17,6 +16,8 @@ import { IBibVm } from '../../bib/common/IBibVm';
 import { BibMapper } from '../../bib/common/bib-mapper';
 import { ISagaVersionVm } from '../common/ISagaVersionVm';
 import { IMotif } from '../../motifs/common/IMotif';
+import { ISagaVm } from '../common/ISagaVm';
+import { NonNullAssert } from '@angular/compiler';
 
 @Component({
   selector: 'app-saga-entry',
@@ -42,28 +43,11 @@ export class SagasSingle implements OnInit {
     readonly Mode = Mode;
     mode: Mode = Mode.NONE;
 
-    sagaEntry: ISagaVm = {
-    id: 0,
-    title: '',
-    description: '',
-    translated: false,
-    sagaVersions: []
-  };
+  sagaEntry: ISagaVm = this.initialiseSaga();
 
   sagaVersions: ISagaVersionVm[] = [];
 
-  activeSagaVersion: ISagaVersionVm = {
-    id: 0,
-    title: '',
-    description: '',
-    date: SagaDate.UNDEFINED,
-    isTranslated: false,
-    sagaId: 0,
-    bibIds: [],
-    primarySources: [],
-    secondarySources: [],
-    sagaMotifs: []
-  };
+  trackingId: number = 0;
 
   bibs: IBib[] = [];
   bibVms: IBibVm[] = [];
@@ -74,21 +58,38 @@ export class SagasSingle implements OnInit {
   showValidationErrors: boolean = false;
 
   editForm = new FormGroup({
-    title: new FormControl('', {nonNullable: true, validators: [Validators.required, this.titleUnique(this.sagaVersions, this.activeSagaVersion.title)]} ),
-    date: new FormControl('Select a date:', { nonNullable: true, validators: this.dateNotSelected() }),
-    description: new FormControl(''),
-    bibFilter: new FormControl('', {nonNullable: true})
+    id: new FormControl<number | null>({value: null, disabled: true}),
+    title: new FormControl<string>(''),
+    translated: new FormControl<boolean>(false),
+    description: new FormControl<string>(''),
+    sagaVersionForms: new FormArray<FormGroup>([]),
+    bibFilter: new FormControl<string>('')
   });
+
+  createSagaVersionForm(){
+    return new FormGroup({
+      trackingId: new FormControl<number>(this.trackingId++, {nonNullable: true}),
+      id: new FormControl<number | null>({value: null, disabled: true}),
+      title: new FormControl<string>('', {nonNullable: true, validators: Validators.required} ),
+      date: new FormControl<string>('Select a date:', { nonNullable: true, validators: this.dateNotSelected() }),
+      description: new FormControl<string>(''),
+    });
+  }
 
   get title() {
   return this.editForm.get('title') as FormControl;
   }
-  get description() {
-  return this.editForm.get('description') as FormControl;
+
+  get translated(){
+    return this.editForm.get('translated') as FormControl;
   }
 
-  get date(){
-    return this.editForm.get('date') as FormControl;
+  get description() {
+    return this.editForm.get('description') as FormControl;
+  }
+
+  get sagaVersionForms(){
+    return this.editForm.get('sagaVersionForms') as FormArray;
   }
 
   get bibFilter(){
@@ -96,34 +97,62 @@ export class SagasSingle implements OnInit {
   }
 
   ngOnInit() {
-    this.getSaga();
+
+    this.route.paramMap.subscribe(params => {
+      //ADD MODE
+      if (params.get('mode') == 'add'){
+        this.addSaga();
+      }
+      else{
+        this.getSaga();
+      }
+    });
 
     this.bibFilter.valueChanges.pipe().subscribe({
       next: value => this.updateBibFilter(value)
-    })
+    });
   }
 
   //---------------
   //  FIELD LOGIC
   //---------------
 
+    openAddModal(){
+    var editModal = document.getElementById('editSaga');
+    if (editModal != null){
+      var modal = Modal.getOrCreateInstance(editModal);
+      if (modal != null){
+        modal.toggle();
+      }
+    }
+  }
+
+  initialiseSaga(): ISagaVm{
+    return {
+    id: null,
+    title: '',
+    description: '',
+    translated: false,
+    sagaVersions: [],
+    bibIds: [],
+    primarySources: [],
+    secondarySources: []
+    };
+  }
+
   initialiseSagaVersion(): ISagaVersionVm{
     return {
-    id: 0,
+    id: null,
     title: '',
     description: '',
     date: SagaDate.UNDEFINED,
-    isTranslated: false,
     sagaId: 0,
-    bibIds: [],
-    primarySources: [],
-    secondarySources: [],
     sagaMotifs: []
     };
   }
 
   boxChecked(bib: IBibVm){
-    if (this.activeSagaVersion.bibIds.includes(bib.id)){
+    if (this.sagaEntry.bibIds.includes(bib.id)){
       return true;
     }
     else{
@@ -133,11 +162,11 @@ export class SagasSingle implements OnInit {
 
   addRemoveBibEntry(bib: IBibVm){
 
-    if (this.activeSagaVersion.bibIds.includes(bib.id)){
-      this.activeSagaVersion.bibIds.splice(this.activeSagaVersion.bibIds.indexOf(bib.id), 1);
+    if (this.sagaEntry.bibIds.includes(bib.id)){
+      this.sagaEntry.bibIds.splice(this.sagaEntry.bibIds.indexOf(bib.id), 1);
     }
     else {
-      this.activeSagaVersion.bibIds.push(bib.id);
+      this.sagaEntry.bibIds.push(bib.id);
     }
   }
 
@@ -200,21 +229,40 @@ export class SagasSingle implements OnInit {
   }
 
   fillInputFields(){
-    this.title.setValue(this.activeSagaVersion.title);
-    this.description.setValue(this.activeSagaVersion.description);
-    this.date.setValue(this.mapToUi(this.activeSagaVersion.date));
+    this.editForm.patchValue({
+      id: this.sagaEntry.id,
+      title: this.sagaEntry.title,
+      description: this.sagaEntry.description,
+      translated: this.sagaEntry.translated,
+    });
+
+    this.sagaVersionForms.clear();
+
+    for (let i = 0; i < this.sagaEntry.sagaVersions.length; i++){
+      const form = this.createSagaVersionForm();
+
+      form.setValue({
+        trackingId: this.trackingId++,
+        id: this.sagaEntry.sagaVersions[i].id,
+        title: this.sagaEntry.sagaVersions[i].title,
+        date: this.mapToUi(this.sagaEntry.sagaVersions[i].date),
+        description: this.sagaEntry.sagaVersions[i].description
+      });
+
+      this.sagaVersionForms.push(form);
+    }
   }
 
   emptyInputFields(){
     this.title.reset();
     this.description.reset();
-    this.date.reset();
-
+    this.translated.reset();
+    this.sagaVersionForms.clear();
   }
 
   resetValidators(){
       this.title.clearValidators();
-      this.title.addValidators([Validators.required, this.titleUnique(this.sagaVersions, this.activeSagaVersion.title)]);
+      this.title.addValidators(Validators.required);
       this.title.updateValueAndValidity();
     }
 
@@ -222,25 +270,31 @@ export class SagasSingle implements OnInit {
   //  USER CHOICE
   //---------------
 
+  addSagaVersionForm(){
+      this.sagaVersionForms.push(this.createSagaVersionForm());
+  }
+
+  removeSagaVersionForm(i: number){
+    this.sagaVersionForms.removeAt(i);
+  }
+
   navigateToMotif(motifCode: string){
     this.router.navigate([`motifs/${motifCode}`]);
   }
 
-  editSagaVersion(id: number){
-    this.mode = Mode.EDIT;
-    this.selectSagaVersion(id); 
+  addSaga(){
+    this.mode = Mode.ADD;
+    this.sagaEntry = this.initialiseSaga();
     this.showValidationErrors = false;
-    this.fillInputFields();
-    this.updateBibFilter('');
+    this.addSagaVersionForm();
+    this.openAddModal();
     this.hideAccordion();
   }
 
-  addSagaVersion(){
-    this.mode = Mode.ADD;
-    this.activeSagaVersion = this.initialiseSagaVersion();
+  editSaga(){
+    this.mode = Mode.EDIT;
     this.showValidationErrors = false;
-    this.emptyInputFields();
-    this.updateBibFilter('');
+    this.fillInputFields();
     this.hideAccordion();
   }
 
@@ -254,34 +308,32 @@ export class SagasSingle implements OnInit {
     }
   }
 
-  selectSagaVersion(id: number){
-    let sagaVersion = this.sagaVersions.find(i => i.id === id);
-    if (typeof sagaVersion === 'undefined') {
-      console.log("Saga not found");
-      this.activeSagaVersion = this.initialiseSagaVersion();
-    }
-    else{
-      this.activeSagaVersion = sagaVersion;
-    }
-  }
-
   submitAddOrEdit(){
     this.resetValidators();
-    if (this.title.valid && this.date.valid){
-      var editAddModal = document.getElementById('editAddSaga');
-      if (editAddModal != null){
-        var modal = Modal.getInstance(editAddModal);
+
+    //If only one saga version under saga, set its title to the saga's title.
+    if (this.sagaVersionForms.length == 1){
+      this.sagaVersionForms.at(0).get('title')?.setValue(this.title.value);
+    }
+
+    if (this.editForm.valid){
+      var editModal = document.getElementById('editSaga');
+      if (editModal != null){
+        var modal = Modal.getInstance(editModal);
         modal?.toggle();
       }
 
-      if (this.mode === Mode.EDIT){
-        this.updateSagaVersion();
+      if (this.mode === Mode.ADD)
+        this.postSaga();
+      else if (this.mode === Mode.EDIT){
+        this.updateSaga();
       }
-      if (this.mode === Mode.ADD){
-        this.postSagaVersion();
-      }
+
     }
     else{
+      console.log("Form invalid!");
+      console.log(this.sagaVersionForms.valid);
+      console.log(this.sagaVersionForms.get('title')?.valid);
       this.showValidationErrors = true;
     }
   }
@@ -292,33 +344,55 @@ export class SagasSingle implements OnInit {
 
   //FILL VM
   formToVm(){
-    this.activeSagaVersion.sagaId = this.sagaEntry.id;
-    this.activeSagaVersion.title = this.title.value;
+    this.sagaEntry.title = this.title.value;
 
     //Ugly fix until Quill releases update
     if (this.description.value == null){
-      this.activeSagaVersion.description = '';
+      this.sagaEntry.description = '';
     }
     else {
-      this.activeSagaVersion.description = String(this.description.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
+      this.sagaEntry.description = String(this.description.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
     }
-    this.activeSagaVersion.date = this.mapFromUi(this.date.value);
-  }
 
-  //CREATE
-  postSagaVersion(){
-    this.formToVm();
+    this.sagaEntry.translated = this.translated.value;
 
-    this.sagasService.postSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(this.activeSagaVersion)).subscribe({
-      next: receivedSagaVersion => {
-        console.log("saga version posted: " + receivedSagaVersion);
-        this.sagaVersions.push(this.sagaMapper.mapSagaVersionResponseDtoToVm(receivedSagaVersion));
-        this.sagaVersions = this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+    this.sagaVersions = [];
 
-        //this.getSaga();
-      },
-      error: err => console.log("Error with posting saga version: " + err)
-    })
+    for (var i = 0; i < this.sagaVersionForms.length; i++){
+      const sagaVersionForm = this.sagaVersionForms.controls[i];
+      if (!sagaVersionForm) continue;
+
+      const newSagaVersion = this.initialiseSagaVersion();
+      this.sagaVersions.push(newSagaVersion);
+
+      const sagaVersionFormId = sagaVersionForm.get('id');
+      if (!sagaVersionFormId)
+        this.sagaVersions[i].id = null;
+      else
+        this.sagaVersions[i].id = sagaVersionFormId.getRawValue();
+      
+
+      const sagaVersionFormTitle = sagaVersionForm.get('title');
+      if (!sagaVersionFormTitle)
+        this.sagaVersions[i].title = '';
+      else
+        this.sagaVersions[i].title = sagaVersionFormTitle.value;
+      
+      const sagaVersionFormDescription = sagaVersionForm.get('description');
+      if (!sagaVersionFormDescription)
+        this.sagaVersions[i].description = '';
+      else
+        this.sagaVersions[i].description = String(sagaVersionFormDescription.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
+      
+      const sagaVersionFormDate = sagaVersionForm.get('date');
+      if (!sagaVersionFormDate)
+        this.sagaVersions[i].date = SagaDate.UNDEFINED;
+      else
+        this.sagaVersions[i].date = this.mapFromUi(sagaVersionFormDate.value); 
+    }
+
+    this.sagaEntry.sagaVersions = this.sagaVersions;
+
   }
 
   //READ
@@ -329,15 +403,7 @@ export class SagasSingle implements OnInit {
         //If saga id is valid, get saga
         this.sagasService.getSagaById(id).subscribe({
           next: receivedEntry => {
-            this.sagaEntry = receivedEntry;
-
-            //Create sorted list of saga version VMs
-            this.sagaVersions = [];
-            this.sagaEntry.sagaVersions.forEach(version => this.sagaVersions.push(this.sagaMapper.mapSagaVersionResponseDtoToVm(version)));
-            this.sagaVersions = this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
-            for (var sagaVersion of this.sagaVersions){
-              sagaVersion.sagaMotifs.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, {numeric: true}))
-            }
+            this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedEntry);
 
             //Create sorted list of bibliography entry VMs
             this.bibService.getBibEntries().subscribe({
@@ -346,6 +412,7 @@ export class SagasSingle implements OnInit {
                 this.bibVms = [];
                 this.bibs.forEach(bib => this.bibVms.push(this.bibMapper.mapDtoToVm(bib)));
                 this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
+                this.updateBibFilter('');
               }
             });
           },
@@ -356,14 +423,17 @@ export class SagasSingle implements OnInit {
   }
 
   //UPDATE
-  updateSagaVersion(){
-    
+  updateSaga(){
+
     this.formToVm();
 
-    this.sagasService.putSagaVersion(this.sagaMapper.mapSagaVersionVmToRequestDto(this.activeSagaVersion)).subscribe({
-      next: receivedSagaVersion => {
-        console.log("Saved successfully! " + receivedSagaVersion);
-        this.sagaVersions[this.sagaVersions.indexOf(this.activeSagaVersion)] = this.sagaMapper.mapSagaVersionResponseDtoToVm(receivedSagaVersion);
+    console.log("Saga to be updated: ");
+    console.log(this.sagaMapper.mapSagaVmToRequestDto(this.sagaEntry));
+
+    this.sagasService.putSaga(this.sagaMapper.mapSagaVmToRequestDto(this.sagaEntry)).subscribe({
+      next: receivedSaga => {
+        console.log("Saved successfully! " + receivedSaga);
+        this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedSaga);
       },
       error: err => {
         console.log("Problem with saving.");
@@ -371,42 +441,51 @@ export class SagasSingle implements OnInit {
     })
   }
 
-  //DELETE
-  deleteSagaVersion(){
-    this.sagaVersions.splice(this.sagaVersions.indexOf(this.activeSagaVersion), 1);
-    this.sagasService.deleteSagaVersion(this.activeSagaVersion.id).subscribe({
-      next: sagaVersion => console.log(sagaVersion + "deleted"),
-      error: err=> console.log("problem with deleting")
-      })
-  }
+    //UPDATE
+  postSaga(){
 
+    this.formToVm();
+
+      console.log("Saga to be posted: ");
+      console.log(this.sagaMapper.mapSagaVmToRequestDto(this.sagaEntry));
+
+    this.sagasService.postSaga(this.sagaMapper.mapSagaVmToRequestDto(this.sagaEntry)).subscribe({
+      next: receivedSaga => {
+        console.log("Saved successfully! " + receivedSaga);
+        this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedSaga);
+      },
+      error: err => {
+        console.log("Problem with saving.");
+      }
+    })
+  }
 
   //---------------
   // CUSTOM VALIDATION
   //---------------
 
 
-  titleUnique(sagas: ISagaVersionVm[], sagaName: string): ValidatorFn {
-    return (control:AbstractControl) : ValidationErrors | null => {
+  // titleUnique(sagas: ISagaVersionVm[]): ValidatorFn {
+  //   return (control:AbstractControl) : ValidationErrors | null => {
 
-        const value = control.value;
+  //       const value = control.value;
 
-        if (!value) {
-            return null;
-        }
+  //       if (!value) {
+  //           return null;
+  //       }
 
-      let saga = sagas.find(saga => saga.title.toLowerCase() === value.toLowerCase());
-      if (typeof saga === 'undefined') {
-        return null;
-      }
-      else if(value !== sagaName){
-        return { nameNotUnique: true };
-      }
-      else{
-        return null;
-      }
-    }
-  }
+  //     let saga = sagas.find(saga => saga.title.toLowerCase() === value.toLowerCase());
+  //     if (typeof saga === 'undefined') {
+  //       return null;
+  //     }
+  //     else if(value !== saga.title){
+  //       return { nameNotUnique: true };
+  //     }
+  //     else{
+  //       return null;
+  //     }
+  //   }
+  // }
 
   dateNotSelected(): ValidatorFn {
     return (control:AbstractControl) : ValidationErrors | null => {

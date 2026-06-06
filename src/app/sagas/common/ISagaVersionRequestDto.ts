@@ -1,13 +1,12 @@
 import { SagaDate } from './SagaDate';
 
 export interface ISagaVersionRequestDto {
-
-  id: number;
+  id: number | null;
   title: string;
   description: string;
   date: SagaDate;
   sagaId: number;
-  bibIds: number[];
+  motifIds: number[];
   personIds: number[];
   placeIds: number[];
   objectIds: number[];

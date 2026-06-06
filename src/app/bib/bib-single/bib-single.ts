@@ -13,9 +13,7 @@ import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
 import { BibMapper } from '../common/bib-mapper';
 import { IBibVm } from '../common/IBibVm';
-import { ISagaVersionVm } from '../../sagas/common/ISagaVersionVm';
-import { SagaMapper } from '../../sagas/common/saga-mapper';
-import { ISagaVersionTitleDto } from '../../sagas/common/ISagaVersionTitleDto';
+import { ISagaTitleDto } from '../../sagas/common/ISagaTitleDto';
 
 // TODO: Adding saga to bibliography entry does not immediately show sagas. 
 
@@ -29,7 +27,6 @@ export class BibSingle {
   constructor(private bibService: BibService, 
               private sagaService: SagaService,
               private bibMapper: BibMapper,
-              private sagaMapper: SagaMapper,
               private route: ActivatedRoute,
               private router: Router) {}
 
@@ -46,9 +43,9 @@ export class BibSingle {
   activeBib: IBib = this.initialiseBib();
   activeBibVm: IBibVm = this.initialiseBibVm();
 
-  sagaVersions: ISagaVersionTitleDto[] = [];
-  attachedSagaVersions: ISagaVersionTitleDto[] = [];
-  sagaVersionIds: number[] = [];
+  sagas: ISagaTitleDto[] = [];
+  attachedSagas: ISagaTitleDto[] = [];
+  sagaIds: number[] = [];
 
   editForm = new FormGroup({
     type: new FormControl('Select publication type:', {nonNullable: true}),
@@ -189,14 +186,14 @@ export class BibSingle {
   }
 
   getSagas(){
-    this.sagaService.getSagaVersionTitles().subscribe(sagas => 
+    this.sagaService.getSagaTitles().subscribe(sagas => 
     {
-      this.sagaVersions = [];
-      sagas.forEach(saga => this.sagaVersions.push(saga));
-      this.sagaVersions.sort((a, b) => a.title.localeCompare(b.title));
+      this.sagas = [];
+      sagas.forEach(saga => this.sagas.push(saga));
+      this.sagas.sort((a, b) => a.title.localeCompare(b.title));
 
-      this.attachedSagaVersions = this.sagaVersions.filter(sagaVersion => 
-        this.activeBib.sagaVersionIds.includes(sagaVersion.id));
+      this.attachedSagas = this.sagas.filter(saga => 
+        this.activeBib.sagaIds.includes(saga.id));
     });
   }
 
@@ -222,7 +219,7 @@ export class BibSingle {
       publisher: "",
       publicationYear: "",
       pageNumbers: "",
-      sagaVersionIds: [],
+      sagaIds: [],
       recommended: false,
       description: ""
     }
@@ -365,8 +362,8 @@ export class BibSingle {
   //  USER CHOICE
   //---------------
 
-    boxChecked(sagaVersion: ISagaVersionTitleDto){
-    if (this.activeBib.sagaVersionIds.includes(sagaVersion.id)){
+    boxChecked(saga: ISagaTitleDto){
+    if (this.activeBib.sagaIds.includes(saga.id)){
       return true;
     }
     else{
@@ -374,13 +371,13 @@ export class BibSingle {
     }
   }
 
-  addRemoveSagaVersion(sagaVersion: ISagaVersionTitleDto){
+  addRemoveSaga(saga: ISagaTitleDto){
 
-    if (this.activeBib.sagaVersionIds.includes(sagaVersion.id)){
-      this.activeBib.sagaVersionIds.splice(this.activeBib.sagaVersionIds.indexOf(sagaVersion.id), 1);
+    if (this.activeBib.sagaIds.includes(saga.id)){
+      this.activeBib.sagaIds.splice(this.activeBib.sagaIds.indexOf(saga.id), 1);
     }
     else {
-      this.activeBib.sagaVersionIds.push(sagaVersion.id);
+      this.activeBib.sagaIds.push(saga.id);
     }
   }
 
@@ -589,12 +586,12 @@ export class BibSingle {
     this.fillBibDto();
     this.bibService.putBib(this.activeBib).subscribe({
       next: receivedBib =>{
-        console.log("bibliography entry updated; sagas got from backend: " + receivedBib.sagaVersionIds);
+        console.log("bibliography entry updated; sagas got from backend: " + receivedBib.sagaIds);
           this.activeBib = receivedBib;
           this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
 
-          this.attachedSagaVersions = this.sagaVersions.filter(sagaVersion => 
-            this.activeBib.sagaVersionIds.includes(sagaVersion.id));
+          this.attachedSagas = this.sagas.filter(saga => 
+            this.activeBib.sagaIds.includes(saga.id));
       },
       error: err => {
         console.log('Error updating bib: ' + err)
