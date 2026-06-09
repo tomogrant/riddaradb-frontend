@@ -203,7 +203,7 @@ export class BibSingle {
 
   initialiseBib(): IBib{
     return {
-      id: 0,
+      id: null,
       publicationType: PublicationType.UNDEFINED,
       authors: "",
       editors: "",
@@ -575,7 +575,8 @@ export class BibSingle {
     this.bibService.postBib(this.activeBib).subscribe({
       next: receivedBib => {
         console.log("bib posted: " + receivedBib);
-        this.navigateToBibEntryPage(receivedBib.id);
+        if (receivedBib.id != null)
+          this.navigateToBibEntryPage(receivedBib.id);
       },
       error: err => console.log("Error with posting bib entry: " + err)
     })
@@ -600,11 +601,14 @@ export class BibSingle {
   }
 
   deleteBib(){
-  this.bibService.deleteBib(this.activeBib.id).subscribe({
-    next: bibEntry => this.navigateToBibAllPage(),
-    error: err=> console.log("problem with deleting")
-    })
+    if (this.activeBib.id != null){
+      this.bibService.deleteBib(this.activeBib.id).subscribe({
+        next: bibEntry => this.navigateToBibAllPage(),
+        error: err=> console.log("problem with deleting")
+        });
+    }
   }
+
 
     //---------------
   //  CUSTOM VALIDATION

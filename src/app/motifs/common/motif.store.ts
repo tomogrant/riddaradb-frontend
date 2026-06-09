@@ -142,7 +142,8 @@ export class MotifStore {
             const next = new Map(current);
 
             for (const root of roots){
-                next.set(root.id, root);
+                if (root.id)
+                    next.set(root.id, root);
             }
 
             return next;
@@ -150,7 +151,10 @@ export class MotifStore {
 
         this.$rootIds.update(current => {
             const next = new Set(current);
-            roots.forEach(root => next.add(root.id));
+            roots.forEach(root => {
+                if (root.id)
+                    next.add(root.id)
+            });
 
             return next;
         });
@@ -162,7 +166,8 @@ export class MotifStore {
         this.$motifNodes.update(current => {
             const next = new Map(current);
 
-            next.set(newRootMotif.id, newRootMotif)
+            if (newRootMotif.id)
+                next.set(newRootMotif.id, newRootMotif)
 
             return next;
         });
@@ -170,7 +175,8 @@ export class MotifStore {
         this.$rootIds.update(current => {
             const next = new Set(current);
 
-            next.add(newRootMotif.id);
+            if (newRootMotif.id)
+                next.add(newRootMotif.id);
 
             return next;
         });
@@ -190,7 +196,8 @@ export class MotifStore {
             const next = new Map(current);
 
             for (const motifNode of motifNodes){
-                next.set(motifNode.id, motifNode);
+                if (motifNode.id)
+                    next.set(motifNode.id, motifNode);
             }
 
             return next;
@@ -201,7 +208,8 @@ export class MotifStore {
         this.$motifNodes.update(current => {
             const next = new Map(current);
 
-            next.set(updatedMotifNode.id, updatedMotifNode);
+            if (updatedMotifNode.id)
+                next.set(updatedMotifNode.id, updatedMotifNode);
 
             return next;
         });
@@ -211,11 +219,15 @@ export class MotifStore {
         this.$motifNodes.update(current =>{
 
             const next = new Map(current);
+
+            if (childMotifNode.parentId == null) return next;
             const parentMotifNode = next.get(childMotifNode.parentId);
             const updatedChildIds = parentMotifNode?.childIds ?? [];
-            updatedChildIds?.push(childMotifNode.id);
 
-            if (parentMotifNode){
+            if (childMotifNode.id != null)
+                updatedChildIds?.push(childMotifNode.id);
+
+            if (parentMotifNode && parentMotifNode.id != null){
                 next.set(parentMotifNode.id, {
                     ...parentMotifNode,
                     childIds: updatedChildIds,
@@ -239,6 +251,7 @@ export class MotifStore {
             //Create array of child motifs
             const children: IMotif[] = [];
             childIdsToSort.forEach(id => {
+                if (id == null) return;
                 const child = next.get(id);
                 if (!child){
                     return;
@@ -248,13 +261,14 @@ export class MotifStore {
 
             //Sort array by motif code and map IDs 
             children.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, {numeric: true}));
-            const sortedChildIds = children.map(child => child.id);
+            const sortedChildIds = children.map(child => child.id).filter(id => id != null);
 
             //Update parent node
-            next.set(parentNode.id, {
-                ...parentNode,
-                childIds: sortedChildIds
-            });
+            if (parentNode.id)
+                next.set(parentNode.id, {
+                    ...parentNode,
+                    childIds: sortedChildIds
+                });
 
             return next;
         });
@@ -272,7 +286,7 @@ export class MotifStore {
             });
 
             rootMotifs.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, {numeric: true}));
-            const sortedRootMotifs = rootMotifs.map(rootMotif => rootMotif.id);
+            const sortedRootMotifs = rootMotifs.map(rootMotif => rootMotif.id).filter(id => id != null);
 
             return new Set(sortedRootMotifs);
         });
@@ -284,7 +298,7 @@ export class MotifStore {
                 console.log("motif posted: " + postedMotif);
                 this.updateMotifNode(postedMotif);
 
-                if (postedMotif.parentId > 0){
+                if (postedMotif.parentId && postedMotif.parentId > 0){
                     this.assignChild(postedMotif);
                     const parentNode = this.getMotifNode(postedMotif.parentId);
                     if (!parentNode)
@@ -310,7 +324,7 @@ export class MotifStore {
                 motif.childIds = updatedMotifNode.childIds;
                 this.updateMotifNode(motif);
 
-                if (motif.parentId > 0){
+                if (motif.parentId && motif.parentId > 0){
                     const parentNode = this.getMotifNode(motif.parentId);
                     if (!parentNode)
                         return;
@@ -332,11 +346,12 @@ export class MotifStore {
             //Recursively remove children of children, and then child itself
             function removeNode(id: number){
                 const node = next.get(id);
-                if (!node) return;
+                if (!node || !node.id) return;
                 
                 if (node.childIds){
                     for (const child of node.childIds){
-                        removeNode(child);
+                        if (child)
+                            removeNode(child);
                     }
                 }
 
@@ -348,6 +363,7 @@ export class MotifStore {
             if (!node) return next;
                 
             const parentId = node.parentId;
+            if (parentId == null) return next;
 
             removeNode(id);
 
@@ -358,6 +374,8 @@ export class MotifStore {
                     ...nodeParent,
                     childIds: nodeParent.childIds?.filter(childId => childId !== id) ?? []
                 }
+
+                if (updatedParent.id == null) return next;
 
                 if (!updatedParent.childIds?.length){
                     this.collapse(updatedParent.id);
@@ -393,6 +411,7 @@ export class MotifStore {
             const sortedChildren = children.sort((a, b) => a.motifCode.localeCompare(b.motifCode));
 
             for (var child of sortedChildren){
+                if (child.id == null) return next;
                 next.set(child.id, child);
             }
 
@@ -401,8 +420,8 @@ export class MotifStore {
             if (parentMotif){
                 next.set(id, {
                     ...parentMotif,
-                    childIds: sortedChildren.map(child => child.id)
-                })
+                    childIds: sortedChildren.map(child => child.id).filter(id => id != null)
+                });
             }
 
             return next;

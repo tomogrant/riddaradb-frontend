@@ -1,3 +1,4 @@
 TODO
-* Clean up and annotate the code. The website is now far enough along that logic 
-    can be copied for new pages, so this needs to work as clearly as possible.
+* On the saga page bib entries are received from the backend API as entire DTOs, 
+    but the saga page requires all bibliography entries anyway. It would make more
+    sense to just receive IDs and to get the relevant entries from a map. 

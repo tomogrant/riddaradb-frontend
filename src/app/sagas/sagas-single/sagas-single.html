@@ -9,13 +9,21 @@
         <button (click)="editSaga();"
             type="button" style="margin-left: 0.5rem" 
             class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editSaga">Edit</button>
-        <button [disabled]="sagaVersions.length < 2"
+        <button
             type="button" style="margin-left: 0.5rem"
             class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
       </div>
       
+      @if (sagaEntry.sagaVersions.length == 1 && sagaEntry.sagaVersions[0].date != SagaDate.UNDEFINED ){
+          <div class="row mb-3">
+            <div><strong>Date: </strong>
+            {{ mapToUi(sagaEntry.sagaVersions[0].date) }}
+            </div>
+          </div>
+      }
+
       @if(sagaEntry.description != ''){
-        <div [innerHTML]="sagaEntry.description"></div>
+        <div class="mb-4 description-text" [innerHTML]="sagaEntry.description"></div>
       }
 
       <!-- SAGA VERSION -->
@@ -23,11 +31,11 @@
         @if (sagaEntry.sagaVersions.length > 1){
           <div class="row">
           <!-- Title -->
-            <h2 class="mb-1"><i>{{ version.title }}</i></h2>
+            <h2 class="my-2"><i>{{ version.title }}</i></h2>
             </div>
         }
           <!-- Date -->
-          @if(version.date != SagaDate.UNDEFINED){
+          @if(version.date != SagaDate.UNDEFINED && sagaEntry.sagaVersions.length > 1){
             <div class="row mb-3">
               <div><strong>Date: </strong>
               {{ mapToUi(version.date) }}
@@ -35,10 +43,10 @@
             </div>
           }
 
-          @if(version.description != ''){
+          @if(sagaEntry.sagaVersions.length > 1 && version.description != ''){
             <div class="row mb-3">
               <!-- Description -->
-              <div class [innerHTML]="version.description"></div>
+              <div class="description-text" [innerHTML]="version.description"></div>
             </div>
           }
 
@@ -47,19 +55,22 @@
           <div class="row mb-5">
             <h3 style="font-variant: small-caps;">Motifs</h3>
             @for (sagaMotif of version.sagaMotifs; track sagaMotif.motifId){
-              <a href="motifs/{{sagaMotif.motifCode}}">
-                <b>{{sagaMotif.motifCode}}</b> {{sagaMotif.motifName}}
-                @if (sagaMotif.pageChapterNumber !== ''){
-                  <span> {{sagaMotif.pageChapterNumber}}.</span>
-                }
+              <span>
+                <a href="motifs/{{sagaMotif.motifCode}}">
+                  <b>{{sagaMotif.motifCode}}</b> {{sagaMotif.motifName}}
+                  @if (sagaMotif.pageChapterNumber !== ''){
+                    <span> {{sagaMotif.pageChapterNumber}}.</span>
+                  }
               </a>
+              </span>
+              
               
             }
           </div>
         }
         
-        @if (sagaEntry.sagaVersions.length > 1 && $index != sagaEntry.sagaVersions.length-1){
-          <div class="mb-5">
+        @if (sagaEntry.sagaVersions.length > 1){
+          <div class="my-3">
             <hr>
           </div>
         }
@@ -112,7 +123,7 @@
   <div class="modal-dialog modal-dialog-scrollable modal-xl">
     <div class="modal-content">
         <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit saga version</h1>
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">{{mode == Mode.ADD ? 'Add saga' : 'Edit saga'}}</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -156,7 +167,7 @@
               </div>
                 
 
-              <div class="row">
+              <div class="row mb-2">
                 <div class="col">
                 <!-- DESCRIPTION FIELD -->
                   <label for="saga-description" class="form-label">Description:</label>
@@ -166,14 +177,16 @@
                       toolbar: [
                         ['bold', 'italic', 'underline'],
                         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'script': 'sub'}, { 'script': 'super' }], 
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
                       ] 
                     }">
                   </quill-editor>
                 </div>
               </div>
 
-              <hr>
+              @if (sagaVersionForms.length > 1){
+                <hr>
+              }
 
               <!-- SAGA VERSION FORMS -->
               <div formArrayName="sagaVersionForms">
@@ -235,6 +248,30 @@
                       }
 
                       </div>
+                      @if (sagaVersionForms.length > 1){
+                        <!-- SAGA VERSION DESCRIPTION -->
+                        <div class="row mb-2">
+                          <div class="col">
+                            <label for="saga-description" class="form-label">Description:</label>
+                            <quill-editor class="quill-editor" formControlName="description" id="saga-description" placeholder="Saga description"
+                            [modules]="
+                              {
+                                toolbar: [
+                                  ['bold', 'italic', 'underline'],
+                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                  [{ 'script': 'sub'}, { 'script': 'super' }], 
+                                ] 
+                              }">
+                            </quill-editor>
+                          </div>
+                        </div>
+                        <div>
+                          <hr>
+                        </div>
+                      }
+
+                      
+
                   
                   </div>
                 }
@@ -308,7 +345,7 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete <i></i>?</h1>
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete <i>{{sagaEntry.title}}</i>?</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -316,7 +353,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" (click)="deleteSaga()">Delete</button>
       </div>
     </div>
   </div>

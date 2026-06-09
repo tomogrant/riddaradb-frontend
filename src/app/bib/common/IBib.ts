@@ -1,5 +1,5 @@
 export interface IBib {
-  id: number;
+  id: number | null;
   publicationType: PublicationType;
   authors: string;
   editors: string;

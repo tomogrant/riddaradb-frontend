@@ -102,6 +102,7 @@ export class SagasSingle implements OnInit {
       //ADD MODE
       if (params.get('mode') == 'add'){
         this.addSaga();
+        this.getBibs();
       }
       else{
         this.getSaga();
@@ -316,6 +317,10 @@ export class SagasSingle implements OnInit {
       this.sagaVersionForms.at(0).get('title')?.setValue(this.title.value);
     }
 
+    if (this.sagaVersionForms.length == 1){
+      this.sagaVersionForms.at(0).get('description')?.setValue('');
+    }
+
     if (this.editForm.valid){
       var editModal = document.getElementById('editSaga');
       if (editModal != null){
@@ -335,6 +340,16 @@ export class SagasSingle implements OnInit {
       console.log(this.sagaVersionForms.valid);
       console.log(this.sagaVersionForms.get('title')?.valid);
       this.showValidationErrors = true;
+    }
+  }
+
+  deleteSaga(){
+    if (this.sagaEntry.id){
+      this.sagasService.deleteSaga(this.sagaEntry.id).subscribe({
+        next: deletedSaga => {
+          this.router.navigate([`sagas`]);
+        }
+      });
     }
   }
 
@@ -395,6 +410,19 @@ export class SagasSingle implements OnInit {
 
   }
 
+  getBibs(){
+    //Create sorted list of bibliography entry VMs
+    this.bibService.getBibEntries().subscribe({
+      next: bibEntries => {
+        this.bibs = bibEntries;
+        this.bibVms = [];
+        this.bibs.forEach(bib => this.bibVms.push(this.bibMapper.mapDtoToVm(bib)));
+        this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
+        this.updateBibFilter('');
+      }
+    });
+  }
+
   //READ
   getSaga(){
     this.route.paramMap.subscribe(params => {
@@ -404,17 +432,7 @@ export class SagasSingle implements OnInit {
         this.sagasService.getSagaById(id).subscribe({
           next: receivedEntry => {
             this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedEntry);
-
-            //Create sorted list of bibliography entry VMs
-            this.bibService.getBibEntries().subscribe({
-              next: bibEntries => {
-                this.bibs = bibEntries;
-                this.bibVms = [];
-                this.bibs.forEach(bib => this.bibVms.push(this.bibMapper.mapDtoToVm(bib)));
-                this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
-                this.updateBibFilter('');
-              }
-            });
+            this.getBibs();
           },
           error: err => console.log(err)
         });

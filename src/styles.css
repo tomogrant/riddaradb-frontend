@@ -65,6 +65,11 @@ p {
   font-family: 'garamond';
 }
 
+.description-text {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
 /* Targets an element with BOTH classes invalid-input and form-control */
 .invalid-input.form-control{
   border-color: #FF0000;

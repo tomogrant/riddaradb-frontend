@@ -209,13 +209,13 @@ export class MotifsAll {
     if (this.editForm.motifCode().valid() && this.editForm.motifName().valid()){
       if (this.$modalState()?.mode == Mode.ADD){
           this.motifStore.postMotifNode({
-            id: 0,
+            id: null,
             motifCode: this.editForm.motifCode().value(),
             motifName: this.editForm.motifName().value(),
             description: this.editForm.description().value(),
             sagaMotifs: this.editForm.sagas().value(),
             //If adding child node, set parent. Otherwise, if there's no parent (root node), pass 0.
-            parentId: !currentNode ? 0 : currentNode.id
+            parentId: !currentNode ? null : currentNode.id
         });
       }
       if (this.$modalState()?.mode == Mode.EDIT){
