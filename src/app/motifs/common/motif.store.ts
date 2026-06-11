@@ -62,7 +62,6 @@ export class MotifStore {
 
     toggleColourCoding(){
         this.$showColourCoding.set(!this.$showColourCoding());
-        console.log("Colour coding is on: " + this.$showColourCoding());
     }
 
     async search(searchTerm: string, exactSearch: boolean): Promise<void>{
@@ -113,7 +112,6 @@ export class MotifStore {
             });
 
             if(node.hasChildren && !node.childIds){
-                console.log("Getting motif children...");
                 await this.getMotifChildren(ancestorId);
             }
         }
@@ -298,7 +296,7 @@ export class MotifStore {
                 console.log("motif posted: " + postedMotif);
                 this.updateMotifNode(postedMotif);
 
-                if (postedMotif.parentId && postedMotif.parentId > 0){
+                if (postedMotif.parentId != null){
                     this.assignChild(postedMotif);
                     const parentNode = this.getMotifNode(postedMotif.parentId);
                     if (!parentNode)
@@ -324,7 +322,7 @@ export class MotifStore {
                 motif.childIds = updatedMotifNode.childIds;
                 this.updateMotifNode(motif);
 
-                if (motif.parentId && motif.parentId > 0){
+                if (motif.parentId != null){
                     const parentNode = this.getMotifNode(motif.parentId);
                     if (!parentNode)
                         return;
@@ -346,7 +344,7 @@ export class MotifStore {
             //Recursively remove children of children, and then child itself
             function removeNode(id: number){
                 const node = next.get(id);
-                if (!node || !node.id) return;
+                if (!node || node.id == null) return;
                 
                 if (node.childIds){
                     for (const child of node.childIds){
@@ -362,10 +360,10 @@ export class MotifStore {
             const node = next.get(id);
             if (!node) return next;
                 
+            removeNode(id);
+
             const parentId = node.parentId;
             if (parentId == null) return next;
-
-            removeNode(id);
 
             const nodeParent = next.get(parentId);
 
@@ -400,6 +398,7 @@ export class MotifStore {
             }
         });
 
+        console.log("deleting motif " + id);
         this.motifService.deleteMotif(id).subscribe();
     }
 
@@ -454,5 +453,4 @@ export class MotifStore {
             return next;
         });
     }
-
 }

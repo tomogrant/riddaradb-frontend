@@ -18,14 +18,17 @@ export class SagaMapper {
 
     var bibVms: IBibVm[] = [];
 
+    //Map bib DTOs to bib VMs
     if (dto.bibDto){
-      dto.bibDto.forEach(bibDto =>{
+      dto.bibDto.forEach(bibDto => {
         bibVms.push(this.bibMapper.mapDtoToVm(bibDto));
       });
     }
 
     bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
 
+
+    //Map saga version DTOs to saga version VMs
     var sagaVersionVms: ISagaVersionVm[] = [];
 
     if (dto.sagaVersions){
@@ -50,12 +53,10 @@ export class SagaMapper {
 
   mapSagaVmToRequestDto(vm: ISagaVm): ISagaRequestDto {
 
-    var sagaVersionRequestDtos: ISagaVersionRequestDto[] = [];
+    const sagaVersionRequestDtos: ISagaVersionRequestDto[] = [];
 
     vm.sagaVersions.forEach(version => 
       sagaVersionRequestDtos.push(this.mapSagaVersionVmToRequestDto(version)));
-
-    console.log("Saga versions just mapped: " + sagaVersionRequestDtos.length);
 
     return {
       id: vm.id,
@@ -81,7 +82,6 @@ export class SagaMapper {
       objectIds: [],
       msIds: []
     }
-
   }
   
   mapSagaVersionResponseDtoToVm(dto: ISagaVersionResponseDto): ISagaVersionVm {

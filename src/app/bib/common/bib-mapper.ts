@@ -11,6 +11,7 @@ export class BibMapper{
     mapDtoToVm(dto: IBib): IBibVm{
 
         var vm: IBibVm = {
+            //ID can't be null at this point
             id: dto.id ?? 0,
             publicationType: dto.publicationType,
             primarySource: false,

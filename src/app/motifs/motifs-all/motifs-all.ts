@@ -140,7 +140,7 @@ export class MotifsAll {
   }
 
   submitSearchRequest(){
-    this.motifStore.search(this.$searchModel().searchTerm, false);
+    this.motifStore.search(this.$searchModel().searchTerm.trim(), false);
   }
 
   clearSearch(){
@@ -158,7 +158,7 @@ export class MotifsAll {
   }
 
   openAddModal(){
-    this.motifModalService.openAddModal(0);
+    this.motifModalService.openAddModal();
   }
 
   setForm(){

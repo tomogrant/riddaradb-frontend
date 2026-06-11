@@ -336,9 +336,6 @@ export class SagasSingle implements OnInit {
 
     }
     else{
-      console.log("Form invalid!");
-      console.log(this.sagaVersionForms.valid);
-      console.log(this.sagaVersionForms.get('title')?.valid);
       this.showValidationErrors = true;
     }
   }
