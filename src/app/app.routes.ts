@@ -5,6 +5,7 @@ import { SagasSingle } from './sagas/sagas-single/sagas-single';
 import { BibAll } from './bib/bib-all/bib-all';
 import { BibSingle } from './bib/bib-single/bib-single';
 import { MotifsAll } from './motifs/motifs-all/motifs-all';
+import { MsAll } from './ms/ms-all/ms-all';
 
 export const routes: Routes = [
     { path: 'home', component: HomeComponent, pathMatch: 'full' },
@@ -15,5 +16,6 @@ export const routes: Routes = [
     { path: 'bib/:id', component: BibSingle },
     { path: 'bib/action/:mode', component: BibSingle },
     { path: 'motifs', component: MotifsAll },
-    { path: 'motifs/:searchterm', component: MotifsAll }
+    { path: 'motifs/:searchterm', component: MotifsAll },
+    { path: 'ms', component: MsAll}
 ];

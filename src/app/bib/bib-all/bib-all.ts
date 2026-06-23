@@ -4,15 +4,9 @@ import { RouterModule, Router } from '@angular/router';
 import { Mode } from '../../shared/Enums';
 import { BibService } from '../common/bib.service';
 import { IBib, PublicationType } from '../common/IBib';
-import { BibMapper } from '../common/bib-mapper';
-import { ISagaResponseDto } from '../../sagas/common/ISagaResponseDto';
-import { SagaService } from '../../sagas/common/saga.service';
-import { ISagaVersionRequestDto } from '../../sagas/common/ISagaVersionRequestDto';
-import { QuillModule } from 'ngx-quill';
+import { BibMapper } from '../common/bib.mapper';
 import { CommonModule } from '@angular/common';
 import { IBibVm } from '../common/IBibVm';
-import { takeUntil } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-bibs',
@@ -21,24 +15,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './bib-all.css',
   providers: [BibService]
 })
+
 export class BibAll {
   constructor(private bibService: BibService, 
               private bibMapper: BibMapper,
               private router: Router
             ) {}
 
-  pageTitle = 'Bibliography entries';
   bibs: IBib[] = [];
 
   bibsVm: IBibVm[] = [];
   primarySources: IBibVm[] = [];
   secondarySources: IBibVm[] = [];
-
-  editionsTranslations: IBib[] = [];
-  secondary: IBib[] = [];
-  other: IBib[] = [];
-
-  publicationTypesUi: string[] = [];
 
   readonly PublicationType = PublicationType;
   readonly Mode = Mode;

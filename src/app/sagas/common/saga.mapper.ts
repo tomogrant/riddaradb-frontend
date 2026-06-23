@@ -5,7 +5,7 @@ import { ISagaVersionRequestDto } from './ISagaVersionRequestDto';
 import { ISagaVersionResponseDto } from './ISagaVersionResponseDto';
 import { ISagaVersionVm } from './ISagaVersionVm';
 import { IBibVm } from '../../bib/common/IBibVm';
-import { BibMapper } from '../../bib/common/bib-mapper';
+import { BibMapper } from '../../bib/common/bib.mapper';
 import { ISagaVm } from './ISagaVm';
 
 @Injectable({
@@ -76,7 +76,6 @@ export class SagaMapper {
       description: vm.description,
       date: vm.date,
       sagaId: vm.sagaId,
-      motifIds: [],
       personIds: [],
       placeIds: [],
       objectIds: [],

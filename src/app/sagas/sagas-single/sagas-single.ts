@@ -9,11 +9,11 @@ import { QuillModule } from 'ngx-quill'
 import { IBib, PublicationType } from '../../bib/common/IBib';
 import { BibService } from '../../bib/common/bib.service';
 import { SagaService } from '../common/saga.service';
-import { SagaMapper } from '../common/saga-mapper';
+import { SagaMapper } from '../common/saga.mapper';
 import { SagaDate } from '../common/SagaDate';
 import { Mode } from '../../shared/Enums';
 import { IBibVm } from '../../bib/common/IBibVm';
-import { BibMapper } from '../../bib/common/bib-mapper';
+import { BibMapper } from '../../bib/common/bib.mapper';
 import { ISagaVersionVm } from '../common/ISagaVersionVm';
 import { IMotif } from '../../motifs/common/IMotif';
 import { ISagaVm } from '../common/ISagaVm';

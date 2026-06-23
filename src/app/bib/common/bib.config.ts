@@ -70,6 +70,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: false
     },
+
+    //Journal article
     [PublicationType.JOURNAL_ARTICLE]: {
     includeAuthors: true,
     includeEditors: true,
@@ -104,6 +106,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: true
     },
+
+    //Book chapter
     [PublicationType.BOOK_CHAPTER]: {
     includeAuthors: true,
     includeEditors: true,
@@ -138,6 +142,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: true
     },
+
+    //Edition
     [PublicationType.EDITION]: {
     includeAuthors: false,
     includeEditors: true,
@@ -172,6 +178,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: false
     },
+
+    //Translation
     [PublicationType.TRANSLATION]: {
     includeAuthors: false,
     includeEditors: true,
@@ -186,7 +194,7 @@ export type EditFormConfig = Record<PublicationType, {
     includePlaceOfPublication: true,
     includePublisher: true,
     includePublicationYear: true,
-    includePageNumbers: true,
+    includePageNumbers: false,
     includeRecommended: true,
     includeDescription: true,
     includeSagas: true,
@@ -206,6 +214,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: false
     },
+
+    //Monograph
     [PublicationType.MONOGRAPH]: {
     includeAuthors: true,
     includeEditors: false,
@@ -240,6 +250,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: false
     },
+
+    //Edited collection
     [PublicationType.EDITED_COLLECTION]: {
     includeAuthors: false,
     includeEditors: true,
@@ -274,6 +286,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: false
     },
+
+    //Thesis
     [PublicationType.THESIS]: {
     includeAuthors: true,
     includeEditors: false,
@@ -308,6 +322,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: true
     },
+
+    //Website
     [PublicationType.WEBSITE]: {
     includeAuthors: true,
     includeEditors: false,
@@ -342,6 +358,8 @@ export type EditFormConfig = Record<PublicationType, {
 
     titleHasItalics: true
     },
+
+    //Other
     [PublicationType.OTHER]: {
     includeAuthors: true,
     includeEditors: true,

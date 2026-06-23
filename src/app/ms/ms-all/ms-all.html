@@ -1,0 +1,38 @@
+<div class="py-4 page-header">
+  <h1>Manuscripts</h1>
+</div>
+<div class="card-body page-container">
+  <div class="container" >
+    <div class="row mb-4">
+      <div class="col-3">
+        <form [formGroup]="filterForm">
+        <input type="text" class="form-control" formControlName="filter" placeholder="Filter manuscripts...">
+      </form>
+      </div>
+    </div>
+
+    @if (filteredMss.length > 0){
+      <div class="row">
+        <h3 style="font-variant: small-caps;">Manuscripts</h3>
+      </div>
+      @for (ms of filteredMss; track $index){
+        <div class="row mb-1">
+          <span>
+          <a href="ms/{{ms.id}}">{{ms.shelfmark}}</a>
+          </span>
+        </div>
+      
+        <p></p>
+        <p></p>
+        }
+    }
+    <!-- 'Add' button -->
+    <p></p>
+    <div class="row">
+      <div class="col-sm">
+        <button (click)="addMs()" type="button" class="btn btn-success btn-sm">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+

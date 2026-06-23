@@ -1,8 +1,7 @@
-import { OnInit, Component, ChangeDetectionStrategy, inject, input, signal, computed } from '@angular/core'; 
-import { MotifStore } from '../motif.store';
-import { MotifModalService } from '../motif-modal.service';
-import { ISagaVersionTitleDto } from '../../../sagas/common/ISagaVersionTitleDto';
-import { SagaService } from '../../../sagas/common/saga.service';
+import { Component, ChangeDetectionStrategy, inject, input, computed } from '@angular/core'; 
+import { MotifStore } from '../common/motif.store';
+import { MotifModalService } from '../common/motif-modal.service';
+import { SagaService } from '../../sagas/common/saga.service';
 
 
 @Component({

@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SagaService } from '../common/saga.service';
-import { SagaMapper } from '../common/saga-mapper';
+import { SagaMapper } from '../common/saga.mapper';
 import { Mode } from '../../shared/Enums';
 import { ISagaVm } from '../common/ISagaVm';
 

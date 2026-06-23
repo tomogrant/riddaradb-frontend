@@ -1,7 +1,7 @@
 import {Component, inject, effect, computed, signal} from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import {form, FormField, required} from '@angular/forms/signals';
-import { MotifNode } from '../common/motif-node/motif-node';
+import { MotifNode } from '../motif-node/motif-node';
 import { Modal } from 'bootstrap';
 import { MotifStore } from '../common/motif.store';
 import { MotifModalService } from '../common/motif-modal.service';

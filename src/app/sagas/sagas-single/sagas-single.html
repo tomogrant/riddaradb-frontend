@@ -198,7 +198,7 @@
 
                         @if (sagaVersionForms.length > 1){
                           <div class="col-5">
-                            <label for="saga-version-title" class="form-label">Title:</label><span style="color: rgb(210, 74, 74)">*</span>
+                            <label for="saga-version-title" class="form-label">Saga version title:</label><span style="color: rgb(210, 74, 74)">*</span>
                             <input type="text" class="form-control" formControlName="title" id="saga-version-title" placeholder="Saga version title"  
                               [class.invalid-input]="sagaVersionForm.get('title')?.invalid && showValidationErrors">
                             @if (sagaVersionForm.get('title')?.invalid && showValidationErrors) {

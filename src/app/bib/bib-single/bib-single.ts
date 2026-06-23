@@ -7,15 +7,13 @@ import { Modal } from 'bootstrap';
 import { Mode } from '../../shared/Enums';
 import { BibService } from '../common/bib.service';
 import { IBib, PublicationType } from '../common/IBib';
-import { editFormConfigs } from '../common/bib-config';
+import { editFormConfigs } from '../common/bib.config';
 import { SagaService } from '../../sagas/common/saga.service';
 import { QuillModule } from 'ngx-quill';
 import { CommonModule } from '@angular/common';
-import { BibMapper } from '../common/bib-mapper';
+import { BibMapper } from '../common/bib.mapper';
 import { IBibVm } from '../common/IBibVm';
 import { ISagaTitleDto } from '../../sagas/common/ISagaTitleDto';
-
-// TODO: Adding saga to bibliography entry does not immediately show sagas. 
 
 @Component({
   selector: 'app-bibs',
@@ -160,7 +158,7 @@ export class BibSingle {
   
   ngOnInit() {
 
-    this.initialiseFormAndValidators();
+    this.initialise();
     this.parseParams();
   }
 
@@ -236,7 +234,7 @@ export class BibSingle {
     }
   }
 
-  initialiseFormAndValidators(){
+  initialise(){
     //Populate array with strings from backend enum
     for (let publicationType of Object.values(PublicationType)){
       this.publicationTypesUi.push(this.convertEnumToUi(publicationType));
@@ -362,7 +360,7 @@ export class BibSingle {
   //  USER CHOICE
   //---------------
 
-    boxChecked(saga: ISagaTitleDto){
+  boxChecked(saga: ISagaTitleDto){
     if (this.activeBib.sagaIds.includes(saga.id)){
       return true;
     }
