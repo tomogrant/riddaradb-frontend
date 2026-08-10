@@ -31,17 +31,17 @@
         <p></p>
         <!-- Edit button -->
          @if (mode !== Mode.ADD){
-          <button (click)="editBib()"
+          <button data-testid="edit-button" (click)="editBib()"
                 type="button" style="margin-right: 0.25rem" 
-                class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editAddBib">Edit</button>
+                class="btn btn-secondary btn-sm">Edit</button>
           <!-- Delete button -->
-          <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBib">Delete</button>
+          <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
          }
   </div>
 </div>
 
 <!--ADD/EDIT MODAL-->
-<div class="modal fade" id="editAddBib" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="editAddBib" data-testid="editAddBib" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
         <div class="modal-header">
@@ -51,7 +51,7 @@
           @else if (mode === Mode.ADD){
             <h1 class="modal-title fs-5" id="staticBackdropLabel">Add bibliography entry</h1>
           }
-          <button (click)="navigateToBibAllPage()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button (click)="mode === Mode.ADD ? navigateToBibAllPage() : closeAddEditModal()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form [formGroup]="editForm">
@@ -485,8 +485,8 @@
 
             <!-- END OF FIELDS -->
         <div class="modal-footer">
-          <button (click)="mode === Mode.ADD ? navigateToBibAllPage() : null" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button (click)="submitAddOrEdit()" type="submit" class="btn btn-primary" [disabled]="type.value === 'Select publication type:'">Save</button>
+          <button (click)="mode === Mode.ADD ? navigateToBibAllPage() : closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
+          <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary" [disabled]="type.value === defaultPublicationTypeOption">Save</button>
         </div>
     </div>
   </div>
@@ -498,14 +498,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete bibliography entry?</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button (click)= 'closeDeleteModal()' type="button" class="btn-close" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         Are you sure?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteBib()' type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        <button (click)= 'closeDeleteModal()' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+        <button (click)='deleteBib()' data-testid="delete-confirm-button" type="submit" class="btn btn-danger">Delete</button>
       </div>
     </div>
   </div>

@@ -12,8 +12,7 @@ import { IBibVm } from '../common/IBibVm';
   selector: 'app-bibs',
   imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './bib-all.html',
-  styleUrl: './bib-all.css',
-  providers: [BibService]
+  styleUrl: './bib-all.css'
 })
 
 export class BibAll {

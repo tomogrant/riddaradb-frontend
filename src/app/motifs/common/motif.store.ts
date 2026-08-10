@@ -27,6 +27,7 @@ export class MotifStore {
     $visibleNodes = signal(new Set<number>());
     $resultNodes = signal(new Set<number>());
 
+    //UI state
     $searchActive = signal(false);
     $searchTerm = signal('');
     $showColourCoding = signal(false);
@@ -76,9 +77,11 @@ export class MotifStore {
         this.clearResultNodes();
 
         for (const result of results){
+            //Loads all ancestors and makes them visible 
             result.searchResultPath.sort((a, b) => a - b);
             await this.loadAncestors(result.searchResultPath);
 
+            //Finally, makes the result node visible
             this.$visibleNodes.update(current => {
                 const next = new Set(current);
                 next.add(result.searchResultId);
@@ -95,7 +98,8 @@ export class MotifStore {
 
     async loadAncestors(ancestorIds: number[]): Promise<void>{
         for (const ancestorId of ancestorIds){
-            console.log("Ancestor ID: " + ancestorId);
+            //The first node is a root node, and is already loaded (getRootMotifs).
+            //It is made visible, and its child/children are loaded. 
             const node = this.getMotifNode(ancestorId);
             if (!node) return;
 
@@ -188,7 +192,6 @@ export class MotifStore {
     }
 
     setMotifNodes(motifNodes: IMotif[]){
-
         //update method takes current state (current) and returns updated state (next). 
         this.$motifNodes.update(current => {
             const next = new Map(current);
@@ -403,6 +406,7 @@ export class MotifStore {
     }
 
     async getMotifChildren(id: number): Promise<void>{
+        //Loads, sorts and adds children to $motifNodes
         const children = await firstValueFrom(this.motifService.getChildren(id));
         this.$motifNodes.update(current => {
             const next = new Map(current);
@@ -414,6 +418,7 @@ export class MotifStore {
                 next.set(child.id, child);
             }
 
+            //Assigns child id(s) to parent motif
             const parentMotif = next.get(id);
         
             if (parentMotif){

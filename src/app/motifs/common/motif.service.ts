@@ -62,7 +62,6 @@ export class MotifService {
         catchError(this.errorHandler));
     }
 
-
     //DELETE MOTIF BY ID
     deleteMotif(id: number): Observable<IMotif>{
         return this.httpClient.delete<IMotif>(`${this.motifMain}/deletemotif/${id}`);

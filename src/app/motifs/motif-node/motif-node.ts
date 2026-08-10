@@ -1,8 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, input, computed } from '@angular/core'; 
 import { MotifStore } from '../common/motif.store';
 import { MotifModalService } from '../common/motif-modal.service';
-import { SagaService } from '../../sagas/common/saga.service';
-
 
 @Component({
   selector: 'app-motif-node',
@@ -14,7 +12,6 @@ import { SagaService } from '../../sagas/common/saga.service';
 export class MotifNode {
   motifStore = inject(MotifStore);
   motifModalService = inject (MotifModalService);
-  sagaService = inject(SagaService);
 
   //Signals
   $nodeId = input.required<number>();
@@ -74,7 +71,6 @@ export class MotifNode {
   }
 
   openAddModal(){
-    console.log("Add button clicked");
     this.motifModalService.openAddModal(this.$nodeId());
   }
 

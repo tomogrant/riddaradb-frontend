@@ -1,6 +1,6 @@
 import {Component, inject, effect, computed, signal} from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import {form, FormField, required} from '@angular/forms/signals';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MotifNode } from '../motif-node/motif-node';
 import { Modal } from 'bootstrap';
 import { MotifStore } from '../common/motif.store';
@@ -72,8 +72,10 @@ export class MotifsAll {
   });
 
   //Current node is whatever is sent by the recursive motif node component. 
-  //In the case of adding, this is the parent ID, if this exists. 
-  //In the case of editing or deleting, this is the motif ID itself. 
+  //In the case of adding a child, this is the parent's ID. 
+  //In the case of editing or deleting, this is the ID of the motif to be edited.
+  //If adding a root node via this page, the ID is null as it neither exists 
+  //nor has a parent.  
   $currentNode = computed(() =>{
     const state = this.$modalState();
 
@@ -102,6 +104,9 @@ export class MotifsAll {
   }
 
   checkboxUpdate(id: number){
+    //Called when a checkbox next to a saga is clicked. Gets ID from DOM.
+    //Removes saga (id, pageChapterNumber) from array or adds 
+    //with an empty pageChapterNumber
     this.$editModel.update(current => {
       const sagas = current.sagas;
       const index = sagas.findIndex(saga => saga.sagaVersionId === id);
@@ -124,6 +129,7 @@ export class MotifsAll {
     });
   }
 
+  //Called when a page/chapter number field associated with a saga changes
   pageChapterNumberUpdate(id: number, pageChapterNumber: string){
     this.$editModel.update(current => {
       const sagas = current.sagas;
@@ -158,6 +164,8 @@ export class MotifsAll {
   }
 
   openAddModal(){
+    //No motif ID is passed in here, as we 
+    //are adding a new root motif
     this.motifModalService.openAddModal();
   }
 
@@ -184,12 +192,9 @@ export class MotifsAll {
   }
 
   toggleModal(){
-    if (this.$modalState()?.mode == Mode.DELETE){
-      var templateModal = document.getElementById('deleteModal');
-    }
-    else{
-      var templateModal = document.getElementById('editAddModal');
-    }
+    const templateModal = this.$modalState()?.mode == Mode.DELETE ? 
+      document.getElementById('deleteModal') :
+      document.getElementById('editAddModal');
 
     if (templateModal != null){
       var modal = Modal.getOrCreateInstance(templateModal);
@@ -214,7 +219,8 @@ export class MotifsAll {
             motifName: this.editForm.motifName().value(),
             description: this.editForm.description().value(),
             sagaMotifs: this.editForm.sagas().value(),
-            //If adding child node, set parent. Otherwise, if there's no parent (root node), pass 0.
+            //If adding child node, currentNode is the parent node; fill parentId. 
+            //If adding a root note, there is no parent; fill with null. 
             parentId: !currentNode ? null : currentNode.id
         });
       }

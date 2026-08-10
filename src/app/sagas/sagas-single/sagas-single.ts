@@ -17,7 +17,6 @@ import { BibMapper } from '../../bib/common/bib.mapper';
 import { ISagaVersionVm } from '../common/ISagaVersionVm';
 import { IMotif } from '../../motifs/common/IMotif';
 import { ISagaVm } from '../common/ISagaVm';
-import { NonNullAssert } from '@angular/compiler';
 
 @Component({
   selector: 'app-saga-entry',
@@ -98,16 +97,16 @@ export class SagasSingle implements OnInit {
 
   ngOnInit() {
 
-    this.route.paramMap.subscribe(params => {
-      //ADD MODE
-      if (params.get('mode') == 'add'){
-        this.addSaga();
-        this.getBibs();
-      }
-      else{
-        this.getSaga();
-      }
-    });
+    const mode = this.route.snapshot.paramMap.get('mode');
+
+    //ADD MODE
+    if (mode == 'add'){
+      this.addSaga();
+      this.getBibs();
+    }
+    else{
+      this.getSaga();
+    }
 
     this.bibFilter.valueChanges.pipe().subscribe({
       next: value => this.updateBibFilter(value)
@@ -118,12 +117,42 @@ export class SagasSingle implements OnInit {
   //  FIELD LOGIC
   //---------------
 
-    openAddModal(){
-    var editModal = document.getElementById('editSaga');
-    if (editModal != null){
-      var modal = Modal.getOrCreateInstance(editModal);
+  openAddEditModal(){
+    var addEditModal = document.getElementById('addEditSaga');
+    if (addEditModal != null){
+      var modal = Modal.getOrCreateInstance(addEditModal);
       if (modal != null){
-        modal.toggle();
+        modal.show();
+      }
+    }
+  }
+
+  closeAddEditModal(){
+    var addEditModal = document.getElementById('addEditSaga');
+    if (addEditModal != null){
+      var modal = Modal.getInstance(addEditModal);
+      if (modal != null){
+        modal.hide();
+      }
+    }
+  }
+
+  openDeleteModal(){
+    var deleteModal = document.getElementById('deleteSaga');
+    if (deleteModal != null){
+      var modal = Modal.getOrCreateInstance(deleteModal);
+      if (modal != null){
+        modal.show();
+      }
+    }
+  }
+
+  closeDeleteModal(){
+    var deleteModal = document.getElementById('deleteSaga');
+    if (deleteModal != null){
+      var modal = Modal.getInstance(deleteModal);
+      if (modal != null){
+        modal.hide();
       }
     }
   }
@@ -288,7 +317,7 @@ export class SagasSingle implements OnInit {
     this.sagaEntry = this.initialiseSaga();
     this.showValidationErrors = false;
     this.addSagaVersionForm();
-    this.openAddModal();
+    this.openAddEditModal();
     this.hideAccordion();
   }
 
@@ -296,6 +325,7 @@ export class SagasSingle implements OnInit {
     this.mode = Mode.EDIT;
     this.showValidationErrors = false;
     this.fillInputFields();
+    this.openAddEditModal();
     this.hideAccordion();
   }
 
@@ -322,11 +352,7 @@ export class SagasSingle implements OnInit {
     }
 
     if (this.editForm.valid){
-      var editModal = document.getElementById('editSaga');
-      if (editModal != null){
-        var modal = Modal.getInstance(editModal);
-        modal?.toggle();
-      }
+      this.closeAddEditModal();
 
       if (this.mode === Mode.ADD)
         this.postSaga();
@@ -341,6 +367,7 @@ export class SagasSingle implements OnInit {
   }
 
   deleteSaga(){
+    this.closeDeleteModal();
     if (this.sagaEntry.id){
       this.sagasService.deleteSaga(this.sagaEntry.id).subscribe({
         next: deletedSaga => {
@@ -422,20 +449,20 @@ export class SagasSingle implements OnInit {
 
   //READ
   getSaga(){
-    this.route.paramMap.subscribe(params => {
-      const id = Number(params.get('id'));
-      if (!Number.isNaN(id)) {
-        //If saga id is valid, get saga
-        this.sagasService.getSagaById(id).subscribe({
-          next: receivedEntry => {
-            this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedEntry);
-            this.getBibs();
-          },
-          error: err => console.log(err)
-        });
-      }
+    const id = this.route.snapshot.paramMap.get('id');
+    
+    if (id == null)
+      return;
+    //If saga id is valid, get saga
+    this.sagasService.getSagaById(parseInt(id)).subscribe({
+      next: receivedEntry => {
+        this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedEntry);
+        this.getBibs();
+      },
+      error: err => console.log(err)
     });
   }
+  
 
   //UPDATE
   updateSaga(){

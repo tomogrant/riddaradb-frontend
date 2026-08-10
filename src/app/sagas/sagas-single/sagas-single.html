@@ -6,12 +6,10 @@
   <div class="card-body page-container">
     <div class="container">
       <div class="mb-3">
-        <button (click)="editSaga();"
-            type="button" style="margin-left: 0.5rem" 
-            class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editSaga">Edit</button>
-        <button
-            type="button" style="margin-left: 0.5rem"
-            class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSaga">Delete</button>
+        <button data-testid="edit-button" (click)="editSaga()" type="button" style="margin-left: 0.5rem" 
+            class="btn btn-secondary btn-sm">Edit</button>
+        <button data-testid="delete-button" (click)="openDeleteModal()" type="button" style="margin-left: 0.5rem"
+            class="btn btn-danger btn-sm">Delete</button>
       </div>
       
       @if (sagaEntry.sagaVersions.length == 1 && sagaEntry.sagaVersions[0].date != SagaDate.UNDEFINED ){
@@ -119,12 +117,12 @@
 <!-- MODALS -->
 
 <!--Edit modal-->
-<div class="modal fade" id="editSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="addEditSaga" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-xl">
     <div class="modal-content">
         <div class="modal-header">
             <h1 class="modal-title fs-5" id="staticBackdropLabel">{{mode == Mode.ADD ? 'Add saga' : 'Edit saga'}}</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button (click)="closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form [formGroup]="editForm">
@@ -281,7 +279,7 @@
                 <div class="col">
                   <div>
                     <span class="me-2">
-                      <button class="btn btn-outline-success" (click)="addSagaVersionForm()">Add saga version</button>
+                      <button data-testid="add-saga-version-button" class="btn btn-outline-success" (click)="addSagaVersionForm()">Add saga version</button>
                     </span>
                 </div>
                 </div>
@@ -333,8 +331,8 @@
 
             <!-- END OF FIELDS -->
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
+          <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
+          <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
         </div>
     </div>
   </div>
@@ -346,14 +344,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete <i>{{sagaEntry.title}}</i>?</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button (click)="closeDeleteModal()" type="button" class="btn-close" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         Are you sure?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" (click)="deleteSaga()">Delete</button>
+        <button (click)="closeDeleteModal()" type="button" class="btn btn-secondary">Back</button>
+        <button data-testid="delete-confirm-button" (click)="deleteSaga()" type="submit" class="btn btn-danger">Delete</button>
       </div>
     </div>
   </div>

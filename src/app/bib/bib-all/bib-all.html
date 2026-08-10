@@ -19,7 +19,7 @@
         <div class="row mb-1">
           <span>
           @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
-          <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+          <a [routerLink]="['/bib', bib.id]" [innerHTML]="bib.bibliographyEntry"></a>
           </span>
         </div>
       }
@@ -35,7 +35,7 @@
         <div class="row mb-1">
           <span>
             @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
-            <a href="bib/{{bib.id}}" [innerHTML]="bib.bibliographyEntry"></a>
+            <a [routerLink]="['/bib', bib.id]" [innerHTML]="bib.bibliographyEntry"></a>
           </span>
         </div>
       }

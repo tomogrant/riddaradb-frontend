@@ -19,7 +19,7 @@ import { ISagaTitleDto } from '../../sagas/common/ISagaTitleDto';
   selector: 'app-bibs',
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule],
   templateUrl: './bib-single.html',
-  providers: [BibService]
+
 })
 export class BibSingle {
   constructor(private bibService: BibService, 
@@ -45,8 +45,10 @@ export class BibSingle {
   attachedSagas: ISagaTitleDto[] = [];
   sagaIds: number[] = [];
 
+  defaultPublicationTypeOption: string = 'Select publication type:';
+
   editForm = new FormGroup({
-    type: new FormControl('Select publication type:', {nonNullable: true}),
+    type: new FormControl(this.defaultPublicationTypeOption, {nonNullable: true}),
     authors: new FormControl('', {nonNullable: true}),
     editors: new FormControl('', {nonNullable: true}),
     translators: new FormControl('', {nonNullable: true}),
@@ -163,25 +165,32 @@ export class BibSingle {
   }
 
   parseParams(){
-    this.route.paramMap.subscribe(params => {
+    
+    const mode = this.route.snapshot.paramMap.get('mode');
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
       //ADD MODE
-      if (params.get('mode') == 'add'){
+      if (mode == 'add'){
         this.getSagas();
         this.addBib();
       }
-      else {
-        //READ
-        const id = Number(params.get('id'));
-        if (!Number.isNaN(id)) {
-          this.bibService.getBibEntryById(id).subscribe(receivedEntry => {
-            this.activeBib = receivedEntry;
-            this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
-            this.getSagas();
-          });
-        }
+      else if (!Number.isNaN(id)){
+        this.bibService.getBibEntryById(id).subscribe(receivedEntry => {
+          if (receivedEntry == null){
+            console.log("Bib entry not found");
+            this.navigateToBibAllPage();
+          }
+          this.activeBib = receivedEntry;
+          this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
+          this.getSagas();
+        });
       }
-    });
-  }
+
+      else{
+        console.log("parameter is incorrect");
+        this.navigateToBibAllPage();
+      }
+    }
 
   getSagas(){
     this.sagaService.getSagaTitles().subscribe(sagas => 
@@ -383,11 +392,12 @@ export class BibSingle {
     this.mode = Mode.ADD;
 
     this.activeBib = this.initialiseBib();
-    this.openAddModal();
+    this.openAddEditModal();
   }
 
   editBib(){
     this.mode = Mode.EDIT;
+    this.openAddEditModal();
 
     //Shouldn't be possible
     if (this.activeBib.publicationType === PublicationType.UNDEFINED){
@@ -400,18 +410,39 @@ export class BibSingle {
     this.fillForm();
   }
 
-  openAddModal(){
+  openAddEditModal(){
     var editAddModal = document.getElementById('editAddBib');
     if (editAddModal != null){
       var modal = Modal.getOrCreateInstance(editAddModal);
-      if (modal != null){
-        modal.toggle();
-      }
+        modal?.show();
+    }
+  }
+
+  closeAddEditModal(){
+    var editAddModal = document.getElementById('editAddBib');
+    if (editAddModal != null){
+      var modal = Modal.getInstance(editAddModal);
+      modal?.hide();
+    }
+  }
+
+  openDeleteModal(){
+    var deleteModal = document.getElementById('deleteBib');
+    if (deleteModal != null){
+      var modal = Modal.getOrCreateInstance(deleteModal);
+        modal?.show();
+    }
+  }
+
+  closeDeleteModal(){
+    var deleteModal = document.getElementById('deleteBib');
+    if (deleteModal != null){
+      var modal = Modal.getInstance(deleteModal);
+      modal?.hide();
     }
   }
 
   submitAddOrEdit(){
-
     //Updates the value and validity of all form controls in the edit form;
     //updating the FormGroup alone is not sufficient. 
     Object.values(this.editForm.controls).forEach(formControl => {
@@ -419,11 +450,7 @@ export class BibSingle {
     });
 
     if (this.editForm.valid){
-      var editAddModal = document.getElementById('editAddBib');
-      if (editAddModal != null){
-        var modal = Modal.getInstance(editAddModal);
-        modal?.toggle();
-      }
+      this.closeAddEditModal();
 
       if (this.mode === Mode.ADD){
         this.postBib();
@@ -545,10 +572,13 @@ export class BibSingle {
     else (this.activeBib.recommended = this.recommended.defaultValue);
 
     if (this.editFormConfig.includeDescription) {
-      //Quill replaces all empty spaces with the character &nbsp;. This causes the
-      //string in innerHTML to be treated as one line, which causes it to run off
-      //the page. This is a fix. 
-      this.activeBib.description = this.description.value.replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
+      if (this.description.value == null)
+        this.activeBib.description = '';
+      else
+        //Quill replaces all empty spaces with the character &nbsp;. This causes the
+        //string in innerHTML to be treated as one line, which causes it to run off
+        //the page. This is a fix. 
+        this.activeBib.description = this.description.value.replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ');
     }
     else {
       (this.activeBib.description = this.description.defaultValue);
@@ -599,6 +629,8 @@ export class BibSingle {
   }
 
   deleteBib(){
+    this.closeDeleteModal();
+
     if (this.activeBib.id != null){
       this.bibService.deleteBib(this.activeBib.id).subscribe({
         next: bibEntry => this.navigateToBibAllPage(),

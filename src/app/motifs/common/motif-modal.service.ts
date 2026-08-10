@@ -1,6 +1,5 @@
 import { Injectable, signal } from "@angular/core";
 import { Mode } from "../../shared/Enums";
-import { Modal } from "bootstrap";
 
 @Injectable({
   providedIn: 'root'
