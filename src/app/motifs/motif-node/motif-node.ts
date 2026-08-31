@@ -11,18 +11,21 @@ import { MotifModalService } from '../common/motif-modal.service';
 })
 export class MotifNode {
   motifStore = inject(MotifStore);
-  motifModalService = inject (MotifModalService);
+  motifModalService = inject(MotifModalService);
 
-  //Signals
+  //Inputs
   $nodeId = input.required<number>();
   $depth = input.required<number>();
 
+  //Main node signal
   $node = computed(() => this.motifStore.$motifNodes().get(this.$nodeId()));
 
+  //Booleans
   $expanded = computed(() => this.motifStore.$expandedNodes().has(this.$nodeId()));
   $visible = computed(() => this.motifStore.$visibleNodes().has(this.$nodeId()));
   $result = computed(() => this.motifStore.$resultNodes().has(this.$nodeId()));
 
+  //UI signals
   $searchActive = computed(() => this.motifStore.$searchActive());
   $searchTerm = computed(() => this.motifStore.$searchTerm());
   $showColourCoding = computed(() => this.motifStore.$showColourCoding());
