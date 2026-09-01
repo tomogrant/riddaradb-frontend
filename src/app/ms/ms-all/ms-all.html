@@ -9,34 +9,90 @@
 <div class="card-body page-container">
   <div class="container" >
     <div class="row mb-4">
+
       <div class="col-3">
         <form [formGroup]="filterForm">
-        <input type="text" class="form-control" formControlName="filter" placeholder="Filter manuscripts...">
-      </form>
+          <input type="text" class="form-control" formControlName="filter" placeholder="Filter manuscripts...">
+        </form>
       </div>
     </div>
 
-    @if (filteredMss.length > 0){
-      <div class="row">
-        <h3 style="font-variant: small-caps;">Manuscripts</h3>
-      </div>
-      @for (ms of filteredMss; track $index){
-        <div class="row mb-1">
-          <span>
-          <a href="ms/{{ms.id}}">{{ms.shelfmark}}</a>
-          </span>
+    <div class="row">
+      <div>
+         <div class="accordion" id="accordion-container">
+          @for(repo of repositories; track $index){
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#' + repo.id" aria-expanded="false" aria-controls="bib-accordion">
+                  {{repo.name}}
+                </button>
+              </h2>
+              <div [id]='repo.id' class="accordion-collapse collapse show" data-bs-parent="#accordion-container">
+                <div class="accordion-body">
+
+                  <p></p>
+                </div>
+              </div>
+            </div>
+          }
         </div>
+      </div>
+    </div>
+
       
-        <p></p>
-        <p></p>
-        }
-    }
+
     <!-- 'Add' button -->
     <p></p>
     <div class="row">
       <div class="col-sm">
-        <button (click)="addMs()" type="button" class="btn btn-success btn-sm">Add</button>
+        <button (click)="addRepository()" type="button" class="btn btn-success btn-sm">Add repository</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!--Edit modal-->
+<div class="modal fade" id="addEditRepository" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-xl">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">{{mode == Mode.ADD ? 'Add manuscript repository' : 'Edit manuscript repository'}}</h1>
+            <button (click)="closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editForm">
+            <div class="container-fluid">
+              <div class="row mb-3">
+
+                <div class="col">
+                  <!-- NAME FIELD -->
+                  <label for="ms-repo-name" class="form-label">Title:</label><span style="color: rgb(210, 74, 74)">*</span>
+                  <input type="text" class="form-control" formControlName="name" id="ms-repo-name" placeholder="Repository name"
+                          [class.invalid-input]="name.invalid && showValidationErrors">
+                  @if (name.invalid && showValidationErrors) {
+                    @if (name.hasError('required')) {
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Name is required.</small>
+                      </div>
+                    }
+                    @else if (name.hasError('nameNotUnique')){
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Repository with this name already exists.</small>
+                      </div>
+                    }
+                  }
+                </div>
+
+              </div>
+            </div>
+          </form>
+        </div>
+
+            <!-- END OF FIELDS -->
+        <div class="modal-footer">
+          <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
+          <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
+        </div>
     </div>
   </div>
 </div>

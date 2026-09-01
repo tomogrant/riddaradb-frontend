@@ -483,7 +483,7 @@ export class SagasSingle implements OnInit {
     })
   }
 
-    //UPDATE
+    //POST
   postSaga(){
 
     this.formToVm();
@@ -499,7 +499,7 @@ export class SagasSingle implements OnInit {
       error: err => {
         console.log("Problem with saving.");
       }
-    })
+    });
   }
 
   //---------------

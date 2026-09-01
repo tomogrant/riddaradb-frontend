@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from '@angular/core';
 import { Observable, catchError, tap, throwError } from "rxjs";
 import { IMs } from "./IMs";
+import { IMsRepository } from "./IMsRepository";
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,28 @@ export class MsService{
 
   msMain = '/api/ms';
   constructor(private httpClient: HttpClient){}
+
+    getMsRepositories(): Observable<IMsRepository[]>{
+        return this.httpClient.get<IMsRepository[]>(`${this.msMain}/getmsrepositories`)
+        .pipe(tap(data => console.log('All MS repository data got: ' + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
+
+    //POST MS REPOSITORY
+    postMsRepository(repo: IMsRepository): Observable<IMsRepository>{
+        console.log('Posting repo: ' + JSON.stringify(repo));
+        return this.httpClient.post<IMsRepository>(`${this.msMain}/postmsrepository`, repo)
+        .pipe(tap(data => console.log('Repo posted: ' + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
+
+    //PUT MS REPOSITORY
+    putMsRepository(repo: IMsRepository): Observable<IMsRepository>{
+        console.log('Posting repo: ' + JSON.stringify(repo));
+        return this.httpClient.put<IMsRepository>(`${this.msMain}/putmsrepository`, repo)
+        .pipe(tap(data => console.log('Repo posted: ' + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
 
     //GET ALL MS ENTRIES
     getMsEntries(): Observable<IMs[]>{//Gets an observable of type IMS[]. Can be accessed and subscribed to by other classes to access data. 
