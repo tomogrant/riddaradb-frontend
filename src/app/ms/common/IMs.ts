@@ -6,5 +6,6 @@ export interface IMs {
     msSaga: {
         sagaId: number;
         folioNumber: number;
-    }[]
+    }[];
+    msRepositoryId: number
 }

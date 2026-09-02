@@ -20,7 +20,7 @@
     <div class="row">
       <div>
          <div class="accordion" id="accordion-container">
-          @for(repo of repositories; track $index){
+          @for(repo of filteredRepositoriesVm; track $index){
             <div class="accordion-item">
               <h2 class="accordion-header">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#' + repo.id" aria-expanded="false" aria-controls="bib-accordion">
@@ -29,8 +29,7 @@
               </h2>
               <div [id]='repo.id' class="accordion-collapse collapse">
                 <div class="accordion-body">
-
-                  <p></p>
+                  <p>Placeholder text</p>
                 </div>
               </div>
             </div>

@@ -2,7 +2,8 @@ import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from '@angular/core';
 import { Observable, catchError, tap, throwError } from "rxjs";
 import { IMs } from "./IMs";
-import { IMsRepository } from "./IMsRepository";
+import { IMsRepositoryVm } from "./IMsRepositoryVm";
+import { IMsRepositoryDto } from "./IMsRepositoryDto";
 
 @Injectable({
   providedIn: 'root'
@@ -13,24 +14,24 @@ export class MsService{
   msMain = '/api/ms';
   constructor(private httpClient: HttpClient){}
 
-    getMsRepositories(): Observable<IMsRepository[]>{
-        return this.httpClient.get<IMsRepository[]>(`${this.msMain}/getmsrepositories`)
+    getMsRepositories(): Observable<IMsRepositoryDto[]>{
+        return this.httpClient.get<IMsRepositoryDto[]>(`${this.msMain}/getmsrepositories`)
         .pipe(tap(data => console.log('All MS repository data got: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
     //POST MS REPOSITORY
-    postMsRepository(repo: IMsRepository): Observable<IMsRepository>{
+    postMsRepository(repo: IMsRepositoryDto): Observable<IMsRepositoryDto>{
         console.log('Posting repo: ' + JSON.stringify(repo));
-        return this.httpClient.post<IMsRepository>(`${this.msMain}/postmsrepository`, repo)
+        return this.httpClient.post<IMsRepositoryDto>(`${this.msMain}/postmsrepository`, repo)
         .pipe(tap(data => console.log('Repo posted: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
     //PUT MS REPOSITORY
-    putMsRepository(repo: IMsRepository): Observable<IMsRepository>{
+    putMsRepository(repo: IMsRepositoryDto): Observable<IMsRepositoryVm>{
         console.log('Posting repo: ' + JSON.stringify(repo));
-        return this.httpClient.put<IMsRepository>(`${this.msMain}/putmsrepository`, repo)
+        return this.httpClient.put<IMsRepositoryVm>(`${this.msMain}/putmsrepository`, repo)
         .pipe(tap(data => console.log('Repo posted: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }

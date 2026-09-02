@@ -1,4 +1,4 @@
-export interface IMsRepository {
+export interface IMsRepositoryDto {
     id: number | null;
     name: string;
     msIds: number[]
