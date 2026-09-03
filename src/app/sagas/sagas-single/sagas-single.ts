@@ -17,6 +17,7 @@ import { BibMapper } from '../../bib/common/bib.mapper';
 import { ISagaVersionVm } from '../common/ISagaVersionVm';
 import { IMotif } from '../../motifs/common/IMotif';
 import { ISagaVm } from '../common/ISagaVm';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-saga-entry',
@@ -108,7 +109,7 @@ export class SagasSingle implements OnInit {
       this.getSaga();
     }
 
-    this.bibFilter.valueChanges.pipe().subscribe({
+    this.bibFilter.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe({
       next: value => this.updateBibFilter(value)
     });
   }

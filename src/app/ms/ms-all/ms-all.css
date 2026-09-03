@@ -1,0 +1,10 @@
+.accordion-button.collapsed {
+  background-color: rgb(255, 254, 249);
+  transition: background-color 250ms ease;
+}
+
+/* open (expanded) state */
+.accordion-button:not(.collapsed) {
+  background-color: rgb(255, 247, 209);
+  transition: background-color 250ms ease;
+}

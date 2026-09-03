@@ -8,11 +8,13 @@ import { IMs } from '../common/IMs';
 import { IMsRepositoryVm } from '../common/IMsRepositoryVm';
 import { Mode } from '../../shared/Enums';
 import { IMsRepositoryDto } from '../common/IMsRepositoryDto';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-ms-all',
   imports: [CommonModule, RouterModule, ReactiveFormsModule],
-  templateUrl: './ms-all.html'
+  templateUrl: './ms-all.html',
+  styleUrl: './ms-all.css'
 })
 
 export class MsAll{
@@ -63,7 +65,7 @@ export class MsAll{
   ngOnInit() {
       this.displayRepositories();
 
-      this.filter.valueChanges.pipe()
+      this.filter.valueChanges.pipe(debounceTime(250), distinctUntilChanged())
         .subscribe(value => this.updateFilter(value));
   }
 
@@ -148,7 +150,11 @@ export class MsAll{
     const cleanTerm = searchTerm?.trim().toLowerCase();
 
     if (!cleanTerm) {
-      this.filteredRepositoriesVm = this.repositoriesVm;
+      //
+      this.filteredRepositoriesVm = this.repositoriesVm.map(repo => ({
+        ...repo,
+        isExpanded: false
+      }));
       return;
     }
 
@@ -165,7 +171,8 @@ export class MsAll{
         //Return a shallow copy of the repository with the filtered MS list
         return {
           ...repo,
-          manuscripts: matchingManuscripts
+          manuscripts: matchingManuscripts,
+          accordionOpen: matchingManuscripts.length > 0
         };
       })
       //Exclude repositories that end up with zero matching MSs
@@ -225,6 +232,7 @@ export class MsAll{
         this.repositoriesVm.push(repoVm);
         this.repositoriesVmMap.set(repoVm.id, repoVm);
         this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
+        this.updateFilter('');
       },
       error: err => {
         console.log("Problem with saving.");

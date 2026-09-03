@@ -7,6 +7,7 @@ import { IBib, PublicationType } from '../common/IBib';
 import { BibMapper } from '../common/bib.mapper';
 import { CommonModule } from '@angular/common';
 import { IBibVm } from '../common/IBibVm';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-bibs',
@@ -42,7 +43,7 @@ export class BibAll {
   ngOnInit() {
       this.displayBibs();
 
-      this.filter.valueChanges.pipe()
+      this.filter.valueChanges.pipe(debounceTime(250), distinctUntilChanged())
         .subscribe(value => this.updateFilter(value));
     }
 
