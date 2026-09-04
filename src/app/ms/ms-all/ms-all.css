@@ -1,10 +1,35 @@
+/* For accordion colour */
 .accordion-button.collapsed {
   background-color: rgb(255, 254, 249);
   transition: background-color 250ms ease;
 }
 
-/* open (expanded) state */
 .accordion-button:not(.collapsed) {
   background-color: rgb(255, 247, 209);
   transition: background-color 250ms ease;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+/* For recreating bootstrap's accordion animation */
+.accordion-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 350ms ease;
+}
+
+.accordion-collapse.show {
+  grid-template-rows: 1fr;
+}
+
+.accordion-content {
+  min-height: 0;
+  overflow: hidden;
+  transition: padding-block 350ms ease;
+}
+
+.accordion-collapse:not(.show) .accordion-content {
+  padding-block: 0;
 }

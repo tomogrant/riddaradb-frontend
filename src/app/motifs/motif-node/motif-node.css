@@ -1,7 +1,7 @@
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateY(-5px);
   }
   to {
     opacity: 1;
@@ -19,7 +19,7 @@
 }
 
 .child-anim{
-  animation: slideIn 0.7s ease-in forwards;
+  animation: slideIn 0.5s ease-in;
 }
 
 .result{

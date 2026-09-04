@@ -50,15 +50,21 @@ export class MsAll{
   readonly Mode = Mode;
   mode: Mode = Mode.NONE;
 
-  mss: IMs[] = [];
-  filteredMss: IMs[] = [];
-
+  //Repository entry for editing and sending to the server
   repositoryDto: IMsRepositoryDto = this.initialiseRepository();
+
+  //Repositories received from the server for processing into VMs
   repositoriesDto: IMsRepositoryDto[] = [];
   
+  //VMs for display
   repositoriesVm: IMsRepositoryVm[] = [];
   filteredRepositoriesVm: IMsRepositoryVm[] = [];
 
+  //Manuscripts for assigning to repository VMs
+  mss: IMs[] = [];
+  filteredMss: IMs[] = [];
+
+  //Maps
   repositoriesVmMap: Map<number, IMsRepositoryVm> = new Map<number, IMsRepositoryVm>;
   msMap: Map<number, IMs> = new Map<number, IMs>;
 
@@ -106,7 +112,24 @@ export class MsAll{
   addRepository(){
     this.mode = Mode.ADD;
     this.editForm.reset();
+    this.repositoryDto = this.initialiseRepository();
     this.openAddEditModal();
+  }
+
+  editRepository(id: number){
+    this.mode = Mode.EDIT;
+    this.editForm.reset();
+    this.repositoryDto = this.initialiseRepository();
+    const repo = this.repositoriesVmMap.get(id);
+    if (repo){
+      this.name.setValue(repo.name);
+      this.repositoryDto.id = id;
+    }
+    this.openAddEditModal();
+  }
+
+  deleteRepository(id: number){
+
   }
 
   openAddEditModal(){
@@ -244,9 +267,11 @@ export class MsAll{
     this.msService.putMsRepository(this.repositoryDto).subscribe({
       next: repo => {
         console.log("Updated successfully! " + repo);
-        var repoToChange = this.repositoriesVm.find(repo => repo.id == this.repositoryDto.id);
+        var repoToChange = this.repositoriesVm.find(repoInCollection => repoInCollection.id == repo.id);
         if (repoToChange){
           repoToChange.name = repo.name;
+          this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
+          this.updateFilter('');
         }
       },
       error: err => {

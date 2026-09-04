@@ -24,27 +24,42 @@
             <div class="accordion-item">
               <h2 class="accordion-header">
                 <button class="accordion-button" 
-                        style="font-variant: small-caps; font-size: 1.3rem;"
                         type="button" 
                         [class.collapsed]="!repo.accordionOpen"
                         [attr.aria-expanded]="repo.accordionOpen"
                         (click)="repo.accordionOpen = !repo.accordionOpen">
-                  {{ repo.name }}
+                  <span class="me-3" style="font-variant: small-caps; font-size: 1.3rem;">
+                    {{ repo.name }}
+                  </span>
+
+                  <span class="me-1">
+                    <button class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="editRepository(repo.id)" onclick="event.stopPropagation()">
+                      Edit
+                    </button>
+                  </span>
+
+                  <span class="me-1">
+                    <button class="me-1" type="button" class="btn btn-sm btn-outline-danger" (click)="deleteRepository(repo.id)" onclick="event.stopPropagation()">
+                      Delete
+                    </button>
+                  </span>
                 </button>
               </h2>
-              <div [id]='repo.id' class="accordion-collapse" [class.collapse]="!repo.accordionOpen" [class.show]="repo.accordionOpen">
-                <div class="accordion-body">
-                  @if (repo.manuscripts.length == 0){
-                    <p>This repository is currently empty.</p>
-                  }
-                  @else {
-                    @for(ms of repo.manuscripts; track $index){
-                      @if(ms.name){
-                        <p>{{ms.shelfmark}} ({{ms.name}})</p>
-                      }
-                      @else {
-                        <p>{{ms.shelfmark}}</p>
-                      }
+              <div [id]='repo.id' class="accordion-collapse" [class.show]="repo.accordionOpen">
+                <div class="accordion-body accordion-content">
+
+                  <p class="me-1 mt-1 mb-3">
+                    <a class="me-1" type="button" class="btn btn-sm btn-outline-success">
+                      Add MS
+                    </a>
+                  </p>
+
+                  @for(ms of repo.manuscripts; track $index){
+                    @if(ms.name){
+                      <p>{{ms.shelfmark}} ({{ms.name}})</p>
+                    }
+                    @else {
+                      <p>{{ms.shelfmark}}</p>
                     }
                   }
                   
