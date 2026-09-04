@@ -9,6 +9,7 @@ import { IMsRepositoryVm } from '../common/IMsRepositoryVm';
 import { Mode } from '../../shared/Enums';
 import { IMsRepositoryDto } from '../common/IMsRepositoryDto';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { RouterTestingHarness } from '@angular/router/testing';
 
 @Component({
   selector: 'app-ms-all',
@@ -46,6 +47,8 @@ export class MsAll{
 
   //Variables
   showValidationErrors: boolean = false;
+
+  repoToDelete: number = 0;
 
   readonly Mode = Mode;
   mode: Mode = Mode.NONE;
@@ -128,8 +131,13 @@ export class MsAll{
     this.openAddEditModal();
   }
 
-  deleteRepository(id: number){
+  deleteRepository(){
+    this.deleteMsRepository();
+    this.closeDeleteModal();
+  }
 
+  addManuscript(){
+    this.router.navigate([`ms/action/add`]);
   }
 
   openAddEditModal(){
@@ -149,6 +157,23 @@ export class MsAll{
       if (modal != null){
         modal.hide();
       }
+    }
+  }
+
+  openDeleteModal(id: number){
+    this.repoToDelete = id;
+    var deleteModal = document.getElementById('deleteRepo');
+    if (deleteModal != null){
+      var modal = Modal.getOrCreateInstance(deleteModal);
+        modal?.show();
+    }
+  }
+
+  closeDeleteModal(){
+    var deleteModal = document.getElementById('deleteRepo');
+    if (deleteModal != null){
+      var modal = Modal.getInstance(deleteModal);
+      modal?.hide();
     }
   }
 
@@ -225,6 +250,28 @@ export class MsAll{
     }
   }
 
+  //CREATE
+  postMsRepository(){
+    this.msService.postMsRepository(this.repositoryDto).subscribe({
+      next: repo => {
+        console.log("Saved successfully! " + repo);
+
+        //Add new repo to collection and repo map
+        var repoVm = this.initialiseRepositoryVm();
+        if (repo.id) repoVm.id = repo.id;
+        repoVm.name = repo.name;
+        this.repositoriesVm.push(repoVm);
+        this.repositoriesVmMap.set(repoVm.id, repoVm);
+        this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
+        this.updateFilter('');
+      },
+      error: err => {
+        console.log("Problem with saving.");
+      }
+    });
+  }
+
+
   //READ
   displayRepositories(){
     this.msService.getMsRepositories().subscribe({
@@ -243,26 +290,7 @@ export class MsAll{
     });
   }
 
-  postMsRepository(){
-    this.msService.postMsRepository(this.repositoryDto).subscribe({
-      next: repo => {
-        console.log("Saved successfully! " + repo);
-
-        //Add new repo to collection and repo map
-        var repoVm: IMsRepositoryVm = this.initialiseRepositoryVm();
-        if (repo.id) repoVm.id = repo.id;
-        repoVm.name = repo.name;
-        this.repositoriesVm.push(repoVm);
-        this.repositoriesVmMap.set(repoVm.id, repoVm);
-        this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
-        this.updateFilter('');
-      },
-      error: err => {
-        console.log("Problem with saving.");
-      }
-    });
-  }
-
+  //UPDATE
   updateMsRepository(){
     this.msService.putMsRepository(this.repositoryDto).subscribe({
       next: repo => {
@@ -270,6 +298,7 @@ export class MsAll{
         var repoToChange = this.repositoriesVm.find(repoInCollection => repoInCollection.id == repo.id);
         if (repoToChange){
           repoToChange.name = repo.name;
+          this.repositoriesVmMap.set(repo.id, repo);
           this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
           this.updateFilter('');
         }
@@ -280,4 +309,21 @@ export class MsAll{
     });
   }
 
+  //DELETE
+  deleteMsRepository(){
+    this.msService.deleteMsRepository(this.repoToDelete).subscribe({
+      next: repo => {
+        console.log("Deleted successfully: " + repo);
+        var repoIndex = this.repositoriesVm.findIndex(repoVm => repoVm.id == this.repoToDelete);
+        console.log("Repo index: " + repoIndex);
+        this.repositoriesVm.splice(repoIndex, 1);
+        this.repositoriesVmMap.delete(this.repoToDelete);
+        this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
+        this.updateFilter('');
+    },
+    error: err => {
+      console.log("Problem deleting");
+    }
+  })
+  }
 }

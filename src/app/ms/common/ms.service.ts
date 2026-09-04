@@ -36,6 +36,12 @@ export class MsService{
         catchError(this.errorHandler));
     }
 
+    //DELETE MS REPOSITORY BY ID
+    deleteMsRepository(id: number): Observable<IMsRepositoryDto>{
+        console.log("request sent: " + `${this.msMain}/deletemsrepository/${id}`);
+        return this.httpClient.delete<IMsRepositoryDto>(`${this.msMain}/deletemsrepository/${id}`);
+    }
+
     //GET ALL MS ENTRIES
     getMsEntries(): Observable<IMs[]>{//Gets an observable of type IMS[]. Can be accessed and subscribed to by other classes to access data. 
         return this.httpClient.get<IMs[]>(`${this.msMain}/getmsentries`)

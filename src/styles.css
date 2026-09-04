@@ -1,6 +1,7 @@
 @import 'quill/dist/quill.snow.css';
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
+/* GLOBAL PAGE STYLING */
 body {
   background-color: rgb(242, 240, 237);
   font-family: garamond;
@@ -21,8 +22,9 @@ body {
     background-color: white;
 }
 
+/* LINK SETTINGS */
 a {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 a:visited{
@@ -37,7 +39,7 @@ a:hover{
   width: 100%;
 }
 
-/* Paragraph settings */
+/* PARAGRAPH SETTINGS */
 p:empty:before{
     content: ' ';
     white-space: pre;
@@ -47,7 +49,7 @@ p {
     margin-bottom: -0.1rem;
 }
 
-/* Settings for Quill */
+/* QUILL */
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='garamond']::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='garamond']::before
 {
@@ -70,6 +72,22 @@ p {
   text-justify: inter-word;
 }
 
+/* ACCORDION STYLING */
+.accordion-button.collapsed {
+  background-color: rgb(255, 254, 249);
+  transition: background-color 250ms ease;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: rgb(255, 247, 209);
+  transition: background-color 250ms ease;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+/* FOR FORM VALIDATION */
 /* Targets an element with BOTH classes invalid-input and form-control */
 .invalid-input.form-control{
   border-color: #FF0000;

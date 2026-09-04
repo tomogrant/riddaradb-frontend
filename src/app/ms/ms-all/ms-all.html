@@ -33,13 +33,19 @@
                   </span>
 
                   <span class="me-1">
+                    <button class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)='addManuscript()' onclick="event.stopPropagation()">
+                      Add MS
+                    </button>
+                  </span>
+
+                  <span class="me-1">
                     <button class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="editRepository(repo.id)" onclick="event.stopPropagation()">
                       Edit
                     </button>
                   </span>
 
                   <span class="me-1">
-                    <button class="me-1" type="button" class="btn btn-sm btn-outline-danger" (click)="deleteRepository(repo.id)" onclick="event.stopPropagation()">
+                    <button class="me-1" type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(repo.id)" onclick="event.stopPropagation()">
                       Delete
                     </button>
                   </span>
@@ -47,20 +53,26 @@
               </h2>
               <div [id]='repo.id' class="accordion-collapse" [class.show]="repo.accordionOpen">
                 <div class="accordion-body accordion-content">
-
-                  <p class="me-1 mt-1 mb-3">
-                    <a class="me-1" type="button" class="btn btn-sm btn-outline-success">
-                      Add MS
-                    </a>
-                  </p>
-
-                  @for(ms of repo.manuscripts; track $index){
-                    @if(ms.name){
-                      <p>{{ms.shelfmark}} ({{ms.name}})</p>
+                  @if(repo.manuscripts.length > 0){
+                    @for(ms of repo.manuscripts; track $index){
+                      @if(ms.name){
+                        <p>
+                          <a [routerLink]="['/ms', ms.id]"]>
+                          {{ms.shelfmark}} ({{ms.name}})
+                          </a>
+                        </p>
+                      }
+                      @else {
+                        <p>
+                          <a [routerLink]="['/ms', ms.id]"]>
+                          {{ms.shelfmark}}
+                          </a>
+                        </p>
+                      }
                     }
-                    @else {
-                      <p>{{ms.shelfmark}}</p>
-                    }
+                  }
+                  @else {
+                    <p>This repository is empty.</p>
                   }
                   
                 </div>
@@ -125,6 +137,30 @@
           <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
           <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
         </div>
+    </div>
+  </div>
+</div>
+
+<!--Delete modal-->
+<div class="modal fade" id="deleteRepo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete repository?</h1>
+        <button (click)='closeDeleteModal()' type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <span>
+          Are you sure?
+        </span>
+        <span style="color:rgb(210, 74, 74)">
+          This will also remove all associated manuscripts!
+        </span>
+      </div>
+      <div class="modal-footer">
+        <button (click)='closeDeleteModal()' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+        <button (click)='deleteRepository()' data-testid="delete-confirm-button" type="submit" class="btn btn-danger">Delete</button>
+      </div>
     </div>
   </div>
 </div>
