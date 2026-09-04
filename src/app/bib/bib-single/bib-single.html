@@ -501,13 +501,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete bibliography entry?</h1>
-        <button (click)= 'closeDeleteModal()' type="button" class="btn-close" aria-label="Close"></button>
+        <button (click)='closeDeleteModal()' type="button" class="btn-close" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         Are you sure?
       </div>
       <div class="modal-footer">
-        <button (click)= 'closeDeleteModal()' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+        <button (click)='closeDeleteModal()' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
         <button (click)='deleteBib()' data-testid="delete-confirm-button" type="submit" class="btn btn-danger">Delete</button>
       </div>
     </div>

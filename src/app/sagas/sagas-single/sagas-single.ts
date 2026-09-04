@@ -309,6 +309,11 @@ export class SagasSingle implements OnInit {
     this.sagaVersionForms.removeAt(i);
   }
 
+  navigateToSagasAllPage(){
+    this.closeAddEditModal();
+    this.router.navigate([`sagas`]);
+  }
+
   navigateToMotif(motifCode: string){
     this.router.navigate([`motifs/${motifCode}`]);
   }

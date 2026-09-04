@@ -127,7 +127,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h1 class="modal-title fs-5" id="staticBackdropLabel">{{mode == Mode.ADD ? 'Add saga' : 'Edit saga'}}</h1>
-            <button (click)="closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
+            <button (click)="mode == Mode.ADD ? navigateToSagasAllPage() : closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form [formGroup]="editForm">
@@ -299,7 +299,7 @@
                           Relevant scholarship
                         </button>
                       </h2>
-                      <div id="bib-accordion" class="accordion-collapse collapse show" data-bs-parent="#accordion-container">
+                      <div id="bib-accordion" class="accordion-collapse collapse show">
                         <div class="accordion-body">
                           <input type="text" class="form-control" formControlName="bibFilter" id="bibFilter" placeholder="Filter relevant scholarship...">
                           <p></p>
@@ -318,7 +318,7 @@
                           Manuscripts
                         </button>
                       </h2>
-                      <div id="ms-accordion" class="accordion-collapse collapse show" data-bs-parent="#accordion-container">
+                      <div id="ms-accordion" class="accordion-collapse collapse show">
                         <div class="accordion-body">
                          MS text
                         </div>
@@ -334,7 +334,7 @@
 
             <!-- END OF FIELDS -->
         <div class="modal-footer">
-          <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
+          <button (click)="mode == Mode.ADD ? navigateToSagasAllPage() : closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
           <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
         </div>
     </div>

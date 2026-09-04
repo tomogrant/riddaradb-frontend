@@ -590,6 +590,7 @@ export class BibSingle {
   }
 
   navigateToBibAllPage(){
+    this.closeAddEditModal();
     this.router.navigate([`bib`]);
   }
 
@@ -603,6 +604,7 @@ export class BibSingle {
     this.bibService.postBib(this.activeBib).subscribe({
       next: receivedBib => {
         console.log("bib posted: " + receivedBib);
+        //TODO: Make sure you optimistically update this rather than just going back to the page.
         if (receivedBib.id != null)
           this.navigateToBibEntryPage(receivedBib.id);
       },
