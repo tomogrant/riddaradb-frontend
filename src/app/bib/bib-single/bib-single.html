@@ -1,16 +1,19 @@
 <head>
       <title>riddaraDB - Bibliography</title>
 </head>
+
 <div class="py-4 page-header">
   <h1>Bibliography entry</h1>
 </div>
+
 <div class="card-body page-container">
-  <div class="container-fluid">
+  <div class="container">
     <div class="row mb-3">
       <div class="col">
         <h3 [innerHTML]="activeBibVm.bibliographyEntry"></h3>
       </div>
     </div>
+
     @if (activeBibVm.description !== ''){
       <div class="row mb-4">
         <div class="col description-text">
@@ -30,16 +33,14 @@
       </div>
     }
 
-      
-        <p></p>
-        <!-- Edit button -->
-         @if (mode !== Mode.ADD){
-          <button data-testid="edit-button" (click)="editBib()"
-                type="button" style="margin-right: 0.25rem" 
-                class="btn btn-secondary btn-sm">Edit</button>
-          <!-- Delete button -->
-          <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
-         }
+    <!-- Edit button -->
+      @if (mode !== Mode.ADD){
+      <button data-testid="edit-button" (click)="editBib()"
+            type="button" style="margin-right: 0.25rem" 
+            class="btn btn-secondary btn-sm">Edit</button>
+      <!-- Delete button -->
+      <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
+      }
   </div>
 </div>
 

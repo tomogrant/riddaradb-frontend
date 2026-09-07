@@ -3,13 +3,174 @@
     riddaraDB - Manuscripts
   </title>
 </head>
+
 <div class="py-4 page-header">
-  <h1>Manuscript name</h1>
+  <h1>{{activeMs.shelfmark}}</h1>
 </div>
+
 <div class="card-body page-container">
   <div class="container" >
-    <div class="row mb-4">
+    <div class="row">
 
+      <div class="row">
+        <div class="col">
+          Repository: {{repo.name}}
+        </div>
+
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          Shelfmark: {{activeMs.shelfmark}}
+        </div>
+
+      </div>
+    </div>
+
+    
+    <!-- Edit button -->
+      @if (mode !== Mode.ADD){
+      <button data-testid="edit-button" (click)="editMs()"
+            type="button" style="margin-right: 0.25rem" 
+            class="btn btn-secondary btn-sm">Edit</button>
+      <!-- Delete button -->
+      <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
+      }
+
+  </div>
+</div>
+
+<!--Edit modal-->
+<div class="modal fade" id="addEditMs" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">{{mode == Mode.ADD ? 'Add manuscript' : 'Edit manuscript'}}</h1>
+            <button (click)="closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editForm">
+            <div class="container-fluid">
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="ms-repo" class="form-label">Repository:</label>
+                  <input type="text" class="form-control" id="ms-repo" [value]="repo.name" disabled>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- NAME FIELD -->
+                <label for="ms-name" class="form-label">Name (e.g. <i>Flateyjarbók</i>):</label>
+                <input type="text" class="form-control" formControlName="name" id="ms-name" placeholder="Name">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                  
+                  <label for="ms-repo-n" class="form-label">Shelfmark:</label><span style="color: rgb(210, 74, 74)">*</span>
+                  <input type="text" class="form-control" formControlName="shelfmark" id="ms-shelfmark" placeholder="Shelfmark"
+                          [class.invalid-input]="name.invalid && showValidationErrors">
+                  @if (name.invalid && showValidationErrors) {
+                    @if (name.hasError('required')) {
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Shelfmark is required.</small>
+                      </div>
+                    }
+                    @else if (name.hasError('nameNotUnique')){
+                      <div style="color:rgb(210, 74, 74)">
+                          <small>Repository with this name already exists.</small>
+                      </div>
+                    }
+                  }
+                </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col">
+                <!-- DESCRIPTION FIELD -->
+                <label for="saga-description" class="form-label">Description:</label>
+                <quill-editor class="quill-editor" formControlName="description" id="saga-description" placeholder="Saga description"
+                [modules]="
+                  {
+                    toolbar: [
+                      ['bold', 'italic', 'underline'],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      [{ 'script': 'sub'}, { 'script': 'super' }], 
+                    ] 
+                  }">
+                </quill-editor>
+              </div>
+            </div>
+
+            <div class="row my-3">
+                <div class="col">
+                    Assign sagas to this motif:
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col-1">
+                    ✓
+                </div>
+                <div class="col">
+                    Saga
+                </div>
+                <div class="col">
+                    Page/chapter number
+                </div>
+            </div>
+            
+            <hr>
+
+            @for(saga of sagas; track $index){
+              <div class="row mb-1">
+                <div class="col-1">
+                  <input class="form-check-input" type="checkbox">
+                </div>
+                <div class="col">
+                {{saga.title}}
+                </div>
+                <div class="col">
+                  <input type="text" class="form-control">
+                </div>
+              </div>
+          }
+
+
+
+          </div>
+        </form>
+      </div>
+
+
+
+            <!-- END OF FIELDS -->
+        <div class="modal-footer">
+          <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
+          <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
+        </div>
     </div>
   </div>
 </div>
+
+<!--Delete modal-->
+<div class="modal fade" id="deleteMs" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete repository?</h1>
+        <button (click)='closeDeleteModal()' type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <span>
+          Are you sure?
+        </span>
+      </div>
+      <div class="modal-footer">
+        <button (click)='closeDeleteModal()' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+        <button (click)='deleteMs()' data-testid="delete-confirm-button" type="submit" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -5,7 +5,7 @@ export interface IMs {
     description: string;
     msSaga: {
         sagaId: number;
-        folioNumber: number;
+        folioNumber: string;
     }[];
     msRepositoryId: number
 }

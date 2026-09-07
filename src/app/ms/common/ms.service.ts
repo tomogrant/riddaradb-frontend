@@ -14,9 +14,17 @@ export class MsService{
   msMain = '/api/ms';
   constructor(private httpClient: HttpClient){}
 
+    //GET MS REPOSITORIES
     getMsRepositories(): Observable<IMsRepositoryDto[]>{
         return this.httpClient.get<IMsRepositoryDto[]>(`${this.msMain}/getmsrepositories`)
         .pipe(tap(data => console.log('All MS repository data got: ' + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
+
+    //GET MS REPOSITORY BY ID
+    getMsRepository(id: number): Observable<IMsRepositoryDto>{
+        return this.httpClient.get<IMsRepositoryDto>(`${this.msMain}/getmsrepositorybyid/${id}`)
+        .pipe(tap(data => console.log('MS repository got: ' + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
 
