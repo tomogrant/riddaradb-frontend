@@ -3,7 +3,7 @@ export interface IMsRepositoryVm {
     name: string;
     manuscripts: {
         id: number,
-        name: string | undefined,
+        name: string | null,
         shelfmark: string
     }[]
     accordionOpen: boolean;

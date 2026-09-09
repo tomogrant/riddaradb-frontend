@@ -167,7 +167,8 @@ export class SagasSingle implements OnInit {
     sagaVersions: [],
     bibIds: [],
     primarySources: [],
-    secondarySources: []
+    secondarySources: [],
+    manuscripts: []
     };
   }
 

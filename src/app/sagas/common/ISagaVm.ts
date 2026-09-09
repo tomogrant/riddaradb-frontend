@@ -1,4 +1,5 @@
 import { IBibVm } from "../../bib/common/IBibVm";
+import { ISagaMs } from "../../ms/common/ISagaMs";
 import { ISagaVersionVm } from "./ISagaVersionVm";
 
 export interface ISagaVm{
@@ -10,4 +11,5 @@ export interface ISagaVm{
     bibIds: number[];
     primarySources: IBibVm[];
     secondarySources: IBibVm[];
+    manuscripts: ISagaMs[];
 }

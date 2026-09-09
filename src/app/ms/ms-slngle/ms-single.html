@@ -10,24 +10,40 @@
 
 <div class="card-body page-container">
   <div class="container" >
-    <div class="row">
 
       <div class="row">
         <div class="col">
           Repository: {{repo.name}}
         </div>
-
       </div>
+
       <div class="row mb-3">
         <div class="col">
           Shelfmark: {{activeMs.shelfmark}}
         </div>
-
       </div>
-    </div>
 
-    
-    <!-- Edit button -->
+      <div class="row mb-3">
+        <div class="col" [innerHTML]="activeMs.description">
+        </div>
+      </div>
+
+      @if (activeMs.msSagaDtos.length){
+        <h3 style="font-variant: small-caps;"><i>Riddarasögur</i></h3>
+
+        @for(saga of activeMs.msSagaDtos; track $index){
+        <div class="row">
+          <div class="col">
+            <a href="sagas/{{saga.sagaId}}">
+              <i>{{saga.sagaTitle}}</i>, {{saga.folioNumber}}
+            </a>
+          </div>
+        </div>
+        }
+      }
+
+    <div class="mt-3">
+      <!-- Edit button -->
       @if (mode !== Mode.ADD){
       <button data-testid="edit-button" (click)="editMs()"
             type="button" style="margin-right: 0.25rem" 
@@ -35,7 +51,8 @@
       <!-- Delete button -->
       <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
       }
-
+    </div>
+    
   </div>
 </div>
 
@@ -71,15 +88,15 @@
                   <label for="ms-repo-n" class="form-label">Shelfmark:</label><span style="color: rgb(210, 74, 74)">*</span>
                   <input type="text" class="form-control" formControlName="shelfmark" id="ms-shelfmark" placeholder="Shelfmark"
                           [class.invalid-input]="name.invalid && showValidationErrors">
-                  @if (name.invalid && showValidationErrors) {
-                    @if (name.hasError('required')) {
+                  @if (shelfmark.invalid && showValidationErrors) {
+                    @if (shelfmark.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>Shelfmark is required.</small>
                       </div>
                     }
-                    @else if (name.hasError('nameNotUnique')){
+                    @else if (shelfmark.hasError('nameNotUnique')){
                       <div style="color:rgb(210, 74, 74)">
-                          <small>Repository with this name already exists.</small>
+                          <small>Manuscript with this shelfmark already exists.</small>
                       </div>
                     }
                   }
@@ -105,7 +122,7 @@
 
             <div class="row my-3">
                 <div class="col">
-                    Assign sagas to this motif:
+                    Assign sagas to this manuscript:
                 </div>
             </div>
             <div class="row my-2">
@@ -116,27 +133,29 @@
                     Saga
                 </div>
                 <div class="col">
-                    Page/chapter number
+                    Folio number
                 </div>
             </div>
             
             <hr>
 
-            @for(saga of sagas; track $index){
-              <div class="row mb-1">
-                <div class="col-1">
-                  <input class="form-check-input" type="checkbox">
+            <div formArrayName="msSagas">
+              //TODO: create a unique tracking ID for msSaga controls
+              @for(msSaga of msSagas.controls; track msSaga; let i = $index){
+                <div class="row mb-1" [formGroupName]="i">
+                  <div class="col-1">
+                    <input class="form-check-input" type="checkbox" formControlName="selected">
+                  </div>
+                  <div class="col">
+                    <i>{{msSaga.get('sagaTitle')?.value}}</i>
+                  </div>
+                  <div class="col" [id]="i">
+                    <input type="text" class="form-control" formControlName="folioNumber">
+                  </div>
                 </div>
-                <div class="col">
-                {{saga.title}}
-                </div>
-                <div class="col">
-                  <input type="text" class="form-control">
-                </div>
-              </div>
-          }
-
-
+              }
+            </div>
+            
 
           </div>
         </form>

@@ -72,6 +72,7 @@
           </div>
         }
         
+        
         @if (sagaEntry.sagaVersions.length > 1){
           <div class="my-3">
             <hr>
@@ -79,9 +80,23 @@
         }
       }
 
+      @if(sagaEntry.manuscripts.length){
+        <div class="row">
+          <h3 style="font-variant: small-caps;">Manuscripts</h3>
+        </div>
+
+        @for(ms of sagaEntry.manuscripts; track ms) {
+          <div class="row mb-1">
+            <a href="ms/{{ms.msId}}">
+              {{ms.shelfmark}}, {{ms.folioNumber}}
+            </a>
+          </div>
+        }
+      }
+
       <!-- Bibliography -->
       @if (sagaEntry.primarySources.length > 0 || sagaEntry.secondarySources.length > 0){
-        <div class="row">
+        <div class="row mt-4">
           <h3 style="font-variant: small-caps;">Bibliography</h3>
         </div>
       }

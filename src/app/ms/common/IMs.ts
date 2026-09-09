@@ -1,11 +1,10 @@
+import { IMsSaga } from "./IMsSaga";
+
 export interface IMs {
     id: number | null;
-    name: string;
+    name: string | null;
     shelfmark: string;
-    description: string;
-    msSaga: {
-        sagaId: number;
-        folioNumber: string;
-    }[];
+    description: string | null;
+    msSagaDtos: IMsSaga[];
     msRepositoryId: number
 }

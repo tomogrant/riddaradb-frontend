@@ -47,7 +47,8 @@ export class SagaMapper {
       sagaVersions: sagaVersionVms,
       bibIds: bibVms.flatMap(bib => bib.id),
       primarySources: bibVms.filter(bib => bib.primarySource == true),
-      secondarySources: bibVms.filter(bib => bib.primarySource == false)
+      secondarySources: bibVms.filter(bib => bib.primarySource == false),
+      manuscripts: dto.sagaMsDtos
     }
   }
 

@@ -1,4 +1,4 @@
-import { FormGroup, FormControl, FormArray, ReactiveFormsModule, Validators} from '@angular/forms';
+import { FormGroup, FormControl, FormGroupName, FormArray, ReactiveFormsModule, Validators} from '@angular/forms';
 import { Component } from '@angular/core';
 import { Modal } from 'bootstrap';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
@@ -13,6 +13,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { SagaService } from '../../sagas/common/saga.service';
 import { ISagaTitleDto } from '../../sagas/common/ISagaTitleDto';
 import { QuillModule } from 'ngx-quill';
+import { IMsSaga } from '../common/IMsSaga';
 
 @Component({
   selector: 'app-ms-single',
@@ -40,6 +41,10 @@ export class MsSingle{
       msSagas: new FormArray<FormGroup>([])
   });
 
+  get id(){
+    return this.editForm.get('id') as FormControl;
+  }
+
   get name() {
     return this.editForm.get('name') as FormControl;
   }
@@ -59,7 +64,6 @@ export class MsSingle{
   showValidationErrors: boolean  = false;
 
   sagas: ISagaTitleDto[] = [];
-  attachedSagas: ISagaTitleDto[] = [];
   activeMs: IMs = this.initialiseMs();
   repo: IMsRepositoryDto = this.initialiseRepository();
 
@@ -67,7 +71,6 @@ export class MsSingle{
   mode: Mode = Mode.NONE;
 
   ngOnInit() {
-
     this.setup();
   }
 
@@ -98,28 +101,73 @@ export class MsSingle{
       console.log("parameter is incorrect");
       this.navigateToMsAllPage();
     }
+  }
+
+  initialiseSagaMsForms(){
+    this.msSagas.clear();
 
     this.sagas.forEach(saga => {
-
-      this.msSagas.push(this.createSagaMsFormGroup(saga.id));
+      var msSaga = this.activeMs.msSagaDtos.find(msSagaInMs => msSagaInMs.sagaId == saga.id);
+      this.msSagas.push(this.createSagaMsFormGroup(saga, msSaga));
     });
   }
 
-  createSagaMsFormGroup(id: number, folioNr: string = ''): FormGroup{
-    return new FormGroup({
-        id: new FormControl(id),
-        folio: new FormGroup<string>(folioNr)
+  createSagaMsFormGroup(saga: ISagaTitleDto, msSaga?: IMsSaga): FormGroup {
+
+    const selected = !!msSaga;
+
+    const sagaForm =  new FormGroup({
+        sagaId: new FormControl(saga.id),
+        sagaTitle: new FormControl(saga.title),
+        folioNumber: new FormControl<string | null>({
+          value: msSaga?.folioNumber ?? null, 
+          disabled: !selected
+        }),
+        selected: new FormControl<boolean>(selected),
+      });
+
+    this.configureFolioNumberState(sagaForm);
+      
+    return sagaForm;
+  }
+
+  //When the checkbox is checked, makes folio number field available;
+  //when unchecked, field is disabled and contents are set to null
+  configureFolioNumberState(form: FormGroup){
+    form.get('selected')!.valueChanges.subscribe(selected => {
+      const folioNumber = form.get('folioNumber');
+
+      if (folioNumber){
+        if (selected){
+          folioNumber?.enable();
+        }
+        else{
+          folioNumber?.disable();
+          folioNumber?.setValue(null);
+        }
+      }
+    });
+  }
+
+  setMsSagaTitles(){
+    this.activeMs.msSagaDtos.forEach(dto => {
+      const saga = this.sagas.find(saga => dto.sagaId == saga.id);
+      if (saga) dto.sagaTitle = saga.title;
       });
   }
 
   editMs(){
-      this.mode = Mode.EDIT;
 
-      this.name.setValue(this.activeMs.name);
-      this.shelfmark.setValue(this.activeMs.shelfmark);
-      this.description.setValue(this.activeMs.description);
+    this.mode = Mode.EDIT;
 
-      this.openAddEditModal();
+    this.id.setValue(this.activeMs.id);
+    this.name.setValue(this.activeMs.name);
+    this.shelfmark.setValue(this.activeMs.shelfmark);
+    this.description.setValue(this.activeMs.description);
+
+          this.initialiseSagaMsForms();
+
+    this.openAddEditModal();
 
   }
 
@@ -128,20 +176,35 @@ export class MsSingle{
   }
 
   submitAddOrEdit(){
-      this.name.clearValidators();
-      this.name.addValidators(Validators.required);
-      this.name.updateValueAndValidity();
+
+    // this.name.clearValidators();
+    // this.name.addValidators(Validators.required);
+    // this.name.updateValueAndValidity();
+
+  const formValue = this.editForm.getRawValue();
+
+    const payload = {
+      id: formValue.id,
+      name: formValue.name,
+      shelfmark: formValue.shelfmark!,
+      description: formValue.description ? formValue.description.replaceAll(/((?:&nbsp;)*)&nbsp;/g, '$1 ') : null,
+      msSagaDtos: formValue.msSagas
+        .filter(saga => saga['selected'])
+        .map(saga => ({
+          sagaId: saga['sagaId'],
+          folioNumber: saga['folioNumber']
+        })
+      ),
+      msRepositoryId: this.activeMs.msRepositoryId
+    }
 
     if (this.editForm.valid){
-      this.closeAddEditModal();
-
-      this.activeMs.name = this.name.value;
 
       if (this.mode === Mode.ADD){
         this.postMs();
       }
       else if (this.mode === Mode.EDIT){
-        this.updateMs();
+        this.updateMs(payload);
       }
 
     }
@@ -156,6 +219,9 @@ export class MsSingle{
       this.sagas = [];
       sagas.forEach(saga => this.sagas.push(saga));
       this.sagas.sort((a, b) => a.title.localeCompare(b.title));
+
+      this.setMsSagaTitles();
+      this.activeMs.msSagaDtos.sort((a, b) => a.sagaTitle!.localeCompare(b.sagaTitle!));
 
       // this.attachedSagas = this.sagas.filter(saga => 
       //   this.activeBib.sagaIds.includes(saga.id));
@@ -209,8 +275,18 @@ export class MsSingle{
 
   }
 
-  updateMs(){
-
+  updateMs(payload: IMs){
+    this.msService.putMs(payload).subscribe({
+      next: ms => {
+        this.activeMs = ms;
+        this.setMsSagaTitles();
+        this.activeMs.msSagaDtos.sort((a, b) => a.sagaTitle!.localeCompare(b.sagaTitle!));
+        this.closeAddEditModal();
+      },
+      error: err => {
+        "Update MS failed"
+      }
+    });
   }
 
   deleteMs(){
@@ -223,7 +299,7 @@ export class MsSingle{
       name: '',
       shelfmark: '',
       description: '',
-      msSaga: [],
+      msSagaDtos: [],
       msRepositoryId: 0
     }
   }

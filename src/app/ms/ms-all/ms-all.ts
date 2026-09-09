@@ -95,10 +95,10 @@ export class MsAll{
 
       repoDto.msIds.forEach(id => {
         var ms = this.msMap.get(id);
-        if (ms?.id && ms?.shelfmark){
+        if (ms && ms.id && ms.shelfmark){
           repoVm.manuscripts.push({
             id: ms.id,
-            name: ms?.name,
+            name: ms.name ?? null,
             shelfmark: ms.shelfmark
           });
         }
