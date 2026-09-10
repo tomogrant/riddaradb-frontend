@@ -1,4 +1,5 @@
 import { IBib } from "../../bib/common/IBib";
+import { ISagaMs } from "../../ms/common/ISagaMs";
 import { ISagaVersionRequestDto } from "./ISagaVersionRequestDto";
 
 export interface ISagaRequestDto {
@@ -8,4 +9,5 @@ export interface ISagaRequestDto {
   translated: boolean;
   sagaVersions: ISagaVersionRequestDto[];
   bibIds: number[];
+  sagaMsDtos: ISagaMs[]
 }

@@ -136,8 +136,8 @@ export class MsAll{
     this.closeDeleteModal();
   }
 
-  addManuscript(){
-    this.router.navigate([`ms/action/add`]);
+  addManuscript(id: number){
+    this.router.navigate([`ms/action/add/${id}`]);
   }
 
   openAddEditModal(){

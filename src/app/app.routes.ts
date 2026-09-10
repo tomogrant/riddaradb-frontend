@@ -20,5 +20,5 @@ export const routes: Routes = [
     { path: 'motifs/:searchterm', component: MotifsAll },
     { path: 'ms', component: MsAll},
     { path: 'ms/:id', component: MsSingle},
-    { path: 'ms/action/:mode', component: MsSingle}
+    { path: 'ms/action/:mode/:repoid', component: MsSingle}
 ];

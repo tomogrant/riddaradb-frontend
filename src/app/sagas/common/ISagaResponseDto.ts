@@ -8,6 +8,6 @@ export interface ISagaResponseDto {
   description: string;
   translated: boolean;
   sagaVersions: ISagaVersionResponseDto[];
-  bibDto: IBib[];
+  bibDtos: IBib[];
   sagaMsDtos: ISagaMs[]
 }

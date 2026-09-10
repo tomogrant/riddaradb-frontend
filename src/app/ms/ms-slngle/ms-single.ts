@@ -70,6 +70,8 @@ export class MsSingle{
   readonly Mode = Mode;
   mode: Mode = Mode.NONE;
 
+  index: number = 0;
+
   ngOnInit() {
     this.setup();
   }
@@ -77,6 +79,9 @@ export class MsSingle{
   setup(){
     
     const mode = this.route.snapshot.paramMap.get('mode');
+    const repoId = this.route.snapshot.paramMap.get('repoid');
+    this.activeMs.msRepositoryId = Number(repoId);
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     //ADD MODE
@@ -117,6 +122,7 @@ export class MsSingle{
     const selected = !!msSaga;
 
     const sagaForm =  new FormGroup({
+        trackingId: new FormControl(this.index++),
         sagaId: new FormControl(saga.id),
         sagaTitle: new FormControl(saga.title),
         folioNumber: new FormControl<string | null>({
@@ -165,14 +171,15 @@ export class MsSingle{
     this.shelfmark.setValue(this.activeMs.shelfmark);
     this.description.setValue(this.activeMs.description);
 
-          this.initialiseSagaMsForms();
-
     this.openAddEditModal();
 
   }
 
   addMs(){
-    
+    this.mode = Mode.ADD;
+
+    //Form is already initialised, so no need to reset values here
+    this.openAddEditModal();
   }
 
   submitAddOrEdit(){
@@ -181,7 +188,7 @@ export class MsSingle{
     // this.name.addValidators(Validators.required);
     // this.name.updateValueAndValidity();
 
-  const formValue = this.editForm.getRawValue();
+    const formValue = this.editForm.getRawValue();
 
     const payload = {
       id: formValue.id,
@@ -201,7 +208,7 @@ export class MsSingle{
     if (this.editForm.valid){
 
       if (this.mode === Mode.ADD){
-        this.postMs();
+        this.postMs(payload);
       }
       else if (this.mode === Mode.EDIT){
         this.updateMs(payload);
@@ -221,10 +228,9 @@ export class MsSingle{
       this.sagas.sort((a, b) => a.title.localeCompare(b.title));
 
       this.setMsSagaTitles();
-      this.activeMs.msSagaDtos.sort((a, b) => a.sagaTitle!.localeCompare(b.sagaTitle!));
+      this.activeMs.msSagaDtos.sort((a, b) => a.folioNumber?.localeCompare(b.folioNumber, undefined, {numeric: true}));
 
-      // this.attachedSagas = this.sagas.filter(saga => 
-      //   this.activeBib.sagaIds.includes(saga.id));
+      this.initialiseSagaMsForms();
     });
   }
 
@@ -271,8 +277,18 @@ export class MsSingle{
     }
   }
 
-  postMs(){
-
+  postMs(payload: IMs){
+    this.msService.postMs(payload).subscribe({
+      next: ms => {
+        this.activeMs = ms;
+        this.setMsSagaTitles();
+        this.activeMs.msSagaDtos.sort((a, b) => a.sagaTitle!.localeCompare(b.sagaTitle!));
+        this.closeAddEditModal();
+      },
+      error: err => {
+        "Post MS failed"
+      }
+    });
   }
 
   updateMs(payload: IMs){

@@ -19,8 +19,8 @@ export class SagaMapper {
     var bibVms: IBibVm[] = [];
 
     //Map bib DTOs to bib VMs
-    if (dto.bibDto){
-      dto.bibDto.forEach(bibDto => {
+    if (dto.bibDtos){
+      dto.bibDtos.forEach(bibDto => {
         bibVms.push(this.bibMapper.mapDtoToVm(bibDto));
       });
     }
@@ -65,7 +65,8 @@ export class SagaMapper {
       description: vm.description,
       translated: vm.translated,
       sagaVersions: sagaVersionRequestDtos,
-      bibIds: vm.bibIds
+      bibIds: vm.bibIds,
+      sagaMsDtos: vm.manuscripts
     } 
   }
 

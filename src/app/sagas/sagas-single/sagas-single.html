@@ -80,16 +80,20 @@
         }
       }
 
+      <!-- Manuscripts -->
       @if(sagaEntry.manuscripts.length){
         <div class="row">
           <h3 style="font-variant: small-caps;">Manuscripts</h3>
         </div>
 
-        @for(ms of sagaEntry.manuscripts; track ms) {
+        @for(ms of sagaEntry.manuscripts; track $index) {
           <div class="row mb-1">
-            <a href="ms/{{ms.msId}}">
-              {{ms.shelfmark}}, {{ms.folioNumber}}
-            </a>
+            <span>
+              <a href="ms/{{ms.msId}}">
+                {{ms.shelfmark}}, {{ms.folioNumber}} 
+              </a>
+            </span>
+
           </div>
         }
       }
@@ -304,11 +308,13 @@
                 </div>
               </div>
 
-              <!-- Bibliography entry selector -->
+
               <div class="row mt-3">
                 <div class="col">
 
                   <div class="accordion" id="accordion-container">
+
+                    <!-- BIBLIOGRAPHY ENTRIES -->
                     <div class="accordion-item">
                       <h2 class="accordion-header">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#bib-accordion" aria-expanded="true" aria-controls="bib-accordion">
@@ -328,6 +334,8 @@
                         </div>
                       </div>
                     </div>
+
+                    <!-- MANUSCRIPTS -->
                     <div class="accordion-item">
                       <h2 class="accordion-header">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ms-accordion" aria-expanded="true" aria-controls="ms-accordion">
@@ -336,7 +344,40 @@
                       </h2>
                       <div id="ms-accordion" class="accordion-collapse collapse show">
                         <div class="accordion-body">
-                         MS text
+                          <div class="row my-3">
+                            <div class="col">
+                                Assign manuscripts to this saga:
+                            </div>
+                        </div>
+                        <div class="row my-2">
+                            <div class="col-1">
+                                ✓
+                            </div>
+                            <div class="col">
+                                Manuscript
+                            </div>
+                            <div class="col">
+                                Folio number
+                            </div>
+                        </div>
+                        
+                        <hr>
+
+                        <div formArrayName="msForms">
+                          @for(msForm of msForms.controls; track msForm.get('trackingId')?.value; let i = $index){
+                            <div class="row mb-1" [formGroupName]="i">
+                              <div class="col-1">
+                                <input class="form-check-input" type="checkbox" formControlName="selected">
+                              </div>
+                              <div class="col">
+                                <i>{{msForm.get('shelfmark')?.value}}</i>
+                              </div>
+                              <div class="col" [id]="i">
+                                <input type="text" class="form-control" formControlName="folioNumber">
+                              </div>
+                            </div>
+                          }
+                        </div>
                         </div>
                       </div>
                     </div>

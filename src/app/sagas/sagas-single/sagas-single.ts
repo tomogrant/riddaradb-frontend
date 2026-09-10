@@ -18,6 +18,8 @@ import { ISagaVersionVm } from '../common/ISagaVersionVm';
 import { IMotif } from '../../motifs/common/IMotif';
 import { ISagaVm } from '../common/ISagaVm';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { IMs } from '../../ms/common/IMs';
+import { MsService } from '../../ms/common/ms.service';
 
 @Component({
   selector: 'app-saga-entry',
@@ -33,6 +35,7 @@ export class SagasSingle implements OnInit {
     private route: ActivatedRoute,
     private sagasService: SagaService,
     private bibService: BibService,
+    private msService: MsService,
     private sagaMapper: SagaMapper,
     private bibMapper: BibMapper,
     private router: Router
@@ -47,7 +50,8 @@ export class SagasSingle implements OnInit {
 
   sagaVersions: ISagaVersionVm[] = [];
 
-  trackingId: number = 0;
+  sagaVersionTrackingId: number = 0;
+  msTrackingId: number = 0;
 
   bibs: IBib[] = [];
   bibVms: IBibVm[] = [];
@@ -55,7 +59,35 @@ export class SagasSingle implements OnInit {
 
   motifs: IMotif[] = [];
 
+  manuscripts: IMs[] = [];
+
   showValidationErrors: boolean = false;
+
+  //---------------
+  //  INIT
+  //---------------
+
+  ngOnInit() {
+    const mode = this.route.snapshot.paramMap.get('mode');
+
+    //ADD MODE
+    if (mode == 'add'){
+      this.addSaga();
+      this.getBibs();
+      this.getManuscripts();
+    }
+    else{
+      this.getSaga();
+    }
+
+    this.bibFilter.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe({
+      next: value => this.updateBibFilter(value)
+    });
+  }
+
+  //---------------
+  //  FORMS
+  //---------------
 
   editForm = new FormGroup({
     id: new FormControl<number | null>({value: null, disabled: true}),
@@ -63,21 +95,13 @@ export class SagasSingle implements OnInit {
     translated: new FormControl<boolean>(false),
     description: new FormControl<string>(''),
     sagaVersionForms: new FormArray<FormGroup>([]),
-    bibFilter: new FormControl<string>('')
+    bibFilter: new FormControl<string>(''),
+    msForms: new FormArray<FormGroup>([]),
+    msFilter: new FormControl<string>('')
   });
 
-  createSagaVersionForm(){
-    return new FormGroup({
-      trackingId: new FormControl<number>(this.trackingId++, {nonNullable: true}),
-      id: new FormControl<number | null>({value: null, disabled: true}),
-      title: new FormControl<string>('', {nonNullable: true, validators: Validators.required} ),
-      date: new FormControl<string>('Select a date:', { nonNullable: true, validators: this.dateNotSelected() }),
-      description: new FormControl<string>(''),
-    });
-  }
-
   get title() {
-  return this.editForm.get('title') as FormControl;
+    return this.editForm.get('title') as FormControl;
   }
 
   get translated(){
@@ -96,21 +120,49 @@ export class SagasSingle implements OnInit {
     return this.editForm.get('bibFilter') as FormControl;
   }
 
-  ngOnInit() {
+  get msForms(){
+    return this.editForm.get('msForms') as FormArray;
+  }
 
-    const mode = this.route.snapshot.paramMap.get('mode');
+  createSagaVersionForm(sagaVersion?: ISagaVersionVm){
+    return new FormGroup({
+      trackingId: new FormControl<number>(this.sagaVersionTrackingId++, {nonNullable: true}),
+      id: new FormControl<number | null>({value: sagaVersion ? sagaVersion.id : null, disabled: true}),
+      title: new FormControl<string>(sagaVersion ? sagaVersion.title : '', {nonNullable: true, validators: Validators.required} ),
+      date: new FormControl<string>(sagaVersion ? this.mapToUi(sagaVersion.date) : 'Select a date:', { nonNullable: true, validators: this.dateNotSelected() }),
+      description: new FormControl<string>(sagaVersion ? sagaVersion.description : ''),
+    });
+  }
 
-    //ADD MODE
-    if (mode == 'add'){
-      this.addSaga();
-      this.getBibs();
-    }
-    else{
-      this.getSaga();
-    }
+    createMsForm(ms: IMs){
+    const msInSaga = this.sagaEntry.manuscripts.find(msDto => msDto.msId == ms.id);
+    const selected = !!msInSaga;
 
-    this.bibFilter.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe({
-      next: value => this.updateBibFilter(value)
+    return new FormGroup({
+      trackingId: new FormControl<number>(this.sagaVersionTrackingId++, {nonNullable: true}),
+      msId: new FormControl<number | null>(ms.id),
+      shelfmark: new FormControl<string>(ms.shelfmark),
+      folioNumber: new FormControl<string | null>(
+        { value: msInSaga ? msInSaga.folioNumber : null,
+          disabled: !selected
+      }),
+      selected: new FormControl<boolean>(!!msInSaga),
+    });
+  }
+
+  configureMsForm(msForm: FormGroup){
+    msForm.get('selected')!.valueChanges.subscribe(selected => {
+      const folioNumber = msForm.get('folioNumber');
+
+      if (folioNumber){
+        if (selected){
+          folioNumber?.enable();
+        }
+        else{
+          folioNumber?.disable();
+          folioNumber?.setValue(null);
+        }
+      }
     });
   }
 
@@ -269,27 +321,17 @@ export class SagasSingle implements OnInit {
     });
 
     this.sagaVersionForms.clear();
+    this.sagaEntry.sagaVersions.forEach(sagaVersion => {
+      this.sagaVersionForms.push(this.createSagaVersionForm(sagaVersion));
+    });
 
-    for (let i = 0; i < this.sagaEntry.sagaVersions.length; i++){
-      const form = this.createSagaVersionForm();
+    this.msForms.clear();
+    this.manuscripts.forEach(ms => {
+        const msForm = this.createMsForm(ms);
+        this.configureMsForm(msForm);
 
-      form.setValue({
-        trackingId: this.trackingId++,
-        id: this.sagaEntry.sagaVersions[i].id,
-        title: this.sagaEntry.sagaVersions[i].title,
-        date: this.mapToUi(this.sagaEntry.sagaVersions[i].date),
-        description: this.sagaEntry.sagaVersions[i].description
+        this.msForms.push(msForm);
       });
-
-      this.sagaVersionForms.push(form);
-    }
-  }
-
-  emptyInputFields(){
-    this.title.reset();
-    this.description.reset();
-    this.translated.reset();
-    this.sagaVersionForms.clear();
   }
 
   resetValidators(){
@@ -402,6 +444,16 @@ export class SagasSingle implements OnInit {
 
     this.sagaEntry.translated = this.translated.value;
 
+    const msFormsRaw = this.msForms.getRawValue();
+    this.sagaEntry.manuscripts = msFormsRaw
+      .filter(ms => ms['selected'])
+      .map(ms => ({
+        msId: ms['msId'],
+        shelfmark: ms['shelfmark'],
+        folioNumber: ms['folioNumber']
+      }));
+
+    //Fill VM saga versions
     this.sagaVersions = [];
 
     for (var i = 0; i < this.sagaVersionForms.length; i++){
@@ -417,7 +469,6 @@ export class SagasSingle implements OnInit {
       else
         this.sagaVersions[i].id = sagaVersionFormId.getRawValue();
       
-
       const sagaVersionFormTitle = sagaVersionForm.get('title');
       if (!sagaVersionFormTitle)
         this.sagaVersions[i].title = '';
@@ -454,6 +505,16 @@ export class SagasSingle implements OnInit {
     });
   }
 
+  getManuscripts(){
+    this.msService.getMsEntries().subscribe({
+      next: msEntries => {
+        this.manuscripts = msEntries.sort((a, b) => a.shelfmark.localeCompare(b.shelfmark));
+        this.sagaEntry.manuscripts.sort((a, b) => a.shelfmark.localeCompare(b.shelfmark));
+      },
+      error: err => {}
+    });
+  }
+
   //READ
   getSaga(){
     const id = this.route.snapshot.paramMap.get('id');
@@ -465,6 +526,7 @@ export class SagasSingle implements OnInit {
       next: receivedEntry => {
         this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedEntry);
         this.getBibs();
+        this.getManuscripts();
       },
       error: err => console.log(err)
     });
@@ -476,13 +538,11 @@ export class SagasSingle implements OnInit {
 
     this.formToVm();
 
-    console.log("Saga to be updated: ");
-    console.log(this.sagaMapper.mapSagaVmToRequestDto(this.sagaEntry));
-
     this.sagasService.putSaga(this.sagaMapper.mapSagaVmToRequestDto(this.sagaEntry)).subscribe({
       next: receivedSaga => {
         console.log("Saved successfully! " + receivedSaga);
         this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedSaga);
+        this.sagaEntry.manuscripts.sort((a, b) => a.shelfmark.localeCompare(b.shelfmark));
       },
       error: err => {
         console.log("Problem with saving.");
