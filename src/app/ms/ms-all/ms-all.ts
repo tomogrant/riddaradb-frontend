@@ -1,4 +1,4 @@
-import { FormGroup, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Component } from '@angular/core';
 import { Modal } from 'bootstrap';
 import { RouterModule, Router } from '@angular/router';
@@ -18,30 +18,30 @@ import { RouterTestingHarness } from '@angular/router/testing';
   styleUrl: './ms-all.css'
 })
 
-export class MsAll{
+export class MsAll {
 
   constructor(
-      private router: Router,
-      private msService: MsService
+    private router: Router,
+    private msService: MsService
 
-  ){}
+  ) { }
 
   //Forms
   editForm = new FormGroup({
-      id: new FormControl<number | null>({value: null, disabled: true}),
-      name: new FormControl<string>(''),
+    id: new FormControl<number | null>({ value: null, disabled: true }),
+    name: new FormControl<string>(''),
   });
 
   get name() {
     return this.editForm.get('name') as FormControl;
   }
 
-  
+
   filterForm = new FormGroup({
-    filter: new FormControl('', {nonNullable: true})
+    filter: new FormControl('', { nonNullable: true })
   });
 
-  get filter(){
+  get filter() {
     return this.filterForm.get('filter') as FormControl;
   }
 
@@ -58,7 +58,7 @@ export class MsAll{
 
   //Repositories received from the server for processing into VMs
   repositoriesDto: IMsRepositoryDto[] = [];
-  
+
   //VMs for display
   repositoriesVm: IMsRepositoryVm[] = [];
   filteredRepositoriesVm: IMsRepositoryVm[] = [];
@@ -72,21 +72,21 @@ export class MsAll{
   msMap: Map<number, IMs> = new Map<number, IMs>;
 
   ngOnInit() {
-      this.displayRepositories();
+    this.displayRepositories();
 
-      this.filter.valueChanges.pipe(debounceTime(250), distinctUntilChanged())
-        .subscribe(value => this.updateFilter(value));
+    this.filter.valueChanges.pipe(debounceTime(250), distinctUntilChanged())
+      .subscribe(value => this.updateFilter(value));
   }
 
   //Builds repository view models and assigns manuscripts to them 
   //Alphabetises manuscripts and their repositories 
-  sortManuscripts(){
+  sortManuscripts() {
     this.repositoriesVm = [];
 
     this.mss.forEach(ms => {
-      if (ms.id) 
+      if (ms.id)
         this.msMap.set(ms.id, ms)
-      });
+    });
 
     this.repositoriesDto.forEach(repoDto => {
       var repoVm: IMsRepositoryVm = this.initialiseRepositoryVm();
@@ -95,7 +95,7 @@ export class MsAll{
 
       repoDto.msIds.forEach(id => {
         var ms = this.msMap.get(id);
-        if (ms && ms.id && ms.shelfmark){
+        if (ms && ms.id && ms.shelfmark) {
           repoVm.manuscripts.push({
             id: ms.id,
             name: ms.name ?? null,
@@ -112,72 +112,72 @@ export class MsAll{
     this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  addRepository(){
+  addRepository() {
     this.mode = Mode.ADD;
     this.editForm.reset();
     this.repositoryDto = this.initialiseRepository();
     this.openAddEditModal();
   }
 
-  editRepository(id: number){
+  editRepository(id: number) {
     this.mode = Mode.EDIT;
     this.editForm.reset();
     this.repositoryDto = this.initialiseRepository();
     const repo = this.repositoriesVmMap.get(id);
-    if (repo){
+    if (repo) {
       this.name.setValue(repo.name);
       this.repositoryDto.id = id;
     }
     this.openAddEditModal();
   }
 
-  deleteRepository(){
+  deleteRepository() {
     this.deleteMsRepository();
     this.closeDeleteModal();
   }
 
-  addManuscript(id: number){
+  addManuscript(id: number) {
     this.router.navigate([`ms/action/add/${id}`]);
   }
 
-  openAddEditModal(){
+  openAddEditModal() {
     var addEditModal = document.getElementById('addEditRepository');
-    if (addEditModal != null){
+    if (addEditModal != null) {
       var modal = Modal.getOrCreateInstance(addEditModal);
-      if (modal != null){
+      if (modal != null) {
         modal.show();
       }
     }
   }
 
-  closeAddEditModal(){
+  closeAddEditModal() {
     var addEditModal = document.getElementById('addEditRepository');
-    if (addEditModal != null){
+    if (addEditModal != null) {
       var modal = Modal.getInstance(addEditModal);
-      if (modal != null){
+      if (modal != null) {
         modal.hide();
       }
     }
   }
 
-  openDeleteModal(id: number){
+  openDeleteModal(id: number) {
     this.repoToDelete = id;
     var deleteModal = document.getElementById('deleteRepo');
-    if (deleteModal != null){
+    if (deleteModal != null) {
       var modal = Modal.getOrCreateInstance(deleteModal);
-        modal?.show();
+      modal?.show();
     }
   }
 
-  closeDeleteModal(){
+  closeDeleteModal() {
     var deleteModal = document.getElementById('deleteRepo');
-    if (deleteModal != null){
+    if (deleteModal != null) {
       var modal = Modal.getInstance(deleteModal);
       modal?.hide();
     }
   }
 
-  initialiseRepository(){
+  initialiseRepository() {
     return {
       id: null,
       name: '',
@@ -185,7 +185,7 @@ export class MsAll{
     }
   }
 
-  initialiseRepositoryVm(){
+  initialiseRepositoryVm() {
     return {
       id: 0,
       name: '',
@@ -225,33 +225,33 @@ export class MsAll{
       })
       //Exclude repositories that end up with zero matching MSs
       .filter(repo => repo.manuscripts.length > 0);
-    }
+  }
 
-    submitAddOrEdit(){
-      this.name.clearValidators();
-      this.name.addValidators(Validators.required);
-      this.name.updateValueAndValidity();
+  submitAddOrEdit() {
+    this.name.clearValidators();
+    this.name.addValidators(Validators.required);
+    this.name.updateValueAndValidity();
 
-    if (this.editForm.valid){
+    if (this.editForm.valid) {
       this.closeAddEditModal();
 
       this.repositoryDto.name = this.name.value;
 
-      if (this.mode === Mode.ADD){
+      if (this.mode === Mode.ADD) {
         this.postMsRepository();
       }
-      else if (this.mode === Mode.EDIT){
+      else if (this.mode === Mode.EDIT) {
         this.updateMsRepository();
       }
 
     }
-    else{
+    else {
       this.showValidationErrors = true;
     }
   }
 
   //CREATE
-  postMsRepository(){
+  postMsRepository() {
     this.msService.postMsRepository(this.repositoryDto).subscribe({
       next: repo => {
         console.log("Saved successfully! " + repo);
@@ -273,7 +273,7 @@ export class MsAll{
 
 
   //READ
-  displayRepositories(){
+  displayRepositories() {
     this.msService.getMsRepositories().subscribe({
       next: receivedRepositories => {
         this.repositoriesDto = receivedRepositories;
@@ -291,12 +291,12 @@ export class MsAll{
   }
 
   //UPDATE
-  updateMsRepository(){
+  updateMsRepository() {
     this.msService.putMsRepository(this.repositoryDto).subscribe({
       next: repo => {
         console.log("Updated successfully! " + repo);
         var repoToChange = this.repositoriesVm.find(repoInCollection => repoInCollection.id == repo.id);
-        if (repoToChange){
+        if (repoToChange) {
           repoToChange.name = repo.name;
           this.repositoriesVmMap.set(repo.id, repo);
           this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
@@ -310,7 +310,7 @@ export class MsAll{
   }
 
   //DELETE
-  deleteMsRepository(){
+  deleteMsRepository() {
     this.msService.deleteMsRepository(this.repoToDelete).subscribe({
       next: repo => {
         console.log("Deleted successfully: " + repo);
@@ -320,10 +320,10 @@ export class MsAll{
         this.repositoriesVmMap.delete(this.repoToDelete);
         this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
         this.updateFilter('');
-    },
-    error: err => {
-      console.log("Problem deleting");
-    }
-  })
+      },
+      error: err => {
+        console.log("Problem deleting");
+      }
+    });
   }
 }

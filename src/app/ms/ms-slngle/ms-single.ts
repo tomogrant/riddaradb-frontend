@@ -14,6 +14,7 @@ import { SagaService } from '../../sagas/common/saga.service';
 import { ISagaTitleDto } from '../../sagas/common/ISagaTitleDto';
 import { QuillModule } from 'ngx-quill';
 import { IMsSaga } from '../common/IMsSaga';
+import { ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 
 @Component({
   selector: 'app-ms-single',
@@ -36,7 +37,7 @@ export class MsSingle{
   editForm = new FormGroup({
       id: new FormControl<number | null>({value: null, disabled: true}),
       name: new FormControl<string>(''),
-      shelfmark: new FormControl<string>(''),
+      shelfmark: new FormControl<string>('', [Validators.required, this.shelfmarkUnique()]),
       description: new FormControl<string>(''),
       msSagas: new FormArray<FormGroup>([])
   });
@@ -65,6 +66,7 @@ export class MsSingle{
 
   sagas: ISagaTitleDto[] = [];
   activeMs: IMs = this.initialiseMs();
+  manuscriptsInRepo: IMs[] = [];
   repo: IMsRepositoryDto = this.initialiseRepository();
 
   readonly Mode = Mode;
@@ -165,6 +167,7 @@ export class MsSingle{
   editMs(){
 
     this.mode = Mode.EDIT;
+    this.showValidationErrors = false;
 
     this.id.setValue(this.activeMs.id);
     this.name.setValue(this.activeMs.name);
@@ -177,6 +180,7 @@ export class MsSingle{
 
   addMs(){
     this.mode = Mode.ADD;
+    this.showValidationErrors = false;
 
     //Form is already initialised, so no need to reset values here
     this.openAddEditModal();
@@ -184,9 +188,7 @@ export class MsSingle{
 
   submitAddOrEdit(){
 
-    // this.name.clearValidators();
-    // this.name.addValidators(Validators.required);
-    // this.name.updateValueAndValidity();
+    this.shelfmark.updateValueAndValidity();
 
     const formValue = this.editForm.getRawValue();
 
@@ -237,7 +239,14 @@ export class MsSingle{
   getRepo(){
     this.msService.getMsRepository(this.activeMs.msRepositoryId).subscribe(repo => {
       this.repo = repo;
-    })
+
+      if (this.repo.id){
+        this.msService.getMsEntriesByRepoId(this.repo?.id).subscribe(msEntries => {
+          this.manuscriptsInRepo = msEntries;
+        });
+      }
+
+    });
   }
 
   navigateToMsAllPage(){
@@ -282,7 +291,7 @@ export class MsSingle{
       next: ms => {
         this.activeMs = ms;
         this.setMsSagaTitles();
-        this.activeMs.msSagaDtos.sort((a, b) => a.sagaTitle!.localeCompare(b.sagaTitle!));
+        this.activeMs.msSagaDtos.sort((a, b) => a.folioNumber?.localeCompare(b.folioNumber, undefined, {numeric: true}));
         this.closeAddEditModal();
       },
       error: err => {
@@ -296,7 +305,7 @@ export class MsSingle{
       next: ms => {
         this.activeMs = ms;
         this.setMsSagaTitles();
-        this.activeMs.msSagaDtos.sort((a, b) => a.sagaTitle!.localeCompare(b.sagaTitle!));
+        this.activeMs.msSagaDtos.sort((a, b) => a.folioNumber?.localeCompare(b.folioNumber, undefined, {numeric: true}));
         this.closeAddEditModal();
       },
       error: err => {
@@ -328,4 +337,19 @@ export class MsSingle{
     }
   }
 
+  shelfmarkUnique(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = String(control.value ?? '').trim().toLowerCase();
+
+      if (!value) {
+        return null;
+      }
+
+      const duplicate = this.manuscriptsInRepo.find(ms =>
+        ms.shelfmark.trim().toLowerCase() === value &&
+        ms.id !== control.parent?.get('id')?.value);
+
+      return duplicate ? { shelfmarkNotUnique: true } : null;
+    };
+  }
 }

@@ -91,14 +91,14 @@
                   
                   <label for="ms-repo-n" class="form-label">Shelfmark:</label><span style="color: rgb(210, 74, 74)">*</span>
                   <input type="text" class="form-control" formControlName="shelfmark" id="ms-shelfmark" placeholder="Shelfmark"
-                          [class.invalid-input]="name.invalid && showValidationErrors">
+                          [class.invalid-input]="shelfmark.invalid && showValidationErrors">
                   @if (shelfmark.invalid && showValidationErrors) {
                     @if (shelfmark.hasError('required')) {
                       <div style="color:rgb(210, 74, 74)">
                           <small>Shelfmark is required.</small>
                       </div>
                     }
-                    @else if (shelfmark.hasError('nameNotUnique')){
+                    @else if (shelfmark.hasError('shelfmarkNotUnique')){
                       <div style="color:rgb(210, 74, 74)">
                           <small>Manuscript with this shelfmark already exists.</small>
                       </div>

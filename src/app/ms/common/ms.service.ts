@@ -63,6 +63,13 @@ export class MsService{
         .pipe(tap(data => console.log(`MS entry with ID ${id}: ` + JSON.stringify(data))),
         catchError(this.errorHandler));
     }
+
+    //GET ALL MS ENTRIES
+    getMsEntriesByRepoId(id: number): Observable<IMs[]>{//Gets an observable of type IMS[]. Can be accessed and subscribed to by other classes to access data. 
+        return this.httpClient.get<IMs[]>(`${this.msMain}/getmsentriesbyrepoid/${id}`)
+        .pipe(tap(data => console.log(`MS data from repo ${id}: ` + JSON.stringify(data))),
+        catchError(this.errorHandler));
+    }
   
     //POST MS
     postMs(ms: IMs): Observable<IMs>{

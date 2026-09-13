@@ -1,4 +1,3 @@
 TODO
-* On the saga page bib entries are received from the backend API as entire DTOs, 
-    but the saga page requires all bibliography entries anyway. It would make more
-    sense to just receive IDs and to get the relevant entries from a map. 
+* You shouldn't retrieve all saga data on the SagasAll page; just the titles. 
+* Ideally you need to check whether a shelfmark is entered when linking sagas/manuscripts

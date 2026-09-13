@@ -164,7 +164,7 @@
                           <small>Title is required.</small>
                       </div>
                     }
-                    @else if (title.hasError('nameNotUnique')){
+                    @else if (title.hasError('sagaTitleNotUnique')){
                       <div style="color:rgb(210, 74, 74)">
                           <small>Saga already exists.</small>
                       </div>
@@ -227,11 +227,11 @@
                                     <small>Title is required.</small>
                                 </div>
                               }
-                              <!-- @else if (sagaVersionForm.get('title')?.hasError('nameNotUnique')){
+                              @else if (sagaVersionForm.get('title')?.hasError('sagaVersionTitleNotUnique')){
                                 <div style="color:rgb(210, 74, 74)">
-                                    <small>Saga already exists.</small>
+                                    <small>Saga version already exists.</small>
                                 </div>
-                              } -->
+                              }
                             }
                           </div>
                         }
@@ -323,15 +323,17 @@
                       </h2>
                       <div id="bib-accordion" class="accordion-collapse collapse show">
                         <div class="accordion-body">
+                        <!-- Accordion body -->
                           <input type="text" class="form-control" formControlName="bibFilter" id="bibFilter" placeholder="Filter relevant scholarship...">
                           <p></p>
                           @for (bib of filteredBibVms; track $index){
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" [checked]="boxChecked(bib)" (change)="addRemoveBibEntry(bib)">
+                                <input class="form-check-input" type="checkbox" [checked]="bibChecked(bib.id)" (change)="toggleBib(bib.id)">
                                 <label class="form-check-label"><span [innerHTML]="bib.bibliographyEntry"></span></label>
                             </div>
                           }
                         </div>
+                        <!-- End of accordion body -->
                       </div>
                     </div>
 
@@ -344,40 +346,35 @@
                       </h2>
                       <div id="ms-accordion" class="accordion-collapse collapse show">
                         <div class="accordion-body">
-                          <div class="row my-3">
-                            <div class="col">
-                                Assign manuscripts to this saga:
-                            </div>
-                        </div>
-                        <div class="row my-2">
-                            <div class="col-1">
-                                ✓
-                            </div>
-                            <div class="col">
-                                Manuscript
-                            </div>
-                            <div class="col">
-                                Folio number
-                            </div>
-                        </div>
-                        
-                        <hr>
-
-                        <div formArrayName="msForms">
-                          @for(msForm of msForms.controls; track msForm.get('trackingId')?.value; let i = $index){
-                            <div class="row mb-1" [formGroupName]="i">
+                        <!-- Accordion body -->
+                          <div class="row my-2">
                               <div class="col-1">
-                                <input class="form-check-input" type="checkbox" formControlName="selected">
+                                  ✓
                               </div>
                               <div class="col">
-                                <i>{{msForm.get('shelfmark')?.value}}</i>
+                                  Manuscript
                               </div>
-                              <div class="col" [id]="i">
-                                <input type="text" class="form-control" formControlName="folioNumber">
+                              <div class="col">
+                                  Folio number
                               </div>
-                            </div>
-                          }
-                        </div>
+                          </div>
+                          <hr>
+                          <div formArrayName="msForms">
+                            @for(msForm of msForms.controls; track msForm.get('trackingId')?.value; let i = $index){
+                              <div class="row mb-1" [formGroupName]="i">
+                                <div class="col-1">
+                                  <input class="form-check-input" type="checkbox" formControlName="selected">
+                                </div>
+                                <div class="col">
+                                  <i>{{msForm.get('shelfmark')?.value}}</i>
+                                </div>
+                                <div class="col" [id]="i">
+                                  <input type="text" class="form-control" formControlName="folioNumber">
+                                </div>
+                              </div>
+                            }
+                          </div>
+                          <!-- End of accordion body -->
                         </div>
                       </div>
                     </div>
