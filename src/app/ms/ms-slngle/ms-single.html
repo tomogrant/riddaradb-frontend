@@ -152,8 +152,16 @@
                   <div class="col">
                     <i>{{msSaga.get('sagaTitle')?.value}}</i>
                   </div>
-                  <div class="col" [id]="i">
-                    <input type="text" class="form-control" formControlName="folioNumber">
+                  <div class="col">
+                    <input type="text" class="form-control" formControlName="folioNumber"
+                    [class.invalid-input]="msSaga.get('folioNumber')?.invalid && showValidationErrors">
+                    @if (msSaga.get('folioNumber')?.invalid && showValidationErrors) {
+                      @if (msSaga.get('folioNumber')?.hasError('required')) {
+                        <div style="color:rgb(210, 74, 74)">
+                            <small>Folio number is required.</small>
+                        </div>
+                      }
+                    }
                   </div>
                 </div>
               }

@@ -129,8 +129,8 @@ export class MsSingle{
         sagaTitle: new FormControl(saga.title),
         folioNumber: new FormControl<string | null>({
           value: msSaga?.folioNumber ?? null, 
-          disabled: !selected
-        }),
+          disabled: !selected, 
+        }, Validators.required),
         selected: new FormControl<boolean>(selected),
       });
 

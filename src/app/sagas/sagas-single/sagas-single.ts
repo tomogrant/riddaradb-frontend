@@ -167,7 +167,7 @@ export class SagasSingle implements OnInit {
         {
           value: msInSaga ? msInSaga.folioNumber : null,
           disabled: !selected
-        }),
+        }, Validators.required),
       selected: new FormControl<boolean>(!!msInSaga),
     });
   }
@@ -396,6 +396,7 @@ export class SagasSingle implements OnInit {
     for (var element of accordions) {
       var accordionInstance = Collapse.getOrCreateInstance(element);
       if (accordionInstance != null) {
+        console.log("ACCORDION HIDDEN");
         accordionInstance.hide();
       }
     }
