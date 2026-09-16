@@ -14,8 +14,9 @@ describe('SagasSingle', () => {
     title: "Title",
     description: "Description",
     translated: false,
-    bibDto: [],
-    sagaVersions: []
+    bibDtos: [],
+    sagaVersions: [],
+    sagaMsDtos: []
 };
 
 let sagaResponseDtos : ISagaResponseDto[] = [sagaResponseDto];
@@ -25,8 +26,9 @@ let sagaResponseDtos : ISagaResponseDto[] = [sagaResponseDto];
     title: "New title",
     description: "New description",
     translated: true,
-    bibDto: [],
-    sagaVersions: []
+    bibDtos: [],
+    sagaVersions: [],
+    sagaMsDtos: []
 };
 
   let sagaTitleDto: ISagaTitleDto = {

@@ -14,10 +14,11 @@ import { CommonModule } from '@angular/common';
 import { BibMapper } from '../common/bib.mapper';
 import { IBibVm } from '../common/IBibVm';
 import { ISagaTitleDto } from '../../sagas/common/ISagaTitleDto';
+import { PageHeader } from '../../shared/page-header/page-header';
 
 @Component({
   selector: 'app-bibs',
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule, PageHeader],
   templateUrl: './bib-single.html',
 
 })

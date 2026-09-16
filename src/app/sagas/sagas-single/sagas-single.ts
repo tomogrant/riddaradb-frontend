@@ -3,6 +3,7 @@ import {
   ValidationErrors, ReactiveFormsModule, Validators,
   ValidatorFn
 } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { Collapse, Modal } from 'bootstrap';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
@@ -23,11 +24,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IMs } from '../../ms/common/IMs';
 import { MsService } from '../../ms/common/ms.service';
 import { ISagaTitleDto } from '../common/ISagaTitleDto';
+import { PageHeader } from '../../shared/page-header/page-header';
 
 @Component({
   selector: 'app-saga-entry',
   imports: [CommonModule, RouterModule, ReactiveFormsModule,
-    QuillModule],
+    QuillModule, PageHeader],
   templateUrl: './sagas-single.html',
   styleUrl: './sagas-single.css',
   encapsulation: ViewEncapsulation.None
@@ -41,7 +43,8 @@ export class SagasSingle implements OnInit {
     private msService: MsService,
     private sagaMapper: SagaMapper,
     private bibMapper: BibMapper,
-    private router: Router
+    private router: Router,
+    private pageTitle: Title
   ) { }
 
   readonly PublicationType = PublicationType;
@@ -380,7 +383,7 @@ export class SagasSingle implements OnInit {
     this.showValidationErrors = false;
     this.addSagaVersionForm();
     this.openAddEditModal();
-    this.hideAccordion();
+    //this.hideAccordion();
   }
 
   editSaga() {
@@ -392,14 +395,12 @@ export class SagasSingle implements OnInit {
   }
 
   hideAccordion() {
-    var accordions = document.getElementsByClassName('accordion-collapse');
-    for (var element of accordions) {
-      var accordionInstance = Collapse.getOrCreateInstance(element);
-      if (accordionInstance != null) {
-        console.log("ACCORDION HIDDEN");
-        accordionInstance.hide();
-      }
-    }
+    const accordions = document.querySelectorAll('#addEditSaga .accordion-collapse');
+
+    accordions.forEach(element => {
+      const accordionInstance = Collapse.getOrCreateInstance(element, { toggle: false });
+      if (accordionInstance) accordionInstance.hide();
+    });
   }
 
   submitAddOrEdit() {
@@ -467,7 +468,7 @@ export class SagasSingle implements OnInit {
       .map(ms => ({
         msId: ms['msId'],
         shelfmark: ms['shelfmark'],
-        folioNumber: ms['folioNumber']
+        folioNumber: String(ms['folioNumber']).trim()
       }));
 
     //Fill VM saga versions
@@ -554,6 +555,7 @@ export class SagasSingle implements OnInit {
     this.sagasService.getSagaById(parseInt(id)).subscribe({
       next: receivedEntry => {
         this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedEntry);
+        this.pageTitle.setTitle("riddaraDB - " + this.sagaEntry.title);
         this.getSagaTitles();
         this.getBibs();
         this.getManuscripts();

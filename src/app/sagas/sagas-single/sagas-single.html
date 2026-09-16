@@ -1,11 +1,6 @@
-
-<head>
-  sagaEntry ? <title>riddaraDB - {{sagaEntry.title}}</title> 
-            : <title>riddaraDB - Sagas</title>
-</head>
-<div class="py-4 page-header">
-  <h1><i>{{sagaEntry.title}}</i></h1>
-</div>
+<app-page-header backgroundImg="vignette.jpg">
+  <i>{{sagaEntry.title}}</i>
+</app-page-header>
 
 @if (sagaEntry) {
   <div class="card-body page-container">
@@ -156,7 +151,7 @@
                 <div class="col">
                   <!-- TITLE FIELD -->
                   <label class="form-label">Title:</label><span style="color: rgb(210, 74, 74)">*</span>
-                  <input type="text" class="form-control" formControlName="title" placeholder="Saga version title"
+                  <input type="text" class="form-control" formControlName="title" placeholder="Saga title"
                           [class.invalid-input]="title.invalid && showValidationErrors">
                   @if (title.invalid && showValidationErrors) {
                     @if (title.hasError('required')) {
@@ -171,6 +166,35 @@
                     }
                   }
                 </div>
+
+                <!-- DATE FIELD -->
+                @if (sagaVersionForms.length == 1){
+                <div class="col" formArrayName="sagaVersionForms">
+                  <div [formGroupName]="0">
+                    <label for="saga-version-date" class="form-label">Date:</label><span style="color: rgb(210, 74, 74)">*</span>
+                  <select class="form-select" formControlName="date" id="saga-version-date"
+                          [class.invalid-input]="sagaVersionForms.controls[0].get('date')?.invalid && showValidationErrors">
+                          <!-- Define these in the TS file -->
+                    <option disabled selected>Select a date:</option>
+                    <option>1250-1300</option>
+                    <option>1300-1350</option>
+                    <option>1350-1400</option>
+                    <option>1400-1450</option>
+                    <option>1450-1500</option>
+                    <option>1500-1550</option>
+                  </select>
+                  @if (sagaVersionForms.controls[0].get('date')?.invalid && showValidationErrors) {
+                    @if (sagaVersionForms.controls[0].get('date')?.hasError('dateNotSelected')) {
+                      <div style="color: rgb(210, 74, 74)">
+                          <small>Date is required.</small>
+                      </div>
+                    }
+                  }
+                  </div>
+                  
+                </div>
+                }
+                
 
                 <div class="col">
                   <span>Translated/original composition:</span>
@@ -204,154 +228,7 @@
                 </div>
               </div>
 
-              @if (sagaVersionForms.length > 1){
-                <hr>
-              }
-
-              <!-- SAGA VERSION FORMS -->
-              <div formArrayName="sagaVersionForms">
-                @for (sagaVersionForm of sagaVersionForms.controls; track sagaVersionForm.get('trackingId')?.value; let i = $index;){
-                  <div [formGroupName]="i">
-
-                    @if (sagaVersionForms.length > 1){
-                      <div class="row my-3" style="font-variant: small-caps; font-size: 1.1rem">
-                        <div class="col text-center">
-                          Saga version {{i + 1}}
-                        </div>
-                      </div>
-                    }
-                    
-                    <!-- TITLE FIELD -->
-                     <div class="row mb-3">
-                        @if (sagaVersionForms.length > 1){
-                          <div class="col-5">
-                            <label for="saga-version-title" class="form-label">Saga version title:</label><span style="color: rgb(210, 74, 74)">*</span>
-                            <input type="text" class="form-control" formControlName="title" id="saga-version-title" placeholder="Saga version title"  
-                              [class.invalid-input]="sagaVersionForm.get('title')?.invalid && showValidationErrors">
-                            @if (sagaVersionForm.get('title')?.invalid && showValidationErrors) {
-                              @if (sagaVersionForm.get('title')?.hasError('required')) {
-                                <div style="color:rgb(210, 74, 74)">
-                                    <small>Title is required.</small>
-                                </div>
-                              }
-                              @else if (sagaVersionForm.get('title')?.hasError('sagaVersionTitleNotUnique')){
-                                <div style="color:rgb(210, 74, 74)">
-                                    <small>Saga version already exists.</small>
-                                </div>
-                              }
-                            }
-                          </div>
-                        }
-                        
-                        <!-- DATE FIELD -->
-                        <div class="col-5">
-                          <label for="saga-version-date" class="form-label">Date:</label><span style="color: rgb(210, 74, 74)">*</span>
-                          <select class="form-select" formControlName="date" id="saga-version-date"
-                                  [class.invalid-input]="sagaVersionForm.get('date')?.invalid && showValidationErrors">
-                                  <!-- Define these in the TS file -->
-                            <option disabled selected>Select a date:</option>
-                            <option>1250-1300</option>
-                            <option>1300-1350</option>
-                            <option>1350-1400</option>
-                            <option>1400-1450</option>
-                            <option>1450-1500</option>
-                            <option>1500-1550</option>
-                          </select>
-                          @if (sagaVersionForm.get('date')?.invalid && showValidationErrors) {
-                            @if (sagaVersionForm.get('date')?.hasError('dateNotSelected')) {
-                              <div style="color: rgb(210, 74, 74)">
-                                  <small>Date is required.</small>
-                              </div>
-                            }
-                          }
-                        </div>
-
-                        @if (sagaVersionForms.length > 1){
-                          <div class="col-2">
-                            <label class="form-label">&nbsp;</label>
-                            <div>
-                              <button type="button" class="btn btn-outline-danger" (click)="removeSagaVersionForm(i)">Remove version</button>
-                            </div>
-                          </div>
-                      }
-
-                      </div>
-                      @if (sagaVersionForms.length > 1){
-                        <!-- SAGA VERSION DESCRIPTION -->
-                        <div class="row mb-2">
-                          <div class="col">
-                            <label for="saga-description" class="form-label">Description:</label>
-                            <quill-editor class="quill-editor" formControlName="description" id="saga-description" placeholder="Saga description"
-                            [modules]="
-                              {
-                                toolbar: [
-                                  ['bold', 'italic', 'underline'],
-                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                  [{ 'script': 'sub'}, { 'script': 'super' }], 
-                                ] 
-                              }">
-                            </quill-editor>
-                          </div>
-                        </div>
-
-                        <div class="row mt-3">
-                          <div class="col">
-                            <div class="accordion" id="accordion-container">
-
-                              <!-- Character entries -->
-                              <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#characters-accordion-' + i" aria-expanded="false"  [attr.aria-controls]="'#characters-accordion-' + i">
-                                    Characters
-                                  </button>
-                                </h2>
-                                <div [id]="'characters-accordion-' + i" class="accordion-collapse collapse">
-                                  <div class="accordion-body">
-                                    {{sagaVersionForm.get('title')?.value}}
-                                  </div>
-                                </div>
-                              </div>
-
-                              <!-- Location entries -->
-                              <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#location-accordion-' + i" aria-expanded="false" [attr.aria-controls]="'#location-accordion-' + i">
-                                    Locations
-                                  </button>
-                                </h2>
-                                <div [id]="'location-accordion-' + i" class="accordion-collapse collapse">
-                                  <div class="accordion-body">
-                                    {{sagaVersionForm.get('title')?.value}}
-                                  </div>
-                                </div>
-                              </div>
-
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <hr>
-                        </div>
-                      }
-
-                  
-                  </div>
-                }
-              </div>
-
-              <div class="row mt-3">
-                <div class="col">
-                  <div>
-                    <span class="me-2">
-                      <button data-testid="add-saga-version-button" class="btn btn-outline-success" (click)="addSagaVersionForm()">Add saga version</button>
-                    </span>
-                </div>
-                </div>
-              </div>
-
-
-              <div class="row mt-3">
+              <div class="row mb-4">
                 <div class="col">
 
                   <div class="accordion" id="accordion-container">
@@ -359,11 +236,11 @@
                     <!-- BIBLIOGRAPHY ENTRIES -->
                     <div class="accordion-item">
                       <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#bib-accordion" aria-expanded="true" aria-controls="bib-accordion">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bib-accordion" aria-expanded="true" aria-controls="bib-accordion">
                           Relevant scholarship
                         </button>
                       </h2>
-                      <div id="bib-accordion" class="accordion-collapse collapse show">
+                      <div id="bib-accordion" class="accordion-collapse collapse">
                         <div class="accordion-body">
                         <!-- Accordion body -->
                           <input type="text" class="form-control" formControlName="bibFilter" id="bibFilter" placeholder="Filter relevant scholarship...">
@@ -382,11 +259,11 @@
                     <!-- MANUSCRIPTS -->
                     <div class="accordion-item">
                       <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ms-accordion" aria-expanded="true" aria-controls="ms-accordion">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ms-accordion" aria-expanded="true" aria-controls="ms-accordion">
                           Manuscripts
                         </button>
                       </h2>
-                      <div id="ms-accordion" class="accordion-collapse collapse show">
+                      <div id="ms-accordion" class="accordion-collapse collapse">
                         <div class="accordion-body">
                         <!-- Accordion body -->
                           <div class="row my-2">
@@ -465,6 +342,155 @@
                       
                   <!-- End of accordion -->
                   </div>
+                </div>
+              </div>
+
+              @if (sagaVersionForms.length > 1){
+                <hr>
+              }
+
+              <!-- SAGA VERSION FORMS -->
+              <div formArrayName="sagaVersionForms">
+                @for (sagaVersionForm of sagaVersionForms.controls; track sagaVersionForm.get('trackingId')?.value; let i = $index;){
+                  <div [formGroupName]="i">
+
+                    @if (sagaVersionForms.length > 1){
+                      <div class="row my-4" style="font-variant: small-caps; font-size: 1.5rem">
+                        <div class="col text-center">
+                          Saga version {{i + 1}}
+                        </div>
+                      </div>
+                    }
+                    
+                    <!-- TITLE FIELD -->
+                     <div class="row my-4">
+                        @if (sagaVersionForms.length > 1){
+                          <div class="col-5">
+                            <label for="saga-version-title" class="form-label">Saga version title:</label><span style="color: rgb(210, 74, 74)">*</span>
+                            <input type="text" class="form-control" formControlName="title" id="saga-version-title" placeholder="Saga version title"  
+                              [class.invalid-input]="sagaVersionForm.get('title')?.invalid && showValidationErrors">
+                            @if (sagaVersionForm.get('title')?.invalid && showValidationErrors) {
+                              @if (sagaVersionForm.get('title')?.hasError('required')) {
+                                <div style="color:rgb(210, 74, 74)">
+                                    <small>Title is required.</small>
+                                </div>
+                              }
+                              @else if (sagaVersionForm.get('title')?.hasError('sagaVersionTitleNotUnique')){
+                                <div style="color:rgb(210, 74, 74)">
+                                    <small>Saga version already exists.</small>
+                                </div>
+                              }
+                            }
+                          </div>
+                        }
+                        
+                        @if (sagaVersionForms.length > 1){
+
+                        <!-- DATE FIELD -->
+                        <div class="col-5">
+                          <label for="saga-version-date" class="form-label">Date:</label><span style="color: rgb(210, 74, 74)">*</span>
+                          <select class="form-select" formControlName="date" id="saga-version-date"
+                                  [class.invalid-input]="sagaVersionForm.get('date')?.invalid && showValidationErrors">
+                                  <!-- Define these in the TS file -->
+                            <option disabled selected>Select a date:</option>
+                            <option>1250-1300</option>
+                            <option>1300-1350</option>
+                            <option>1350-1400</option>
+                            <option>1400-1450</option>
+                            <option>1450-1500</option>
+                            <option>1500-1550</option>
+                          </select>
+                          @if (sagaVersionForm.get('date')?.invalid && showValidationErrors) {
+                            @if (sagaVersionForm.get('date')?.hasError('dateNotSelected')) {
+                              <div style="color: rgb(210, 74, 74)">
+                                  <small>Date is required.</small>
+                              </div>
+                            }
+                          }
+                        </div>
+                      }
+
+                        @if (sagaVersionForms.length > 1){
+                          <div class="col-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                              <button type="button" class="btn btn-outline-danger" (click)="removeSagaVersionForm(i)">Remove version</button>
+                            </div>
+                          </div>
+                      }
+
+                      </div>
+                      @if (sagaVersionForms.length > 1){
+                        <!-- SAGA VERSION DESCRIPTION -->
+                        <div class="row mb-2">
+                          <div class="col">
+                            <label for="saga-description" class="form-label">Description:</label>
+                            <quill-editor class="quill-editor" formControlName="description" id="saga-description" placeholder="Saga description"
+                            [modules]="
+                              {
+                                toolbar: [
+                                  ['bold', 'italic', 'underline'],
+                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                  [{ 'script': 'sub'}, { 'script': 'super' }], 
+                                ] 
+                              }">
+                            </quill-editor>
+                          </div>
+                        </div>
+
+                        <div class="row my-4">
+                          <div class="col">
+                            <div class="accordion" id="accordion-container">
+
+                              <!-- Character entries -->
+                              <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#characters-accordion-' + i" aria-expanded="false"  [attr.aria-controls]="'#characters-accordion-' + i">
+                                    Characters
+                                  </button>
+                                </h2>
+                                <div [id]="'characters-accordion-' + i" class="accordion-collapse collapse">
+                                  <div class="accordion-body">
+                                    {{sagaVersionForm.get('title')?.value}}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- Location entries -->
+                              <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#location-accordion-' + i" aria-expanded="false" [attr.aria-controls]="'#location-accordion-' + i">
+                                    Locations
+                                  </button>
+                                </h2>
+                                <div [id]="'location-accordion-' + i" class="accordion-collapse collapse">
+                                  <div class="accordion-body">
+                                    {{sagaVersionForm.get('title')?.value}}
+                                  </div>
+                                </div>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <hr>
+                        </div>
+                      }
+
+                  
+                  </div>
+                }
+              </div>
+
+              <div class="row mt-3">
+                <div class="col">
+                  <div>
+                    <span class="me-2">
+                      <button data-testid="add-saga-version-button" class="btn btn-outline-success" (click)="addSagaVersionForm()">Add saga version</button>
+                    </span>
+                </div>
                 </div>
               </div>
 

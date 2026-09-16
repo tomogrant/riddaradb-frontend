@@ -8,10 +8,11 @@ import { BibMapper } from '../common/bib.mapper';
 import { CommonModule } from '@angular/common';
 import { IBibVm } from '../common/IBibVm';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { PageHeader } from '../../shared/page-header/page-header';
 
 @Component({
   selector: 'app-bibs',
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, PageHeader],
   templateUrl: './bib-all.html',
   styleUrl: './bib-all.css'
 })

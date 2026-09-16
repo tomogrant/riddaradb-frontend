@@ -15,10 +15,12 @@ import { ISagaTitleDto } from '../../sagas/common/ISagaTitleDto';
 import { QuillModule } from 'ngx-quill';
 import { IMsSaga } from '../common/IMsSaga';
 import { ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
+import { PageHeader } from '../../shared/page-header/page-header';
 
 @Component({
   selector: 'app-ms-single',
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule, PageHeader],
   templateUrl: './ms-single.html',
   styleUrl: './ms-single.css'
 })
@@ -30,6 +32,7 @@ export class MsSingle{
       private route: ActivatedRoute,
       private msService: MsService,
       private sagaService: SagaService,
+      private title: Title
 
   ){}
 
@@ -99,6 +102,7 @@ export class MsSingle{
           this.navigateToMsAllPage();
         }
         this.activeMs = receivedEntry;
+        this.title.setTitle("riddaraDB - " + this.activeMs.shelfmark);
         this.getSagas();
         this.getRepo();
       });
@@ -254,6 +258,11 @@ export class MsSingle{
     this.router.navigate([`ms`]);
   }
 
+  navigateToMsEntryPage(id: number){
+    this.closeAddEditModal();
+    this.router.navigate([`ms/${id}`]);
+  }
+
   openAddEditModal(){
     var editAddModal = document.getElementById('addEditMs');
     if (editAddModal != null){
@@ -293,6 +302,10 @@ export class MsSingle{
         this.setMsSagaTitles();
         this.activeMs.msSagaDtos.sort((a, b) => a.folioNumber?.localeCompare(b.folioNumber, undefined, {numeric: true}));
         this.closeAddEditModal();
+        if (this.activeMs.id){
+          this.navigateToMsEntryPage(this.activeMs.id);
+        }
+
       },
       error: err => {
         "Post MS failed"

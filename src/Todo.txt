@@ -1,3 +1,6 @@
 TODO
 * You shouldn't retrieve all saga data on the SagasAll page; just the titles. 
-* Ideally you need to check whether a shelfmark is entered when linking sagas/manuscripts
+* Add citation feature
+* Add notes to saga-MS join table (e.g. version, state)
+* Implement backend validation
+* Add metadata to repository (city, country)

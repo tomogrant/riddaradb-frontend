@@ -1,61 +1,58 @@
-<head>
-  <title>
-    riddaraDB - Manuscripts
-  </title>
-</head>
-
-<div class="py-4 page-header">
-  <h1>{{activeMs.shelfmark}}
+<app-page-header backgroundImg="vignette.jpg">
     @if (activeMs.name){
-      (<i>{{activeMs.name}}</i>)
+      {{activeMs.shelfmark}} (<i>{{activeMs.name}}</i>)
     }
-  </h1>
-</div>
+    @else{
+      {{activeMs.shelfmark}}
+    }
+</app-page-header>
 
 <div class="card-body page-container">
   <div class="container" >
 
-      <div class="row">
-        <div class="col">
-          Repository: {{repo.name}}
-        </div>
-      </div>
+      @if (mode !== Mode.ADD){
 
-      <div class="row mb-3">
-        <div class="col">
-          Shelfmark: {{activeMs.shelfmark}}
-        </div>
-      </div>
-
-      <div class="row mb-3">
-        <div class="col" [innerHTML]="activeMs.description">
-        </div>
-      </div>
-
-      @if (activeMs.msSagaDtos.length){
-        <h3 style="font-variant: small-caps;"><i>Riddarasögur</i></h3>
-
-        @for(saga of activeMs.msSagaDtos; track $index){
         <div class="row">
           <div class="col">
-            <a href="sagas/{{saga.sagaId}}">
-              {{saga.folioNumber}}: <i>{{saga.sagaTitle}}</i>
-            </a>
+            Repository: {{repo.name}}
           </div>
         </div>
-        }
-      }
 
-    <div class="mt-3">
-      <!-- Edit button -->
-      @if (mode !== Mode.ADD){
-      <button data-testid="edit-button" (click)="editMs()"
-            type="button" style="margin-right: 0.25rem" 
-            class="btn btn-secondary btn-sm">Edit</button>
-      <!-- Delete button -->
-      <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
-      }
-    </div>
+        <div class="row mb-3">
+          <div class="col">
+            Shelfmark: {{activeMs.shelfmark}}
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col" [innerHTML]="activeMs.description">
+          </div>
+        </div>
+
+        @if (activeMs.msSagaDtos.length){
+          <h3 style="font-variant: small-caps;"><i>Riddarasögur</i></h3>
+
+          @for(saga of activeMs.msSagaDtos; track $index){
+          <div class="row">
+            <div class="col">
+              <a href="sagas/{{saga.sagaId}}">
+                {{saga.folioNumber}}: <i>{{saga.sagaTitle}}</i>
+              </a>
+            </div>
+          </div>
+          }
+        }
+
+      <div class="mt-3">
+        <!-- Edit button -->
+        <button data-testid="edit-button" (click)="editMs()"
+              type="button" style="margin-right: 0.25rem" 
+              class="btn btn-secondary btn-sm">Edit</button>
+        <!-- Delete button -->
+        <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
+      </div>
+    }
+      
     
   </div>
 </div>

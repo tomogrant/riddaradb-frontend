@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PageHeader } from '../../shared/page-header/page-header';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SagaService } from '../common/saga.service';
@@ -7,7 +8,7 @@ import { ISagaVm } from '../common/ISagaVm';
 
 @Component({
   selector: 'app-sagas',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PageHeader],
   templateUrl: './sagas-all.html',
   styleUrl: './sagas-all.css'
 })

@@ -8,10 +8,11 @@ import { MotifModalService } from '../common/motif-modal.service';
 import { Mode } from '../../shared/Enums';
 import { QuillModule } from 'ngx-quill';
 import { IMotifForm } from '../common/IMotifForm';
+import { PageHeader } from '../../shared/page-header/page-header';
 
 @Component({
   selector: 'app-motifs-all',
-  imports: [MotifNode, FormField, QuillModule],
+  imports: [MotifNode, FormField, QuillModule, PageHeader],
   templateUrl: './motifs-all.html',
   styleUrl: './motifs-all.css',
 })

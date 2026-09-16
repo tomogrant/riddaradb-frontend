@@ -132,7 +132,6 @@ export class BibMapper{
         else {(str = str + ("p. " + dto.pageNumbers + "."));}
 
         return str;
-
     }
 
     buildEdition(dto: IBib): string{
@@ -171,7 +170,6 @@ export class BibMapper{
         var str = "";
 
         if (dto.editors !== ""){str = str + (dto.editors + ", ed, ");}
-
 
         if (dto.editors === ""){str = str + (dto.translators + ", trans. ");}
         else {str = str + ("trans. " + dto.translators + ". ");}
