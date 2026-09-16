@@ -1,4 +1,4 @@
-export interface ISagaTitleDto{
-    id: number;
-    title: string;
+export interface ISagaTitleDto {
+  id: number;
+  title: string;
 }

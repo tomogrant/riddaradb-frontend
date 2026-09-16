@@ -4,17 +4,27 @@
 
 <div class="card-body page-container">
   <div class="container">
-    @for(saga of sagas; track saga.id){
+    @for (saga of sagas; track saga.id) {
       <div class="row">
         <div class="col-2 ms-3">
-          <h4><i><a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a></i></h4>
+          <h4>
+            <i>
+              <a [routerLink]="['/sagas', saga.id]">{{ saga.title }}</a>
+            </i>
+          </h4>
         </div>
       </div>
     }
     <div class="row mt-3">
       <div class="col-sm ms-3">
-        <button (click)="addSaga();" 
-                type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editAddSaga">Add</button>
+        <button
+          (click)="addSaga()"
+          type="button"
+          class="btn btn-success btn-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#editAddSaga">
+          Add
+        </button>
       </div>
     </div>
   </div>

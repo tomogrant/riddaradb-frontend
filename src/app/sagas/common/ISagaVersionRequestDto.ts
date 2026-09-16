@@ -1,4 +1,4 @@
-import { SagaDate } from './SagaDate';
+import { SagaDate } from "./SagaDate";
 
 export interface ISagaVersionRequestDto {
   id: number | null;
@@ -10,4 +10,4 @@ export interface ISagaVersionRequestDto {
   placeIds: number[];
   objectIds: number[];
   msIds: number[];
-} 
+}

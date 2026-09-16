@@ -1,42 +1,45 @@
-<app-page-header backgroundImg="vignette.jpg">
-    Bibliography
-</app-page-header>
-
+<app-page-header backgroundImg="vignette.jpg">Bibliography</app-page-header>
 
 <div class="card-body page-container">
-  <div class="container" >
+  <div class="container">
     <div class="row mb-4">
       <div class="col-3">
         <form [formGroup]="filterForm">
-        <input type="text" class="form-control" formControlName="filter" placeholder="Filter bibliography entries...">
-      </form>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="filter"
+            placeholder="Filter bibliography entries..." />
+        </form>
       </div>
     </div>
 
-    @if (primarySources.length > 0){
+    @if (primarySources.length > 0) {
       <div class="row">
-        <h3 style="font-variant: small-caps;">Editions and translations</h3>
+        <h3 style="font-variant: small-caps">Editions and translations</h3>
       </div>
-      @for (bib of primarySources; track $index){
+      @for (bib of primarySources; track $index) {
         <div class="row mb-1">
           <span>
-          @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
-          <a [routerLink]="['/bib', bib.id]" [innerHTML]="bib.bibliographyEntry"></a>
+            @if (bib.recommended) {
+              <span style="color: rgb(210, 74, 74)">*</span>
+            }
+            <a [routerLink]="['/bib', bib.id]" [innerHTML]="bib.bibliographyEntry"></a>
           </span>
         </div>
       }
-      <p></p>
-      <p></p>
     }
 
-    @if (secondarySources.length > 0){
+    @if (secondarySources.length > 0) {
       <div class="row">
-        <h3 style="font-variant: small-caps;">Secondary sources</h3>
+        <h3 style="font-variant: small-caps">Secondary sources</h3>
       </div>
-      @for (bib of secondarySources; track $index){
+      @for (bib of secondarySources; track $index) {
         <div class="row mb-1">
           <span>
-            @if (bib.recommended){<span style="color: rgb(210, 74, 74)">* </span>}
+            @if (bib.recommended) {
+              <span style="color: rgb(210, 74, 74)">*</span>
+            }
             <a [routerLink]="['/bib', bib.id]" [innerHTML]="bib.bibliographyEntry"></a>
           </span>
         </div>
@@ -47,9 +50,8 @@
     <p></p>
     <div class="row">
       <div class="col-sm">
-        <button (click)="addBib();" type="button" class="btn btn-success btn-sm">Add</button>
+        <button (click)="addBib()" type="button" class="btn btn-success btn-sm">Add</button>
       </div>
     </div>
   </div>
 </div>
-

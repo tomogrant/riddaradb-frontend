@@ -2,74 +2,84 @@
   <h1>Manuscripts</h1>
 </div>
 <div class="card-body page-container">
-  <div class="container" >
+  <div class="container">
     <div class="row mb-4">
-
       <div class="col-3">
         <form [formGroup]="filterForm">
-          <input type="text" class="form-control" formControlName="filter" placeholder="Filter manuscripts...">
+          <input type="text" class="form-control" formControlName="filter" placeholder="Filter manuscripts..." />
         </form>
       </div>
     </div>
 
     <div class="row">
       <div>
-         <div class="accordion" id="accordion-container" style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
-          @for(repo of filteredRepositoriesVm; track $index){
+        <div class="accordion" id="accordion-container" style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)">
+          @for (repo of filteredRepositoriesVm; track $index) {
             <div class="accordion-item">
               <h2 class="accordion-header">
-                <button class="accordion-button" 
-                        type="button" 
-                        [class.collapsed]="!repo.accordionOpen"
-                        [attr.aria-expanded]="repo.accordionOpen"
-                        (click)="repo.accordionOpen = !repo.accordionOpen">
-                  <span class="me-3" style="font-variant: small-caps; font-size: 1.3rem;">
+                <button
+                  class="accordion-button"
+                  type="button"
+                  [class.collapsed]="!repo.accordionOpen"
+                  [attr.aria-expanded]="repo.accordionOpen"
+                  (click)="repo.accordionOpen = !repo.accordionOpen">
+                  <span class="me-3" style="font-variant: small-caps; font-size: 1.3rem">
                     {{ repo.name }}
                   </span>
 
                   <span class="me-1">
-                    <button class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)='addManuscript(repo.id)' onclick="event.stopPropagation()">
+                    <button
+                      class="me-1"
+                      type="button"
+                      class="btn btn-sm btn-outline-success"
+                      (click)="addManuscript(repo.id)"
+                      onclick="event.stopPropagation()">
                       Add MS
                     </button>
                   </span>
 
                   <span class="me-1">
-                    <button class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="editRepository(repo.id)" onclick="event.stopPropagation()">
+                    <button
+                      class="me-1"
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      (click)="editRepository(repo.id)"
+                      onclick="event.stopPropagation()">
                       Edit
                     </button>
                   </span>
 
                   <span class="me-1">
-                    <button class="me-1" type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(repo.id)" onclick="event.stopPropagation()">
+                    <button
+                      class="me-1"
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="openDeleteModal(repo.id)"
+                      onclick="event.stopPropagation()">
                       Delete
                     </button>
                   </span>
                 </button>
               </h2>
-              <div [id]='repo.id' class="accordion-collapse" [class.show]="repo.accordionOpen">
+              <div [id]="repo.id" class="accordion-collapse" [class.show]="repo.accordionOpen">
                 <div class="accordion-body accordion-content">
-                  @if(repo.manuscripts.length > 0){
-                    @for(ms of repo.manuscripts; track $index){
-                      @if(ms.name){
+                  @if (repo.manuscripts.length > 0) {
+                    @for (ms of repo.manuscripts; track $index) {
+                      @if (ms.name) {
                         <p>
-                          <a [routerLink]="['/ms', ms.id]"]>
-                          {{ms.shelfmark}} ({{ms.name}})
-                          </a>
+                          <a [routerLink]="['/ms', ms.id]" ]>{{ ms.shelfmark }} ({{ ms.name }})</a>
                         </p>
-                      }
-                      @else {
+                      } @else {
                         <p>
-                          <a [routerLink]="['/ms', ms.id]"]>
-                          {{ms.shelfmark}}
+                          <a [routerLink]="['/ms', ms.id]" ]>
+                            {{ ms.shelfmark }}
                           </a>
                         </p>
                       }
                     }
-                  }
-                  @else {
+                  } @else {
                     <p>This repository is empty.</p>
                   }
-                  
                 </div>
               </div>
             </div>
@@ -77,8 +87,6 @@
         </div>
       </div>
     </div>
-
-      
 
     <!-- 'Add' button -->
     <p></p>
@@ -91,72 +99,92 @@
 </div>
 
 <!--Edit modal-->
-<div class="modal fade" id="addEditRepository" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="addEditRepository"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">{{mode == Mode.ADD ? 'Add manuscript repository' : 'Edit manuscript repository'}}</h1>
-            <button (click)="closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="editForm">
-            <div class="container-fluid">
-              <div class="row mb-3">
-
-                <div class="col">
-                  <!-- NAME FIELD -->
-                  <label for="ms-repo-name" class="form-label">Name:</label><span style="color: rgb(210, 74, 74)">*</span>
-                  <input type="text" class="form-control" formControlName="name" id="ms-repo-name" placeholder="Repository name"
-                          [class.invalid-input]="name.invalid && showValidationErrors">
-                  @if (name.invalid && showValidationErrors) {
-                    @if (name.hasError('required')) {
-                      <div style="color:rgb(210, 74, 74)">
-                          <small>Name is required.</small>
-                      </div>
-                    }
-                    @else if (name.hasError('nameNotUnique')){
-                      <div style="color:rgb(210, 74, 74)">
-                          <small>Repository with this name already exists.</small>
-                      </div>
-                    }
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">
+          {{ mode == Mode.ADD ? "Add manuscript repository" : "Edit manuscript repository" }}
+        </h1>
+        <button (click)="closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editForm">
+          <div class="container-fluid">
+            <div class="row mb-3">
+              <div class="col">
+                <!-- NAME FIELD -->
+                <label for="ms-repo-name" class="form-label">Name:</label>
+                <span style="color: rgb(210, 74, 74)">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="name"
+                  id="ms-repo-name"
+                  placeholder="Repository name"
+                  [class.invalid-input]="name.invalid && showValidationErrors" />
+                @if (name.invalid && showValidationErrors) {
+                  @if (name.hasError("required")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Name is required.</small>
+                    </div>
+                  } @else if (name.hasError("nameNotUnique")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Repository with this name already exists.</small>
+                    </div>
                   }
-                </div>
-
+                }
               </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
+      </div>
 
-            <!-- END OF FIELDS -->
-        <div class="modal-footer">
-          <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
-          <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
-        </div>
+      <!-- END OF FIELDS -->
+      <div class="modal-footer">
+        <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
+        <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">
+          Save
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <!--Delete modal-->
-<div class="modal fade" id="deleteRepo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="deleteRepo"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete repository?</h1>
-        <button (click)='closeDeleteModal()' type="button" class="btn-close" aria-label="Close"></button>
+        <button (click)="closeDeleteModal()" type="button" class="btn-close" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <span>
-          Are you sure?
-        </span>
-        <span style="color:rgb(210, 74, 74)">
-          This will also remove all associated manuscripts!
-        </span>
+        <span>Are you sure?</span>
+        <span style="color: rgb(210, 74, 74)">This will also remove all associated manuscripts!</span>
       </div>
       <div class="modal-footer">
-        <button (click)='closeDeleteModal()' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteRepository()' data-testid="delete-confirm-button" type="submit" class="btn btn-danger">Delete</button>
+        <button (click)="closeDeleteModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Back
+        </button>
+        <button (click)="deleteRepository()" data-testid="delete-confirm-button" type="submit" class="btn btn-danger">
+          Delete
+        </button>
       </div>
     </div>
   </div>
 </div>
-

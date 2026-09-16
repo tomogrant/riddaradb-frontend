@@ -1,27 +1,27 @@
-import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
-import { Component } from '@angular/core';
-import { RouterModule, Router } from '@angular/router';
-import { Mode } from '../../shared/Enums';
-import { BibService } from '../common/bib.service';
-import { IBib, PublicationType } from '../common/IBib';
-import { BibMapper } from '../common/bib.mapper';
-import { CommonModule } from '@angular/common';
-import { IBibVm } from '../common/IBibVm';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { PageHeader } from '../../shared/page-header/page-header';
+import { FormGroup, FormControl, ReactiveFormsModule } from "@angular/forms";
+import { Component } from "@angular/core";
+import { RouterModule, Router } from "@angular/router";
+import { Mode } from "../../shared/Enums";
+import { BibService } from "../common/bib.service";
+import { IBib, PublicationType } from "../common/IBib";
+import { BibMapper } from "../common/bib.mapper";
+import { CommonModule } from "@angular/common";
+import { IBibVm } from "../common/IBibVm";
+import { debounceTime, distinctUntilChanged } from "rxjs";
+import { PageHeader } from "../../page-header/page-header";
 
 @Component({
-  selector: 'app-bibs',
+  selector: "app-bibs",
   imports: [CommonModule, RouterModule, ReactiveFormsModule, PageHeader],
-  templateUrl: './bib-all.html',
-  styleUrl: './bib-all.css'
+  templateUrl: "./bib-all.html",
+  styleUrl: "./bib-all.css",
 })
-
 export class BibAll {
-  constructor(private bibService: BibService, 
-              private bibMapper: BibMapper,
-              private router: Router
-            ) {}
+  constructor(
+    private bibService: BibService,
+    private bibMapper: BibMapper,
+    private router: Router,
+  ) {}
 
   bibs: IBib[] = [];
 
@@ -34,49 +34,55 @@ export class BibAll {
   mode: Mode = Mode.NONE;
 
   filterForm = new FormGroup({
-    filter: new FormControl('', {nonNullable: true})
-});
+    filter: new FormControl("", { nonNullable: true }),
+  });
 
-  get filter(){
-    return this.filterForm.get('filter') as FormControl;
+  get filter() {
+    return this.filterForm.get("filter") as FormControl;
   }
 
   ngOnInit() {
-      this.displayBibs();
+    this.displayBibs();
 
-      this.filter.valueChanges.pipe(debounceTime(250), distinctUntilChanged())
-        .subscribe(value => this.updateFilter(value));
-    }
+    this.filter.valueChanges
+      .pipe(debounceTime(250), distinctUntilChanged())
+      .subscribe((value) => this.updateFilter(value));
+  }
 
-  addBib(){
+  addBib() {
     this.router.navigate([`bib/action/add`]);
   }
 
-  updateFilter(searchTerm: string){
+  updateFilter(searchTerm: string) {
     console.log("search term: " + searchTerm);
-    //Filtered, alphabetised results based on search term. 
-    const filteredResults = this.bibsVm.filter(bib =>
-      bib.bibliographyEntry.toLowerCase().includes(searchTerm.toLowerCase())
-    ).sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
-
+    //Filtered, alphabetised results based on search term.
+    const filteredResults = this.bibsVm
+      .filter((bib) =>
+        bib.bibliographyEntry.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
 
     //Further filter into primary and secondary bibliography entries
-    this.primarySources = filteredResults.filter(bib => bib.primarySource == true);
-    this.secondarySources = filteredResults.filter(bib => bib.primarySource == false);
+    this.primarySources = filteredResults.filter(
+      (bib) => bib.primarySource == true,
+    );
+    this.secondarySources = filteredResults.filter(
+      (bib) => bib.primarySource == false,
+    );
   }
 
   //READ
-  displayBibs(){
+  displayBibs() {
     this.bibService.getBibEntries().subscribe({
-      next: receivedBibs => {
+      next: (receivedBibs) => {
         this.bibs = receivedBibs;
-        this.bibs.forEach(bib => {
+        this.bibs.forEach((bib) => {
           this.bibsVm.push(this.bibMapper.mapDtoToVm(bib));
         });
 
-        this.updateFilter('');
+        this.updateFilter("");
       },
-      error: err => console.log('Error fetching bibs: ' + err)
+      error: (err) => console.log("Error fetching bibs: " + err),
     });
   }
 }

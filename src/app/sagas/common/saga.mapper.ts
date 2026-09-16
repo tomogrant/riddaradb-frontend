@@ -1,38 +1,36 @@
-import { Injectable } from '@angular/core';
-import { ISagaRequestDto } from './ISagaRequestDto';
-import { ISagaResponseDto } from './ISagaResponseDto';
-import { ISagaVersionRequestDto } from './ISagaVersionRequestDto';
-import { ISagaVersionResponseDto } from './ISagaVersionResponseDto';
-import { ISagaVersionVm } from './ISagaVersionVm';
-import { IBibVm } from '../../bib/common/IBibVm';
-import { BibMapper } from '../../bib/common/bib.mapper';
-import { ISagaVm } from './ISagaVm';
+import { Injectable } from "@angular/core";
+import { ISagaRequestDto } from "./ISagaRequestDto";
+import { ISagaResponseDto } from "./ISagaResponseDto";
+import { ISagaVersionRequestDto } from "./ISagaVersionRequestDto";
+import { ISagaVersionResponseDto } from "./ISagaVersionResponseDto";
+import { ISagaVersionVm } from "./ISagaVersionVm";
+import { IBibVm } from "../../bib/common/IBibVm";
+import { BibMapper } from "../../bib/common/bib.mapper";
+import { ISagaVm } from "./ISagaVm";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class SagaMapper {
-  constructor(private bibMapper: BibMapper){}
+  constructor(private bibMapper: BibMapper) {}
 
   mapSagaResponseDtoToVm(dto: ISagaResponseDto): ISagaVm {
-
     var bibVms: IBibVm[] = [];
 
     //Map bib DTOs to bib VMs
-    if (dto.bibDtos){
-      dto.bibDtos.forEach(bibDto => {
+    if (dto.bibDtos) {
+      dto.bibDtos.forEach((bibDto) => {
         bibVms.push(this.bibMapper.mapDtoToVm(bibDto));
       });
     }
 
     bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
 
-
     //Map saga version DTOs to saga version VMs
     var sagaVersionVms: ISagaVersionVm[] = [];
 
-    if (dto.sagaVersions){
-      dto.sagaVersions.forEach(sagaVersionDto => {
+    if (dto.sagaVersions) {
+      dto.sagaVersions.forEach((sagaVersionDto) => {
         sagaVersionVms.push(this.mapSagaVersionResponseDtoToVm(sagaVersionDto));
       });
     }
@@ -45,19 +43,17 @@ export class SagaMapper {
       description: dto.description,
       translated: dto.translated,
       sagaVersions: sagaVersionVms,
-      bibIds: bibVms.flatMap(bib => bib.id),
-      primarySources: bibVms.filter(bib => bib.primarySource == true),
-      secondarySources: bibVms.filter(bib => bib.primarySource == false),
-      manuscripts: dto.sagaMsDtos
-    }
+      bibIds: bibVms.flatMap((bib) => bib.id),
+      primarySources: bibVms.filter((bib) => bib.primarySource == true),
+      secondarySources: bibVms.filter((bib) => bib.primarySource == false),
+      manuscripts: dto.sagaMsDtos,
+    };
   }
 
   mapSagaVmToRequestDto(vm: ISagaVm): ISagaRequestDto {
-
     const sagaVersionRequestDtos: ISagaVersionRequestDto[] = [];
 
-    vm.sagaVersions.forEach(version => 
-      sagaVersionRequestDtos.push(this.mapSagaVersionVmToRequestDto(version)));
+    vm.sagaVersions.forEach((version) => sagaVersionRequestDtos.push(this.mapSagaVersionVmToRequestDto(version)));
 
     return {
       id: vm.id,
@@ -66,12 +62,11 @@ export class SagaMapper {
       translated: vm.translated,
       sagaVersions: sagaVersionRequestDtos,
       bibIds: vm.bibIds,
-      sagaMsDtos: vm.manuscripts
-    } 
+      sagaMsDtos: vm.manuscripts,
+    };
   }
 
   mapSagaVersionVmToRequestDto(vm: ISagaVersionVm): ISagaVersionRequestDto {
-
     return {
       id: vm.id,
       title: vm.title,
@@ -81,19 +76,18 @@ export class SagaMapper {
       personIds: [],
       placeIds: [],
       objectIds: [],
-      msIds: []
-    }
+      msIds: [],
+    };
   }
-  
-  mapSagaVersionResponseDtoToVm(dto: ISagaVersionResponseDto): ISagaVersionVm {
 
+  mapSagaVersionResponseDtoToVm(dto: ISagaVersionResponseDto): ISagaVersionVm {
     return {
       id: dto.id,
       title: dto.title,
       description: dto.description,
       date: dto.date,
       sagaId: dto.sagaId,
-      sagaMotifs: dto.sagaMotifs
+      sagaMotifs: dto.sagaMotifs,
     };
   }
 }

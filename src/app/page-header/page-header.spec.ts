@@ -1,23 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { PageHeader } from './page-header';
+import { PageHeader } from "./page-header";
 
-describe('PageHeader', () => {
+describe("PageHeader", () => {
   let component: PageHeader;
   let fixture: ComponentFixture<PageHeader>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PageHeader]
-    })
-    .compileComponents();
+      imports: [PageHeader],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PageHeader);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

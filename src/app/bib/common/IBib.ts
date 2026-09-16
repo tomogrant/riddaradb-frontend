@@ -20,7 +20,7 @@ export interface IBib {
   sagaIds: number[];
 }
 
-export enum PublicationType{
+export enum PublicationType {
   UNDEFINED = "UNDEFINED",
   JOURNAL_ARTICLE = "JOURNAL_ARTICLE",
   BOOK_CHAPTER = "BOOK_CHAPTER",
@@ -30,5 +30,5 @@ export enum PublicationType{
   EDITED_COLLECTION = "EDITED_COLLECTION",
   THESIS = "THESIS",
   WEBSITE = "WEBSITE",
-  OTHER = "OTHER"
+  OTHER = "OTHER",
 }

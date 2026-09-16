@@ -1,6 +1,6 @@
-export interface ISagaMs{
-    msId: number, 
-    shelfmark: string,
-    folioNumber: string,
-    selected?: boolean
+export interface ISagaMs {
+  msId: number;
+  shelfmark: string;
+  folioNumber: string;
+  selected?: boolean;
 }

@@ -9,7 +9,7 @@
   }
 }
 
-.motif-card{
+.motif-card {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -18,11 +18,11 @@
   margin-right: -4rem;
 }
 
-.child-anim{
+.child-anim {
   animation: slideIn 0.5s ease-in;
 }
 
-.result{
+.result {
   border-color: khaki;
   border-width: 5px;
 }

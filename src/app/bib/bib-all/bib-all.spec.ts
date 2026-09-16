@@ -1,11 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BibAll } from './bib-all';
-import { BibService } from '../common/bib.service';
-import { IBib, PublicationType } from '../common/IBib';
-import { of } from 'rxjs';
-import { provideRouter } from '@angular/router';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { BibAll } from "./bib-all";
+import { BibService } from "../common/bib.service";
+import { IBib, PublicationType } from "../common/IBib";
+import { of } from "rxjs";
+import { provideRouter } from "@angular/router";
 
-describe('BibAll', () => {
+describe("BibAll", () => {
   let component: BibAll;
   let fixture: ComponentFixture<BibAll>;
   let bib: IBib = {
@@ -27,14 +27,14 @@ describe('BibAll', () => {
     pageNumbers: "10-15",
     sagaIds: [],
     recommended: false,
-    description: "Description"
+    description: "Description",
   };
-  
+
   let bibs: IBib[] = [bib];
 
   beforeEach(async () => {
-    const bibServiceSpy = jasmine.createSpyObj<BibService>(['getBibEntries']);
-    bibServiceSpy.getBibEntries.and.callFake(function (){
+    const bibServiceSpy = jasmine.createSpyObj<BibService>(["getBibEntries"]);
+    bibServiceSpy.getBibEntries.and.callFake(function () {
       return of(bibs);
     });
 
@@ -43,12 +43,11 @@ describe('BibAll', () => {
       providers: [
         {
           provide: BibService,
-          useValue: bibServiceSpy
+          useValue: bibServiceSpy,
         },
-        provideRouter([])
-      ]
-    })
-    .compileComponents();
+        provideRouter([]),
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(BibAll);
     component = fixture.componentInstance;
@@ -56,18 +55,17 @@ describe('BibAll', () => {
     fixture.detectChanges();
   });
 
-  it('Component should be defined', () => {
+  it("Component should be defined", () => {
     expect(component).toBeDefined();
   });
 
   it('Header should read "Bibliography"', () => {
     const bibAllElement: HTMLElement = fixture.nativeElement;
-    const header = bibAllElement.querySelector('h1');
-    if (header)
-      expect(header.textContent).toContain('Bibliography');
+    const header = bibAllElement.querySelector("h1");
+    if (header) expect(header.textContent).toContain("Bibliography");
   });
 
-  it('ngOnInit should return bibliography entries', () => {
+  it("ngOnInit should return bibliography entries", () => {
     expect(component.bibs.length).toBeGreaterThanOrEqual(1);
     expect(component.bibs[0].title).toEqual(bib.title);
     expect(component.bibsVm.length).toBeGreaterThanOrEqual(1);

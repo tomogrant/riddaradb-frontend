@@ -1,159 +1,190 @@
-<app-page-header backgroundImg="vignette.jpg">
-    Folkloric motifs
-</app-page-header>
+<app-page-header backgroundImg="vignette.jpg">Folkloric motifs</app-page-header>
 
 <div class="card-body page-container tree">
-
-    <!-- Search bar -->
-    <div class="card mb-4 p-3" style="background-color: rgb(255, 254, 249); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
-        <div class="row gx-3">
-            <div class="col-4">
-                    <div class="input-group">
-                        <input type="text" class="form-control" [formField]="searchForm.searchTerm" placeholder="Search motif entries...">
-                        <button type="button" class="btn btn-outline-success" (click)="submitSearchRequest()">Search</button>
-                        <button type="button" class="btn btn-outline-danger" (click)="clearSearch()">Clear</button>
-                    </div>
-            </div>
-            <div class="col-3">
-                <button type="button" class="me-3 btn btn-outline-secondary" (click)="collapseAll()">Collapse all</button>
-                <button type="button" class="btn btn-outline-secondary" (click)="toggleColourCoding()">{{$showColourCoding() ? 'Hide colour coding' : 'Show colour coding'}}</button>
-            </div>  
+  <!-- Search bar -->
+  <div class="card mb-4 p-3" style="background-color: rgb(255, 254, 249); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)">
+    <div class="row gx-3">
+      <div class="col-4">
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            [formField]="searchForm.searchTerm"
+            placeholder="Search motif entries..." />
+          <button type="button" class="btn btn-outline-success" (click)="submitSearchRequest()">Search</button>
+          <button type="button" class="btn btn-outline-danger" (click)="clearSearch()">Clear</button>
         </div>
+      </div>
+      <div class="col-3">
+        <button type="button" class="me-3 btn btn-outline-secondary" (click)="collapseAll()">Collapse all</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="toggleColourCoding()">
+          {{ $showColourCoding() ? "Hide colour coding" : "Show colour coding" }}
+        </button>
+      </div>
     </div>
+  </div>
 
-    <!-- Motif cards -->
-    @for (rootId of $rootIds(); track rootId){
-        <app-motif-node 
-            [$nodeId]="rootId"
-            [$depth]="1">
-        </app-motif-node>
-    }
+  <!-- Motif cards -->
+  @for (rootId of $rootIds(); track rootId) {
+    <app-motif-node [$nodeId]="rootId" [$depth]="1"></app-motif-node>
+  }
 
-    <!-- Add motif button -->
-    <div class="mt-3">
-        <a type="button" class="btn btn-success" (click)="openAddModal()">
-            Add motif
-        </a>
-    </div>
+  <!-- Add motif button -->
+  <div class="mt-3">
+    <a type="button" class="btn btn-success" (click)="openAddModal()">Add motif</a>
+  </div>
 </div>
 
 <!--Add/edit modal-->
-<div class="modal fade" id="editAddModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="editAddModal"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header">
+        @if ($modalState()?.mode == Mode.ADD) {
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Add motif</h1>
+        } @else {
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit motif</h1>
+        }
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          (click)="setModalStateToClose()"></button>
+      </div>
 
-        <!-- Header -->
-        <div class="modal-header">
-            @if ($modalState()?.mode == Mode.ADD){<h1 class="modal-title fs-5" id="staticBackdropLabel">Add motif</h1>}
-            @else {<h1 class="modal-title fs-5" id="staticBackdropLabel">Edit motif</h1>}
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="setModalStateToClose()"></button>
-        </div>
-
-        <!-- Body -->
-        <div class="modal-body">
-            <form>
-                <div class="container">
-                    @if ($modalState()?.mode == Mode.ADD && $currentNode()){
-                        <div class="row mb-2">
-                            <div class="col">
-                                <label for="motif-motif-code" class="form-label">Motif parent</label>
-                                <input type="text" class="form-control" id="motif-motif-code" [value]="$currentNode()?.motifCode + ' ' + $currentNode()?.motifName" disabled>
-                            </div>
-                        </div>
-                    }
-                    
-                    <div class="row mb-2">
-                        <div class="col">
-                            <label for="motif-motif-code" class="form-label">Motif code:</label><span style="color: rgb(210, 74, 74)">*</span>
-                            <input type="text" class="form-control" [formField]="editForm.motifCode" id="motif-motif-code">
-                            @if (editForm.motifCode().invalid() && showValidationErrors){
-                                <div style="color:rgb(210, 74, 74)">
-                                    <small>Please enter a motif code.</small>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col">
-                            <label for="motif-motif-name" class="form-label">Motif name:</label><span style="color: rgb(210, 74, 74)">*</span>
-                            <input type="text" class="form-control" [formField]="editForm.motifName" id="motif-motif-name">
-                            @if (editForm.motifName().invalid() && showValidationErrors){
-                                <div style="color:rgb(210, 74, 74)">
-                                    <small>Please enter a motif name.</small>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col">
-                        <label for="motif-motif-description" class="form-label">Description:</label>
-                            <input type="text" class="form-control" [formField]="editForm.description" id="motif-motif-description">
-                        </div>
-                    </div>
-
-                    <div class="row my-3">
-                        <div class="col">
-                            Assign sagas to this motif:
-                        </div>
-                    </div>
-                    <div class="row my-2">
-                        <div class="col-1">
-                            ✓
-                        </div>
-                        <div class="col">
-                            Saga
-                        </div>
-                        <div class="col">
-                            Page/chapter number
-                        </div>
-                    </div>
-                    
-                    <hr>
-
-                    @for (saga of $sagas(); track saga.id){
-                        <div class="row mb-1">
-                            <div class="col-1">
-                                <input class="form-check-input" type="checkbox" 
-                                    [checked]="selectedSagaMap().has(saga.id)"
-                                    (change)="checkboxUpdate(saga.id)">
-                            </div>
-                            <div class="col">
-                                <label class="form-check-label"><i>{{saga.title}}</i></label>
-                            </div>
-                            <div class="col">
-                                <input type="text" class="form-control" #pageChapterNumber 
-                                    [value]="selectedSagaMap().has(saga.id) ? selectedSagaMap().get(saga.id) : ''" 
-                                    [disabled]="!selectedSagaMap().has(saga.id)"
-                                    (change)="pageChapterNumberUpdate(saga.id, pageChapterNumber.value)">
-                            </div>
-                        </div>
-                    }
+      <!-- Body -->
+      <div class="modal-body">
+        <form>
+          <div class="container">
+            @if ($modalState()?.mode == Mode.ADD && $currentNode()) {
+              <div class="row mb-2">
+                <div class="col">
+                  <label for="motif-motif-code" class="form-label">Motif parent</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="motif-motif-code"
+                    [value]="$currentNode()?.motifCode + ' ' + $currentNode()?.motifName"
+                    disabled />
                 </div>
-            </form>
-        </div>
+              </div>
+            }
 
-        <!-- Footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">Close</button>
-          <button type="button" class="btn btn-primary" (click)="submitForm()">Save</button>
-        </div>
+            <div class="row mb-2">
+              <div class="col">
+                <label for="motif-motif-code" class="form-label">Motif code:</label>
+                <span style="color: rgb(210, 74, 74)">*</span>
+                <input type="text" class="form-control" [formField]="editForm.motifCode" id="motif-motif-code" />
+                @if (editForm.motifCode().invalid() && showValidationErrors) {
+                  <div style="color: rgb(210, 74, 74)">
+                    <small>Please enter a motif code.</small>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col">
+                <label for="motif-motif-name" class="form-label">Motif name:</label>
+                <span style="color: rgb(210, 74, 74)">*</span>
+                <input type="text" class="form-control" [formField]="editForm.motifName" id="motif-motif-name" />
+                @if (editForm.motifName().invalid() && showValidationErrors) {
+                  <div style="color: rgb(210, 74, 74)">
+                    <small>Please enter a motif name.</small>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col">
+                <label for="motif-motif-description" class="form-label">Description:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [formField]="editForm.description"
+                  id="motif-motif-description" />
+              </div>
+            </div>
+
+            <div class="row my-3">
+              <div class="col">Assign sagas to this motif:</div>
+            </div>
+            <div class="row my-2">
+              <div class="col-1">✓</div>
+              <div class="col">Saga</div>
+              <div class="col">Page/chapter number</div>
+            </div>
+
+            <hr />
+
+            @for (saga of $sagas(); track saga.id) {
+              <div class="row mb-1">
+                <div class="col-1">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="selectedSagaMap().has(saga.id)"
+                    (change)="checkboxUpdate(saga.id)" />
+                </div>
+                <div class="col">
+                  <label class="form-check-label">
+                    <i>{{ saga.title }}</i>
+                  </label>
+                </div>
+                <div class="col">
+                  <input
+                    type="text"
+                    class="form-control"
+                    #pageChapterNumber
+                    [value]="selectedSagaMap().has(saga.id) ? selectedSagaMap().get(saga.id) : ''"
+                    [disabled]="!selectedSagaMap().has(saga.id)"
+                    (change)="pageChapterNumberUpdate(saga.id, pageChapterNumber.value)" />
+                </div>
+              </div>
+            }
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">
+          Close
+        </button>
+        <button type="button" class="btn btn-primary" (click)="submitForm()">Save</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!--Delete modal-->
-<div class="modal fade" id="deleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="deleteModal"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete motif?</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        Are you sure? This will delete any sub-motifs.
-      </div>
+      <div class="modal-body">Are you sure? This will delete any sub-motifs.</div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">Back</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">
+          Back
+        </button>
         <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" (click)="deleteMotif()">Delete</button>
       </div>
     </div>

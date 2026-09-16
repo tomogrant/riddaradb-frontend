@@ -6,456 +6,431 @@ import { SagaService } from "../../sagas/common/saga.service";
 import { ISagaVersionTitleDto } from "../../sagas/common/ISagaVersionTitleDto";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
-
 export class MotifStore {
+  motifService = inject(MotifService);
+  sagaService = inject(SagaService);
 
-    motifService = inject(MotifService);
-    sagaService = inject(SagaService);
+  $sagaTitles = signal(new Array<ISagaVersionTitleDto>());
 
-    $sagaTitles = signal(new Array<ISagaVersionTitleDto>);
+  //Motifs without parents; entry-points into the trees
+  $rootIds = signal(new Set<number>());
 
-    //Motifs without parents; entry-points into the trees
-    $rootIds = signal(new Set<number>);
+  //Normalised store of motifs
+  $motifNodes = signal(new Map<number, IMotif>());
 
-    //Normalised store of motifs
-    $motifNodes = signal(new Map<number, IMotif>());
+  //Sets to control which nodes are displayed
+  $expandedNodes = signal(new Set<number>());
+  $visibleNodes = signal(new Set<number>());
+  $resultNodes = signal(new Set<number>());
 
-    //Sets to control which nodes are displayed
-    $expandedNodes = signal(new Set<number>());
-    $visibleNodes = signal(new Set<number>());
-    $resultNodes = signal(new Set<number>());
+  //UI state
+  $searchActive = signal(false);
+  $searchTerm = signal("");
+  $showColourCoding = signal(false);
 
-    //UI state
-    $searchActive = signal(false);
-    $searchTerm = signal('');
-    $showColourCoding = signal(false);
+  initialise() {
+    this.collapseAll();
+    this.clearVisibleNodes();
+    this.clearResultNodes();
+    this.$searchActive.set(false);
+    this.$searchTerm.set("");
+    this.$showColourCoding.set(false);
+  }
 
-    initialise(){
-        this.collapseAll();
-        this.clearVisibleNodes();
-        this.clearResultNodes();
-        this.$searchActive.set(false);
-        this.$searchTerm.set('');
-        this.$showColourCoding.set(false);
+  async getSagaTitles() {
+    const sagas = await firstValueFrom(this.sagaService.getSagaVersionTitles());
+    this.$sagaTitles.set(sagas.sort((a, b) => a.title.localeCompare(b.title)));
+  }
+
+  filterMap(map: Map<number, IMotif>): Map<number, IMotif> {
+    return new Map([...map].sort((a, b) => a[1].motifCode.localeCompare(b[1].motifCode)));
+  }
+
+  clearSearch() {
+    if (this.$searchActive()) {
+      this.$searchActive.set(false);
+      this.$searchTerm.set("");
+
+      this.collapseAll();
+      this.clearVisibleNodes();
+      this.clearResultNodes();
     }
+  }
 
-    async getSagaTitles(){
-        const sagas = await firstValueFrom(this.sagaService.getSagaVersionTitles());
-        this.$sagaTitles.set(sagas.sort((a, b) => a.title.localeCompare(b.title)));
+  toggleColourCoding() {
+    this.$showColourCoding.set(!this.$showColourCoding());
+  }
+
+  async search(searchTerm: string, exactSearch: boolean): Promise<void> {
+    const results = exactSearch
+      ? await firstValueFrom(this.motifService.searchMotifsExactMatch(searchTerm))
+      : await firstValueFrom(this.motifService.searchMotifs(searchTerm));
+
+    this.$searchActive.set(true);
+    this.$searchTerm.set(searchTerm);
+
+    this.collapseAll();
+    this.clearVisibleNodes();
+    this.clearResultNodes();
+
+    for (const result of results) {
+      //Loads all ancestors and makes them visible
+      result.searchResultPath.sort((a, b) => a - b);
+      await this.loadAncestors(result.searchResultPath);
+
+      //Finally, makes the result node visible
+      this.$visibleNodes.update((current) => {
+        const next = new Set(current);
+        next.add(result.searchResultId);
+        return next;
+      });
+
+      this.$resultNodes.update((current) => {
+        const next = new Set(current);
+        next.add(result.searchResultId);
+        return next;
+      });
     }
+  }
 
-    filterMap(map: Map<number, IMotif>): Map<number, IMotif>{
-        return new Map([...map].sort((a, b) => a[1].motifCode.localeCompare(b[1].motifCode)));
+  async loadAncestors(ancestorIds: number[]): Promise<void> {
+    for (const ancestorId of ancestorIds) {
+      //The first node is a root node, and is already loaded (getRootMotifs).
+      //It is made visible, and its child/children are loaded.
+      const node = this.getMotifNode(ancestorId);
+      if (!node) return;
+
+      this.$expandedNodes.update((current) => {
+        const next = new Set(current);
+        next.add(ancestorId);
+        return next;
+      });
+
+      this.$visibleNodes.update((current) => {
+        const next = new Set(current);
+        next.add(ancestorId);
+        return next;
+      });
+
+      if (node.hasChildren && !node.childIds) {
+        await this.getMotifChildren(ancestorId);
+      }
     }
+  }
 
-    clearSearch(){
-        if (this.$searchActive()){
-            this.$searchActive.set(false);
-            this.$searchTerm.set('');
+  clearVisibleNodes() {
+    this.$visibleNodes.update((current) => {
+      const next = new Set(current);
+      next.clear();
+      return next;
+    });
+  }
 
-            this.collapseAll();
-            this.clearVisibleNodes();
-            this.clearResultNodes();
+  clearResultNodes() {
+    this.$resultNodes.update((current) => {
+      const next = new Set(current);
+      next.clear();
+      return next;
+    });
+  }
+
+  async getRootMotifs(): Promise<void> {
+    const roots = await firstValueFrom(this.motifService.getRootMotifs());
+
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
+
+      for (const root of roots) {
+        if (root.id) next.set(root.id, root);
+      }
+
+      return next;
+    });
+
+    this.$rootIds.update((current) => {
+      const next = new Set(current);
+      roots.forEach((root) => {
+        if (root.id) next.add(root.id);
+      });
+
+      return next;
+    });
+
+    this.sortRootIds();
+  }
+
+  addNewRootMotif(newRootMotif: IMotif) {
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
+
+      if (newRootMotif.id) next.set(newRootMotif.id, newRootMotif);
+
+      return next;
+    });
+
+    this.$rootIds.update((current) => {
+      const next = new Set(current);
+
+      if (newRootMotif.id) next.add(newRootMotif.id);
+
+      return next;
+    });
+
+    this.sortRootIds();
+  }
+
+  //Gets motif node in store corresponding to ID.
+  getMotifNode(id: number) {
+    return this.$motifNodes().get(id);
+  }
+
+  setMotifNodes(motifNodes: IMotif[]) {
+    //update method takes current state (current) and returns updated state (next).
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
+
+      for (const motifNode of motifNodes) {
+        if (motifNode.id) next.set(motifNode.id, motifNode);
+      }
+
+      return next;
+    });
+  }
+
+  updateMotifNode(updatedMotifNode: IMotif) {
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
+
+      if (updatedMotifNode.id) next.set(updatedMotifNode.id, updatedMotifNode);
+
+      return next;
+    });
+  }
+
+  assignChild(childMotifNode: IMotif) {
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
+
+      if (childMotifNode.parentId == null) return next;
+      const parentMotifNode = next.get(childMotifNode.parentId);
+      const updatedChildIds = parentMotifNode?.childIds ?? [];
+
+      if (childMotifNode.id != null) updatedChildIds?.push(childMotifNode.id);
+
+      if (parentMotifNode && parentMotifNode.id != null) {
+        next.set(parentMotifNode.id, {
+          ...parentMotifNode,
+          childIds: updatedChildIds,
+          hasChildren: true,
+        });
+      }
+
+      return next;
+    });
+  }
+
+  sortChildIds(parentNode: IMotif) {
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
+      const childIdsToSort = parentNode?.childIds ?? [];
+
+      //Create array of child motifs
+      const children: IMotif[] = [];
+      childIdsToSort.forEach((id) => {
+        if (id == null) return;
+        const child = next.get(id);
+        if (!child) {
+          return;
         }
-    }
+        children.push(child);
+      });
 
-    toggleColourCoding(){
-        this.$showColourCoding.set(!this.$showColourCoding());
-    }
+      //Sort array by motif code and map IDs
+      children.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, { numeric: true }));
+      const sortedChildIds = children.map((child) => child.id).filter((id) => id != null);
 
-    async search(searchTerm: string, exactSearch: boolean): Promise<void>{
-        const results = exactSearch ? await firstValueFrom(this.motifService.searchMotifsExactMatch(searchTerm))
-                                    : await firstValueFrom(this.motifService.searchMotifs(searchTerm));
-        
-        this.$searchActive.set(true);
-        this.$searchTerm.set(searchTerm);
-
-        this.collapseAll();
-        this.clearVisibleNodes();
-        this.clearResultNodes();
-
-        for (const result of results){
-            //Loads all ancestors and makes them visible 
-            result.searchResultPath.sort((a, b) => a - b);
-            await this.loadAncestors(result.searchResultPath);
-
-            //Finally, makes the result node visible
-            this.$visibleNodes.update(current => {
-                const next = new Set(current);
-                next.add(result.searchResultId);
-                return next;
-            });
-
-            this.$resultNodes.update(current => {
-                const next = new Set(current);
-                next.add(result.searchResultId);
-                return next;
-            });
-        }
-    }
-
-    async loadAncestors(ancestorIds: number[]): Promise<void>{
-        for (const ancestorId of ancestorIds){
-            //The first node is a root node, and is already loaded (getRootMotifs).
-            //It is made visible, and its child/children are loaded. 
-            const node = this.getMotifNode(ancestorId);
-            if (!node) return;
-
-            this.$expandedNodes.update(current => {
-                const next = new Set(current);
-                next.add(ancestorId);
-                return next;
-            });
-
-            this.$visibleNodes.update(current => {
-                const next = new Set(current);
-                next.add(ancestorId);
-                return next;
-            });
-
-            if(node.hasChildren && !node.childIds){
-                await this.getMotifChildren(ancestorId);
-            }
-        }
-    }
-
-    clearVisibleNodes(){
-        this.$visibleNodes.update(current => {
-            const next = new Set(current);
-            next.clear();
-            return next;
-        });
-    }
-
-    clearResultNodes(){
-        this.$resultNodes.update(current => {
-            const next = new Set(current);
-            next.clear();
-            return next;
-        });
-    }
-
-    async getRootMotifs(): Promise<void>{
-        const roots = await firstValueFrom(this.motifService.getRootMotifs());
-
-        this.$motifNodes.update(current => {
-            const next = new Map(current);
-
-            for (const root of roots){
-                if (root.id)
-                    next.set(root.id, root);
-            }
-
-            return next;
+      //Update parent node
+      if (parentNode.id)
+        next.set(parentNode.id, {
+          ...parentNode,
+          childIds: sortedChildIds,
         });
 
-        this.$rootIds.update(current => {
-            const next = new Set(current);
-            roots.forEach(root => {
-                if (root.id)
-                    next.add(root.id)
-            });
+      return next;
+    });
+  }
 
-            return next;
-        });
+  sortRootIds() {
+    this.$rootIds.update((current) => {
+      const rootMotifs: IMotif[] = [];
 
+      current.forEach((id) => {
+        const rootMotif = this.getMotifNode(id);
+        if (!rootMotif) return;
+        rootMotifs.push(rootMotif);
+      });
+
+      rootMotifs.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, { numeric: true }));
+      const sortedRootMotifs = rootMotifs.map((rootMotif) => rootMotif.id).filter((id) => id != null);
+
+      return new Set(sortedRootMotifs);
+    });
+  }
+
+  postMotifNode(newMotifNode: IMotif) {
+    this.motifService.postMotif(newMotifNode).subscribe((postedMotif) => {
+      console.log("motif posted: " + postedMotif);
+      this.updateMotifNode(postedMotif);
+
+      if (postedMotif.parentId != null) {
+        this.assignChild(postedMotif);
+        const parentNode = this.getMotifNode(postedMotif.parentId);
+        if (!parentNode) return;
+        this.sortChildIds(parentNode);
+        this.expand(postedMotif.parentId);
+      } else {
+        this.addNewRootMotif(postedMotif);
+      }
+    });
+  }
+
+  putMotifNode(updatedMotifNode: IMotif) {
+    this.motifService.updateMotif(updatedMotifNode).subscribe((updatedMotif) => {
+      //Retain children after edit. Children are not returned by backend API
+      //and field 'hasChildren' is not set until after a following get request.
+      //This is a shortcut.
+      const motif = updatedMotif;
+      motif.hasChildren = updatedMotifNode.hasChildren;
+      motif.childIds = updatedMotifNode.childIds;
+      this.updateMotifNode(motif);
+
+      if (motif.parentId != null) {
+        const parentNode = this.getMotifNode(motif.parentId);
+        if (!parentNode) return;
+        this.sortChildIds(parentNode);
+      } else {
         this.sortRootIds();
-    }
+      }
+    });
+  }
 
-    addNewRootMotif(newRootMotif: IMotif){
-        this.$motifNodes.update(current => {
-            const next = new Map(current);
+  deleteMotifNode(id: number) {
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
 
-            if (newRootMotif.id)
-                next.set(newRootMotif.id, newRootMotif)
+      //Recursively remove children of children, and then child itself
+      function removeNode(id: number) {
+        const node = next.get(id);
+        if (!node || node.id == null) return;
 
-            return next;
+        if (node.childIds) {
+          for (const child of node.childIds) {
+            if (child) removeNode(child);
+          }
+        }
+
+        next.delete(node.id);
+      }
+
+      //Remove node from parent
+      const node = next.get(id);
+      if (!node) return next;
+
+      removeNode(id);
+
+      const parentId = node.parentId;
+      if (parentId == null) return next;
+
+      const nodeParent = next.get(parentId);
+
+      if (nodeParent) {
+        const updatedParent = {
+          ...nodeParent,
+          childIds: nodeParent.childIds?.filter((childId) => childId !== id) ?? [],
+        };
+
+        if (updatedParent.id == null) return next;
+
+        if (!updatedParent.childIds?.length) {
+          this.collapse(updatedParent.id);
+          updatedParent.hasChildren = false;
+        }
+
+        next.set(updatedParent.id, updatedParent);
+      }
+
+      return next;
+    });
+
+    this.$rootIds().forEach((id) => {
+      if (!this.$motifNodes().has(id)) {
+        this.$rootIds().delete(id);
+      }
+    });
+
+    this.$expandedNodes().forEach((id) => {
+      if (!this.$motifNodes().has(id)) {
+        this.$expandedNodes().delete(id);
+      }
+    });
+
+    console.log("deleting motif " + id);
+    this.motifService.deleteMotif(id).subscribe();
+  }
+
+  async getMotifChildren(id: number): Promise<void> {
+    //Loads, sorts and adds children to $motifNodes
+    const children = await firstValueFrom(this.motifService.getChildren(id));
+    this.$motifNodes.update((current) => {
+      const next = new Map(current);
+
+      const sortedChildren = children.sort((a, b) => a.motifCode.localeCompare(b.motifCode));
+
+      for (var child of sortedChildren) {
+        if (child.id == null) return next;
+        next.set(child.id, child);
+      }
+
+      //Assigns child id(s) to parent motif
+      const parentMotif = next.get(id);
+
+      if (parentMotif) {
+        next.set(id, {
+          ...parentMotif,
+          childIds: sortedChildren.map((child) => child.id).filter((id) => id != null),
         });
+      }
 
-        this.$rootIds.update(current => {
-            const next = new Set(current);
+      return next;
+    });
+  }
 
-            if (newRootMotif.id)
-                next.add(newRootMotif.id);
+  expand(id: number) {
+    this.$expandedNodes.update((current) => {
+      const next = new Set(current);
+      next.add(id);
 
-            return next;
-        });
+      return next;
+    });
+  }
 
-        this.sortRootIds();
-    }
+  collapse(id: number) {
+    this.$expandedNodes.update((current) => {
+      const next = new Set(current);
+      next.delete(id);
 
-    //Gets motif node in store corresponding to ID. 
-    getMotifNode(id: number){
-        return this.$motifNodes().get(id);
-    }
+      return next;
+    });
+  }
 
-    setMotifNodes(motifNodes: IMotif[]){
-        //update method takes current state (current) and returns updated state (next). 
-        this.$motifNodes.update(current => {
-            const next = new Map(current);
+  collapseAll() {
+    this.$expandedNodes.update((current) => {
+      const next = new Set(current);
+      next.clear();
 
-            for (const motifNode of motifNodes){
-                if (motifNode.id)
-                    next.set(motifNode.id, motifNode);
-            }
-
-            return next;
-        });
-    }
-
-    updateMotifNode(updatedMotifNode: IMotif){
-        this.$motifNodes.update(current => {
-            const next = new Map(current);
-
-            if (updatedMotifNode.id)
-                next.set(updatedMotifNode.id, updatedMotifNode);
-
-            return next;
-        });
-    }
-
-    assignChild(childMotifNode: IMotif){
-        this.$motifNodes.update(current =>{
-
-            const next = new Map(current);
-
-            if (childMotifNode.parentId == null) return next;
-            const parentMotifNode = next.get(childMotifNode.parentId);
-            const updatedChildIds = parentMotifNode?.childIds ?? [];
-
-            if (childMotifNode.id != null)
-                updatedChildIds?.push(childMotifNode.id);
-
-            if (parentMotifNode && parentMotifNode.id != null){
-                next.set(parentMotifNode.id, {
-                    ...parentMotifNode,
-                    childIds: updatedChildIds,
-                    hasChildren: true
-                })
-            }
-
-            return next;
-        });
-
-
-    }
-
-    sortChildIds(parentNode: IMotif){
-
-        this.$motifNodes.update(current => {
-
-            const next = new Map(current);
-            const childIdsToSort = parentNode?.childIds ?? [];
-
-            //Create array of child motifs
-            const children: IMotif[] = [];
-            childIdsToSort.forEach(id => {
-                if (id == null) return;
-                const child = next.get(id);
-                if (!child){
-                    return;
-                }
-                children.push(child);
-            });
-
-            //Sort array by motif code and map IDs 
-            children.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, {numeric: true}));
-            const sortedChildIds = children.map(child => child.id).filter(id => id != null);
-
-            //Update parent node
-            if (parentNode.id)
-                next.set(parentNode.id, {
-                    ...parentNode,
-                    childIds: sortedChildIds
-                });
-
-            return next;
-        });
-    }
-
-    sortRootIds(){
-        this.$rootIds.update(current => {
-            const rootMotifs: IMotif[] = [];
-
-            current.forEach(id => {
-                const rootMotif = this.getMotifNode(id);
-                if (!rootMotif)
-                    return;
-                rootMotifs.push(rootMotif);
-            });
-
-            rootMotifs.sort((a, b) => a.motifCode.localeCompare(b.motifCode, undefined, {numeric: true}));
-            const sortedRootMotifs = rootMotifs.map(rootMotif => rootMotif.id).filter(id => id != null);
-
-            return new Set(sortedRootMotifs);
-        });
-    }
-
-    postMotifNode(newMotifNode: IMotif){
-        this.motifService.postMotif(newMotifNode).subscribe(
-            postedMotif => {
-                console.log("motif posted: " + postedMotif);
-                this.updateMotifNode(postedMotif);
-
-                if (postedMotif.parentId != null){
-                    this.assignChild(postedMotif);
-                    const parentNode = this.getMotifNode(postedMotif.parentId);
-                    if (!parentNode)
-                        return;
-                    this.sortChildIds(parentNode);
-                    this.expand(postedMotif.parentId);
-                }
-                else{
-                    this.addNewRootMotif(postedMotif);
-                }
-            }
-        );
-    }
-
-    putMotifNode(updatedMotifNode: IMotif){
-        this.motifService.updateMotif(updatedMotifNode).subscribe(
-            updatedMotif => {
-                //Retain children after edit. Children are not returned by backend API
-                //and field 'hasChildren' is not set until after a following get request.
-                //This is a shortcut. 
-                const motif = updatedMotif;
-                motif.hasChildren = updatedMotifNode.hasChildren;
-                motif.childIds = updatedMotifNode.childIds;
-                this.updateMotifNode(motif);
-
-                if (motif.parentId != null){
-                    const parentNode = this.getMotifNode(motif.parentId);
-                    if (!parentNode)
-                        return;
-                    this.sortChildIds(parentNode);
-                }
-                else{
-                    this.sortRootIds();
-                }
-            }
-        );
-    }
-
-    deleteMotifNode(id: number){
-
-        this.$motifNodes.update(current => {
-
-            const next = new Map(current);
-
-            //Recursively remove children of children, and then child itself
-            function removeNode(id: number){
-                const node = next.get(id);
-                if (!node || node.id == null) return;
-                
-                if (node.childIds){
-                    for (const child of node.childIds){
-                        if (child)
-                            removeNode(child);
-                    }
-                }
-
-                next.delete(node.id);
-            }
-
-            //Remove node from parent
-            const node = next.get(id);
-            if (!node) return next;
-                
-            removeNode(id);
-
-            const parentId = node.parentId;
-            if (parentId == null) return next;
-
-            const nodeParent = next.get(parentId);
-
-            if (nodeParent){
-                const updatedParent = {
-                    ...nodeParent,
-                    childIds: nodeParent.childIds?.filter(childId => childId !== id) ?? []
-                }
-
-                if (updatedParent.id == null) return next;
-
-                if (!updatedParent.childIds?.length){
-                    this.collapse(updatedParent.id);
-                    updatedParent.hasChildren = false;
-                }
-
-                next.set(updatedParent.id, updatedParent);
-            }
-
-            return next;
-        });
-
-        this.$rootIds().forEach(id => {
-            if (!this.$motifNodes().has(id)){
-                this.$rootIds().delete(id);
-            }
-        });
-
-        this.$expandedNodes().forEach(id => {
-            if (!this.$motifNodes().has(id)){
-                this.$expandedNodes().delete(id);
-            }
-        });
-
-        console.log("deleting motif " + id);
-        this.motifService.deleteMotif(id).subscribe();
-    }
-
-    async getMotifChildren(id: number): Promise<void>{
-        //Loads, sorts and adds children to $motifNodes
-        const children = await firstValueFrom(this.motifService.getChildren(id));
-        this.$motifNodes.update(current => {
-            const next = new Map(current);
-
-            const sortedChildren = children.sort((a, b) => a.motifCode.localeCompare(b.motifCode));
-
-            for (var child of sortedChildren){
-                if (child.id == null) return next;
-                next.set(child.id, child);
-            }
-
-            //Assigns child id(s) to parent motif
-            const parentMotif = next.get(id);
-        
-            if (parentMotif){
-                next.set(id, {
-                    ...parentMotif,
-                    childIds: sortedChildren.map(child => child.id).filter(id => id != null)
-                });
-            }
-
-            return next;
-        });
-    }
-
-    expand(id: number){
-        this.$expandedNodes.update(current => {
-            const next = new Set(current);
-            next.add(id);
-
-            return next;
-        });
-    }
-
-    collapse(id: number){
-        this.$expandedNodes.update(current => {
-            const next = new Set(current);
-            next.delete(id);
-
-            return next;
-        });
-    }
-
-    collapseAll(){
-        this.$expandedNodes.update(current => {
-            const next = new Set(current);
-            next.clear();
-
-            return next;
-        });
-    }
+      return next;
+    });
+  }
 }

@@ -1,94 +1,85 @@
-@if (!$searchActive() || ($searchActive() && $visible())){
-    <div class="row mb-3">
-        <div class="col-4">
-            <div class="card motif-card" [style.background-color]="$showColourCoding() ? nodeColour : 'rgb(255, 254, 249)'" [class.result]="$result()">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col">
-                            @if ($result()){
-                                <b [innerHTML]="highlightText($node()?.motifCode)"></b>
-                                <span>&nbsp;</span>
-                                <span [innerHTML]="highlightText($node()?.motifName)"></span>
-                            }
-                            @else {
-                                <b>{{ $node()?.motifCode }}</b>
-                                {{ $node()?.motifName }}
-                            }
-                        </div>
-                    </div>
-                </div>
-
-
-                @if ($assignedSagas()?.length || $node()?.description != ''){
-                    <div class="card-body">
-                        <div class="mb-2 description-text">
-                            @if ($result()){
-                                <span [innerHTML]="this.highlightText($node()?.description)"></span>
-                            }
-                            @else{
-                                {{$node()?.description}}
-                            }
-
-                        </div>
-                        @for(saga of $assignedSagas(); track $index){
-                            <div>
-                                @if ($result()){
-                                    <i><a href="sagas/{{saga.sagaId}}" [innerHTML]="this.highlightText(saga.sagaTitle)"></a></i>
-                                }
-                                @else {
-                                    <a href="sagas/{{saga.sagaId}}"><i>{{saga.sagaTitle}}</i></a>
-                                }
-                                @if (saga.pageChapterNumber != ''){
-                                    <span>, {{saga.pageChapterNumber}}</span>
-                                }
-                            </div>   
-                        }
-                    </div>
-                }
-                
-                
-                <div class="card-footer">
-                    <span class="me-1">
-                        <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">
-                            Edit
-                        </a>
-                    </span>
-
-                    <span class="me-1">
-                        <a class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
-                            Add sub-motif 
-                        </a>
-                    </span>
-
-                    <span>
-                        <a type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">
-                            Delete
-                        </a>
-                    </span>
-
-                    @if($node()?.hasChildren && !$searchActive()){
-                        <span style="float: right;">
-                            <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
-                                {{$expanded() ? '&minus;' : '&plus;'}}
-                            </a>
-                        </span>
-                    }
-                </div>
-                
+@if (!$searchActive() || ($searchActive() && $visible())) {
+  <div class="row mb-3">
+    <div class="col-4">
+      <div
+        class="card motif-card"
+        [style.background-color]="$showColourCoding() ? nodeColour : 'rgb(255, 254, 249)'"
+        [class.result]="$result()">
+        <div class="card-header">
+          <div class="row">
+            <div class="col">
+              @if ($result()) {
+                <b [innerHTML]="highlightText($node()?.motifCode)"></b>
+                <span>&nbsp;</span>
+                <span [innerHTML]="highlightText($node()?.motifName)"></span>
+              } @else {
+                <b>{{ $node()?.motifCode }}</b>
+                {{ $node()?.motifName }}
+              }
             </div>
+          </div>
         </div>
-    </div>    
-    
-    @if ($expanded()){
-        <div class="child-wrapper child-anim">
-            @if ($node()?.childIds){
-                @for(child of $node()?.childIds; track $index){
-                <app-motif-node
-                    [$nodeId]="child"
-                    [$depth]="$depth() + 1">
-                </app-motif-node>
+
+        @if ($assignedSagas()?.length || $node()?.description != "") {
+          <div class="card-body">
+            <div class="mb-2 description-text">
+              @if ($result()) {
+                <span [innerHTML]="this.highlightText($node()?.description)"></span>
+              } @else {
+                {{ $node()?.description }}
+              }
+            </div>
+            @for (saga of $assignedSagas(); track $index) {
+              <div>
+                @if ($result()) {
+                  <i><a [routerLink]="['/sagas', saga.sagaId]" [innerHTML]="this.highlightText(saga.sagaTitle)"></a></i>
+                } @else {
+                  <a [routerLink]="['/sagas', saga.sagaId]">
+                    <i>{{ saga.sagaTitle }}</i>
+                  </a>
                 }
+                @if (saga.pageChapterNumber != "") {
+                  <span>, {{ saga.pageChapterNumber }}</span>
+                }
+              </div>
             }
+          </div>
+        }
+
+        <div class="card-footer">
+          <span class="me-1">
+            <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">Edit</a>
+          </span>
+
+          <span class="me-1">
+            <a class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
+              Add sub-motif
+            </a>
+          </span>
+
+          <span>
+            <a type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">Delete</a>
+          </span>
+
+          @if ($node()?.hasChildren && !$searchActive()) {
+            <span style="float: right">
+              <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
+                {{ $expanded() ? "&minus;" : "&plus;" }}
+              </a>
+            </span>
+          }
         </div>
-    }   
+      </div>
+    </div>
+  </div>
+
+  @if ($expanded()) {
+    <div class="child-wrapper child-anim">
+      @if ($node()?.childIds) {
+        @for (child of $node()?.childIds; track $index) {
+          <app-motif-node [$nodeId]="child" [$depth]="$depth() + 1"></app-motif-node>
+        }
+      }
+    </div>
+  }
 }

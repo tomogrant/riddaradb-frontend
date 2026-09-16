@@ -1,161 +1,179 @@
 <app-page-header backgroundImg="vignette.jpg">
-    @if (activeMs.name){
-      {{activeMs.shelfmark}} (<i>{{activeMs.name}}</i>)
-    }
-    @else{
-      {{activeMs.shelfmark}}
-    }
+  @if (activeMs.name) {
+    {{ activeMs.shelfmark }} (
+    <i>{{ activeMs.name }}</i>
+    )
+  } @else {
+    {{ activeMs.shelfmark }}
+  }
 </app-page-header>
 
 <div class="card-body page-container">
-  <div class="container" >
+  <div class="container">
+    @if (mode !== Mode.ADD) {
+      <div class="row">
+        <div class="col">Repository: {{ repo.name }}</div>
+      </div>
 
-      @if (mode !== Mode.ADD){
+      <div class="row mb-3">
+        <div class="col">Shelfmark: {{ activeMs.shelfmark }}</div>
+      </div>
 
-        <div class="row">
-          <div class="col">
-            Repository: {{repo.name}}
-          </div>
-        </div>
+      <div class="row mb-3">
+        <div class="col" [innerHTML]="activeMs.description"></div>
+      </div>
 
-        <div class="row mb-3">
-          <div class="col">
-            Shelfmark: {{activeMs.shelfmark}}
-          </div>
-        </div>
+      @if (activeMs.msSagaDtos.length) {
+        <h3 style="font-variant: small-caps"><i>Riddarasögur</i></h3>
 
-        <div class="row mb-3">
-          <div class="col" [innerHTML]="activeMs.description">
-          </div>
-        </div>
-
-        @if (activeMs.msSagaDtos.length){
-          <h3 style="font-variant: small-caps;"><i>Riddarasögur</i></h3>
-
-          @for(saga of activeMs.msSagaDtos; track $index){
+        @for (saga of activeMs.msSagaDtos; track $index) {
           <div class="row">
             <div class="col">
-              <a href="sagas/{{saga.sagaId}}">
-                {{saga.folioNumber}}: <i>{{saga.sagaTitle}}</i>
+              <a [routerLink]="['/sagas', saga.sagaId]">
+                {{ saga.folioNumber }}:
+                <i>{{ saga.sagaTitle }}</i>
               </a>
             </div>
           </div>
-          }
         }
+      }
 
       <div class="mt-3">
         <!-- Edit button -->
-        <button data-testid="edit-button" (click)="editMs()"
-              type="button" style="margin-right: 0.25rem" 
-              class="btn btn-secondary btn-sm">Edit</button>
+        <button
+          data-testid="edit-button"
+          (click)="editMs()"
+          type="button"
+          style="margin-right: 0.25rem"
+          class="btn btn-secondary btn-sm">
+          Edit
+        </button>
         <!-- Delete button -->
-        <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">Delete</button>
+        <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">
+          Delete
+        </button>
       </div>
     }
-      
-    
   </div>
 </div>
 
 <!--Edit modal-->
-<div class="modal fade" id="addEditMs" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="addEditMs"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">{{mode == Mode.ADD ? 'Add manuscript' : 'Edit manuscript'}}</h1>
-            <button (click)="mode == Mode.ADD ? navigateToMsAllPage() : closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="editForm">
-            <div class="container-fluid">
-              <div class="row mb-3">
-                <div class="col">
-                  <label for="ms-repo" class="form-label">Repository:</label>
-                  <input type="text" class="form-control" id="ms-repo" [value]="repo.name" disabled>
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">
+          {{ mode == Mode.ADD ? "Add manuscript" : "Edit manuscript" }}
+        </h1>
+        <button
+          (click)="mode == Mode.ADD ? navigateToMsAllPage() : closeAddEditModal()"
+          type="button"
+          class="btn-close"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editForm">
+          <div class="container-fluid">
+            <div class="row mb-3">
+              <div class="col">
+                <label for="ms-repo" class="form-label">Repository:</label>
+                <input type="text" class="form-control" id="ms-repo" [value]="repo.name" disabled />
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col">
                 <!-- NAME FIELD -->
-                <label for="ms-name" class="form-label">Name (e.g. <i>Flateyjarbók</i>):</label>
-                <input type="text" class="form-control" formControlName="name" id="ms-name" placeholder="Name">
+                <label for="ms-name" class="form-label">
+                  Name (e.g.
+                  <i>Flateyjarbók</i>
+                  ):
+                </label>
+                <input type="text" class="form-control" formControlName="name" id="ms-name" placeholder="Name" />
               </div>
             </div>
 
             <div class="row mb-3">
-                <div class="col">
-                  
-                  <label for="ms-repo-n" class="form-label">Shelfmark:</label><span style="color: rgb(210, 74, 74)">*</span>
-                  <input type="text" class="form-control" formControlName="shelfmark" id="ms-shelfmark" placeholder="Shelfmark"
-                          [class.invalid-input]="shelfmark.invalid && showValidationErrors">
-                  @if (shelfmark.invalid && showValidationErrors) {
-                    @if (shelfmark.hasError('required')) {
-                      <div style="color:rgb(210, 74, 74)">
-                          <small>Shelfmark is required.</small>
-                      </div>
-                    }
-                    @else if (shelfmark.hasError('shelfmarkNotUnique')){
-                      <div style="color:rgb(210, 74, 74)">
-                          <small>Manuscript with this shelfmark already exists.</small>
-                      </div>
-                    }
+              <div class="col">
+                <label for="ms-repo-n" class="form-label">Shelfmark:</label>
+                <span style="color: rgb(210, 74, 74)">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="shelfmark"
+                  id="ms-shelfmark"
+                  placeholder="Shelfmark"
+                  [class.invalid-input]="shelfmark.invalid && showValidationErrors" />
+                @if (shelfmark.invalid && showValidationErrors) {
+                  @if (shelfmark.hasError("required")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Shelfmark is required.</small>
+                    </div>
+                  } @else if (shelfmark.hasError("shelfmarkNotUnique")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Manuscript with this shelfmark already exists.</small>
+                    </div>
                   }
-                </div>
+                }
+              </div>
             </div>
 
             <div class="row mb-2">
               <div class="col">
                 <!-- DESCRIPTION FIELD -->
                 <label for="saga-description" class="form-label">Description:</label>
-                <quill-editor class="quill-editor" formControlName="description" id="saga-description" placeholder="Saga description"
-                [modules]="
-                  {
+                <quill-editor
+                  class="quill-editor"
+                  formControlName="description"
+                  id="saga-description"
+                  placeholder="Saga description"
+                  [modules]="{
                     toolbar: [
                       ['bold', 'italic', 'underline'],
-                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                      [{ 'script': 'sub'}, { 'script': 'super' }], 
-                    ] 
-                  }">
-                </quill-editor>
+                      [{ list: 'ordered' }, { list: 'bullet' }],
+                      [{ script: 'sub' }, { script: 'super' }],
+                    ],
+                  }"></quill-editor>
               </div>
             </div>
 
             <div class="row my-3">
-                <div class="col">
-                    Assign sagas to this manuscript:
-                </div>
+              <div class="col">Assign sagas to this manuscript:</div>
             </div>
             <div class="row my-2">
-                <div class="col-1">
-                    ✓
-                </div>
-                <div class="col">
-                    Saga
-                </div>
-                <div class="col">
-                    Folio number
-                </div>
+              <div class="col-1">✓</div>
+              <div class="col">Saga</div>
+              <div class="col">Folio number</div>
             </div>
-            
-            <hr>
+
+            <hr />
 
             <div formArrayName="msSagas">
-              @for(msSaga of msSagas.controls; track msSaga.get('trackingId')?.value; let i = $index){
+              @for (msSaga of msSagas.controls; track msSaga.get("trackingId")?.value; let i = $index) {
                 <div class="row mb-1" [formGroupName]="i">
                   <div class="col-1">
-                    <input class="form-check-input" type="checkbox" formControlName="selected">
+                    <input class="form-check-input" type="checkbox" formControlName="selected" />
                   </div>
                   <div class="col">
-                    <i>{{msSaga.get('sagaTitle')?.value}}</i>
+                    <i>{{ msSaga.get("sagaTitle")?.value }}</i>
                   </div>
                   <div class="col">
-                    <input type="text" class="form-control" formControlName="folioNumber"
-                    [class.invalid-input]="msSaga.get('folioNumber')?.invalid && showValidationErrors">
-                    @if (msSaga.get('folioNumber')?.invalid && showValidationErrors) {
-                      @if (msSaga.get('folioNumber')?.hasError('required')) {
-                        <div style="color:rgb(210, 74, 74)">
-                            <small>Folio number is required.</small>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="folioNumber"
+                      [class.invalid-input]="msSaga.get('folioNumber')?.invalid && showValidationErrors" />
+                    @if (msSaga.get("folioNumber")?.invalid && showValidationErrors) {
+                      @if (msSaga.get("folioNumber")?.hasError("required")) {
+                        <div style="color: rgb(210, 74, 74)">
+                          <small>Folio number is required.</small>
                         </div>
                       }
                     }
@@ -163,41 +181,52 @@
                 </div>
               }
             </div>
-            
-
           </div>
         </form>
       </div>
 
-
-
-            <!-- END OF FIELDS -->
-        <div class="modal-footer">
-          <button (click)="mode == Mode.ADD ? navigateToMsAllPage() : closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
-          <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">Save</button>
-        </div>
+      <!-- END OF FIELDS -->
+      <div class="modal-footer">
+        <button
+          (click)="mode == Mode.ADD ? navigateToMsAllPage() : closeAddEditModal()"
+          type="button"
+          class="btn btn-secondary">
+          Close
+        </button>
+        <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">
+          Save
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <!--Delete modal-->
-<div class="modal fade" id="deleteMs" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="deleteMs"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete repository?</h1>
-        <button (click)='closeDeleteModal()' type="button" class="btn-close" aria-label="Close"></button>
+        <button (click)="closeDeleteModal()" type="button" class="btn-close" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <span>
-          Are you sure?
-        </span>
+        <span>Are you sure?</span>
       </div>
       <div class="modal-footer">
-        <button (click)='closeDeleteModal()' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-        <button (click)='deleteMs()' data-testid="delete-confirm-button" type="submit" class="btn btn-danger">Delete</button>
+        <button (click)="closeDeleteModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Back
+        </button>
+        <button (click)="deleteMs()" data-testid="delete-confirm-button" type="submit" class="btn btn-danger">
+          Delete
+        </button>
       </div>
     </div>
   </div>
 </div>
-

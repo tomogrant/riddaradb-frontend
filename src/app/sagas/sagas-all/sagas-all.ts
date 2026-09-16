@@ -1,53 +1,51 @@
-import { Component, OnInit } from '@angular/core';
-import { PageHeader } from '../../shared/page-header/page-header';
-import { RouterModule, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { SagaService } from '../common/saga.service';
-import { SagaMapper } from '../common/saga.mapper';
-import { ISagaVm } from '../common/ISagaVm';
+import { Component, OnInit } from "@angular/core";
+import { PageHeader } from "../../page-header/page-header";
+import { RouterModule, Router } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { SagaService } from "../common/saga.service";
+import { SagaMapper } from "../common/saga.mapper";
+import { ISagaVm } from "../common/ISagaVm";
 
 @Component({
-  selector: 'app-sagas',
+  selector: "app-sagas",
   imports: [CommonModule, RouterModule, PageHeader],
-  templateUrl: './sagas-all.html',
-  styleUrl: './sagas-all.css'
+  templateUrl: "./sagas-all.html",
+  styleUrl: "./sagas-all.css",
 })
-
 export class SagasAll implements OnInit {
-  constructor(private sagaService: SagaService, 
-              private sagaMapper: SagaMapper,
-              private router: Router) {}
+  constructor(
+    private sagaService: SagaService,
+    private sagaMapper: SagaMapper,
+    private router: Router,
+  ) {}
 
-  pageTitle = 'Sagas';
+  pageTitle = "Sagas";
 
   sagas: ISagaVm[] = [];
-  
+
   ngOnInit() {
-      this.displaySagas();
+    this.displaySagas();
   }
 
   //---------------
   //     CRUD
   //---------------
 
-  addSaga(){
+  addSaga() {
     this.router.navigate([`sagas/action/add`]);
   }
 
   //READ
   displaySagas() {
     this.sagaService.getSagas().subscribe({
-      next: receivedSagas => {
-        for (const saga of receivedSagas){
+      next: (receivedSagas) => {
+        for (const saga of receivedSagas) {
           this.sagas.push(this.sagaMapper.mapSagaResponseDtoToVm(saga));
         }
 
         this.sagas.sort((a, b) => a.title.localeCompare(b.title));
       },
-      error: err => console.log('Error fetching sagas: ' + err)
+      error: (err) => console.log("Error fetching sagas: " + err),
     });
   }
-
 }
-
-  

@@ -3,9 +3,7 @@
   display: flex;
   justify-content: center;
   color: white;
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.6), rgba(116, 116, 116, 0.6)),
-    var(--header-image);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(116, 116, 116, 0.6)), var(--header-image);
   background-size: auto 100%;
   background-repeat: repeat-x;
 }

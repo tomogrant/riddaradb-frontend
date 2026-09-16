@@ -1,12 +1,10 @@
-import { Component } from '@angular/core';
-import { PageHeader } from '../shared/page-header/page-header';
+import { Component } from "@angular/core";
+import { PageHeader } from "../page-header/page-header";
 
 @Component({
-  selector: 'app-home',
+  selector: "app-home",
   imports: [PageHeader],
-  templateUrl: './home.html',
-  styleUrl: './home.css'
+  templateUrl: "./home.html",
+  styleUrl: "./home.css",
 })
-export class HomeComponent {
-
-}
+export class HomeComponent {}

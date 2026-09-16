@@ -9,5 +9,5 @@ export interface ISagaRequestDto {
   translated: boolean;
   sagaVersions: ISagaVersionRequestDto[];
   bibIds: number[];
-  sagaMsDtos: ISagaMs[]
+  sagaMsDtos: ISagaMs[];
 }

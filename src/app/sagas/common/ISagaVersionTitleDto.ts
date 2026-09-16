@@ -1,5 +1,5 @@
-export interface ISagaVersionTitleDto{
-    id: number;
-    sagaId: number;
-    title: string;
+export interface ISagaVersionTitleDto {
+  id: number;
+  sagaId: number;
+  title: string;
 }

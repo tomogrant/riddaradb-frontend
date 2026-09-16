@@ -1,4 +1,4 @@
 export interface IMotifSearchResult {
-    searchResultId: number;
-    searchResultPath: number[];
+  searchResultId: number;
+  searchResultPath: number[];
 }

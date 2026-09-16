@@ -1,5 +1,5 @@
 export interface IMsRepositoryDto {
-    id: number | null;
-    name: string;
-    msIds: number[]
+  id: number | null;
+  name: string;
+  msIds: number[];
 }
