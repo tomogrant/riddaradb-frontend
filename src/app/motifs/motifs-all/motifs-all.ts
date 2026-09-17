@@ -18,14 +18,14 @@ import { PageHeader } from "../../page-header/page-header";
 })
 export class MotifsAll {
   constructor() {
-    effect(() => {
+    effect(() => {  
       if (this.$modalState() != null) {
         this.setForm();
         this.toggleModal();
       }
     });
   }
-
+      
   private motifStore = inject(MotifStore);
   private motifModalService = inject(MotifModalService);
   private route = inject(ActivatedRoute);

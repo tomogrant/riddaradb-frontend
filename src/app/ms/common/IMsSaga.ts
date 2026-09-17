@@ -3,5 +3,6 @@ export interface IMsSaga {
   sagaId: number;
   sagaTitle?: string;
   folioNumber: string;
+  note?: string;
   selected?: boolean;
 }

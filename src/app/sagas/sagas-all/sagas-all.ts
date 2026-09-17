@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { SagaService } from "../common/saga.service";
 import { SagaMapper } from "../common/saga.mapper";
 import { ISagaVm } from "../common/ISagaVm";
+import { ISagaTitleDto } from "../common/ISagaTitleDto";
 
 @Component({
   selector: "app-sagas",
@@ -15,13 +16,12 @@ import { ISagaVm } from "../common/ISagaVm";
 export class SagasAll implements OnInit {
   constructor(
     private sagaService: SagaService,
-    private sagaMapper: SagaMapper,
     private router: Router,
   ) {}
 
   pageTitle = "Sagas";
 
-  sagas: ISagaVm[] = [];
+  sagas: ISagaTitleDto[] = [];
 
   ngOnInit() {
     this.displaySagas();
@@ -37,11 +37,9 @@ export class SagasAll implements OnInit {
 
   //READ
   displaySagas() {
-    this.sagaService.getSagas().subscribe({
+    this.sagaService.getSagaTitles().subscribe({
       next: (receivedSagas) => {
-        for (const saga of receivedSagas) {
-          this.sagas.push(this.sagaMapper.mapSagaResponseDtoToVm(saga));
-        }
+        this.sagas = receivedSagas;
 
         this.sagas.sort((a, b) => a.title.localeCompare(b.title));
       },

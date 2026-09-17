@@ -98,7 +98,14 @@
         @for (ms of sagaEntry.manuscripts; track $index) {
           <div class="row mb-1">
             <span>
-              <a [routerLink]="['/ms', ms.msId]">{{ ms.shelfmark }}, {{ ms.folioNumber }}</a>
+              <a [routerLink]="['/ms', ms.msId]">
+                <span style="font-variant: small-caps;">{{ms.shelfmark}}</span> 
+                <span> ({{ms.date}}),</span>
+                <span> {{ms.folioNumber}}</span>
+                @if (ms.note){
+                  <span> ({{ms.note}})</span>
+                }
+              </a>
             </span>
           </div>
         }
@@ -320,7 +327,8 @@
                         <div class="row my-2">
                           <div class="col-1">✓</div>
                           <div class="col">Manuscript</div>
-                          <div class="col">Folio number</div>
+                          <div class="col">Folio number<span style="color: rgb(210, 74, 74)">*</span></div>
+                          <div class="col">Note</div>
                         </div>
                         <hr />
                         <div formArrayName="msForms">
@@ -345,6 +353,13 @@
                                     </div>
                                   }
                                 }
+                              </div>
+
+                              <div class="col" [id]="i">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  formControlName="note"/>
                               </div>
                             </div>
                           }

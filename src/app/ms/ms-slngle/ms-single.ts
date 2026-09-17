@@ -35,6 +35,9 @@ export class MsSingle {
     id: new FormControl<number | null>({ value: null, disabled: true }),
     name: new FormControl<string>(""),
     shelfmark: new FormControl<string>("", [Validators.required, this.shelfmarkUnique()]),
+    date: new FormControl<string>("", Validators.pattern('[^\d{4}(?:-\d{4})?$)]')),
+    handritLink: new FormControl<string>(""),
+    fasnlLink: new FormControl<string>(""),
     description: new FormControl<string>(""),
     msSagas: new FormArray<FormGroup>([]),
   });
@@ -49,6 +52,18 @@ export class MsSingle {
 
   get shelfmark() {
     return this.editForm.get("shelfmark") as FormControl;
+  }
+
+  get date() {
+    return this.editForm.get("date") as FormControl;
+  }
+
+  get handritLink() {
+    return this.editForm.get("handritLink") as FormControl;
+  }
+
+  get fasnlLink() {
+    return this.editForm.get("fasnlLink") as FormControl;
   }
 
   get description() {
@@ -127,6 +142,12 @@ export class MsSingle {
         },
         Validators.required,
       ),
+      note: new FormControl<string | null>(
+        {
+          value: msSaga?.note ?? null,
+          disabled: !selected,
+        }
+      ),
       selected: new FormControl<boolean>(selected),
     });
 
@@ -140,13 +161,22 @@ export class MsSingle {
   configureFolioNumberState(form: FormGroup) {
     form.get("selected")!.valueChanges.subscribe((selected) => {
       const folioNumber = form.get("folioNumber");
+      const note = form.get("note");
 
       if (folioNumber) {
         if (selected) {
-          folioNumber?.enable();
+          folioNumber.enable();
         } else {
-          folioNumber?.disable();
-          folioNumber?.setValue(null);
+          folioNumber.disable();
+          folioNumber.setValue(null);
+        }
+      }
+      if (note){
+        if (selected) {
+          note.enable();
+        } else {
+          note.disable();
+          note.setValue(null);
         }
       }
     });
@@ -166,6 +196,9 @@ export class MsSingle {
     this.id.setValue(this.activeMs.id);
     this.name.setValue(this.activeMs.name);
     this.shelfmark.setValue(this.activeMs.shelfmark);
+    this.date.setValue(this.activeMs.date);
+    this.handritLink.setValue(this.activeMs.handritLink);
+    this.fasnlLink.setValue(this.activeMs.fasnlLink);
     this.description.setValue(this.activeMs.description);
 
     this.openAddEditModal();
@@ -181,19 +214,24 @@ export class MsSingle {
 
   submitAddOrEdit() {
     this.shelfmark.updateValueAndValidity();
+    this.date.updateValueAndValidity();
 
     const formValue = this.editForm.getRawValue();
 
     const payload = {
       id: formValue.id,
-      name: formValue.name,
-      shelfmark: formValue.shelfmark!,
-      description: formValue.description ? formValue.description.replaceAll(/((?:&nbsp;)*)&nbsp;/g, "$1 ") : null,
+      name: String(formValue.name).trim(),
+      shelfmark: String(formValue.shelfmark!).trim(),
+      date: String(formValue.date).trim(),
+      handritLink: String(formValue.handritLink)?.trim(),
+      fasnlLink: String(formValue.fasnlLink)?.trim(),
+      description: formValue.description ? formValue.description.replaceAll(/((?:&nbsp;)*)&nbsp;/g, "$1 ").trim() : null,
       msSagaDtos: formValue.msSagas
         .filter((saga) => saga["selected"])
         .map((saga) => ({
           sagaId: saga["sagaId"],
-          folioNumber: saga["folioNumber"],
+          folioNumber: String(saga["folioNumber"]).trim(),
+          note: String(saga["note"]).trim()
         })),
       msRepositoryId: this.activeMs.msRepositoryId,
     };
@@ -313,7 +351,16 @@ export class MsSingle {
     });
   }
 
-  deleteMs() {}
+  deleteMs() {
+    this.closeDeleteModal();
+
+    if (this.activeMs.id) {
+      this.msService.deleteMs(this.activeMs.id).subscribe({
+        next: () => this.navigateToMsAllPage(),
+        error: (err) => console.log("problem with deleting")
+      });
+    }
+  }
 
   initialiseMs(): IMs {
     return {
@@ -330,6 +377,8 @@ export class MsSingle {
     return {
       id: null,
       name: "",
+      city: "",
+      country: "",
       msIds: [],
     };
   }

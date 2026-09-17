@@ -31,6 +31,8 @@ import { MsService } from "../../ms/common/ms.service";
 import { ISagaTitleDto } from "../common/ISagaTitleDto";
 import { PageHeader } from "../../page-header/page-header";
 
+//See if you can add the saga date to the ISagaMs interface on loading the saga. 
+
 @Component({
   selector: "app-saga-entry",
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule, PageHeader],
@@ -181,6 +183,12 @@ export class SagasSingle implements OnInit {
         },
         Validators.required,
       ),
+      note: new FormControl<string | null | undefined>(
+        {
+          value: msInSaga ? msInSaga.note : null,
+          disabled: !selected,
+        },
+      ),
       selected: new FormControl<boolean>(!!msInSaga),
     });
   }
@@ -188,13 +196,22 @@ export class SagasSingle implements OnInit {
   configureMsForm(msForm: FormGroup) {
     msForm.get("selected")!.valueChanges.subscribe((selected) => {
       const folioNumber = msForm.get("folioNumber");
+      const note = msForm.get("note");
 
       if (folioNumber) {
         if (selected) {
-          folioNumber?.enable();
+          folioNumber.enable();
         } else {
-          folioNumber?.disable();
-          folioNumber?.setValue(null);
+          folioNumber.disable();
+          folioNumber.setValue(null);
+        }
+      }
+      if (note) {
+        if (selected) {
+          note.enable();
+        } else {
+          note.disable();
+          note.setValue(null);
         }
       }
     });
@@ -478,6 +495,8 @@ export class SagasSingle implements OnInit {
         msId: ms["msId"],
         shelfmark: ms["shelfmark"],
         folioNumber: String(ms["folioNumber"]).trim(),
+        date: String(ms["date"].trim()),
+        note: String(ms["note"]).trim()
       }));
 
     //Fill VM saga versions

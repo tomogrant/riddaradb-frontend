@@ -1,6 +1,5 @@
 TODO
-* You shouldn't retrieve all saga data on the SagasAll page; just the titles. 
 * Add citation feature
-* Add notes to saga-MS join table (e.g. version, state)
 * Implement backend validation
-* Add metadata to repository (city, country)
+* Add validation for duplicate repositories
+* Add a Boberg asterisk to motifs

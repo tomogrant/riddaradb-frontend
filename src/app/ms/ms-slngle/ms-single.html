@@ -1,8 +1,7 @@
 <app-page-header backgroundImg="vignette.jpg">
   @if (activeMs.name) {
-    {{ activeMs.shelfmark }} (
-    <i>{{ activeMs.name }}</i>
-    )
+    {{ activeMs.shelfmark }} (<i>{{ activeMs.name }}</i
+    >)
   } @else {
     {{ activeMs.shelfmark }}
   }
@@ -12,11 +11,23 @@
   <div class="container">
     @if (mode !== Mode.ADD) {
       <div class="row">
-        <div class="col">Repository: {{ repo.name }}</div>
+        <div class="col">Repository: {{repo.name}}</div>
       </div>
 
       <div class="row mb-3">
-        <div class="col">Shelfmark: {{ activeMs.shelfmark }}</div>
+        <div class="col">Shelfmark: {{activeMs.shelfmark}}</div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col">Date: {{activeMs.date}}</div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col">Handrit link: {{activeMs.handritLink}}</div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col">Shelfmark: {{activeMs.fasnlLink}}</div>
       </div>
 
       <div class="row mb-3">
@@ -30,8 +41,11 @@
           <div class="row">
             <div class="col">
               <a [routerLink]="['/sagas', saga.sagaId]">
-                {{ saga.folioNumber }}:
-                <i>{{ saga.sagaTitle }}</i>
+                {{saga.folioNumber}}:
+                <i>{{saga.sagaTitle}}</i>
+                @if (saga.note){
+                  ({{saga.note}})
+                }
               </a>
             </div>
           </div>
@@ -88,18 +102,15 @@
               </div>
             </div>
 
+            <!-- NAME FIELD -->
             <div class="row mb-3">
               <div class="col">
-                <!-- NAME FIELD -->
-                <label for="ms-name" class="form-label">
-                  Name (e.g.
-                  <i>Flateyjarbók</i>
-                  ):
-                </label>
+                <label for="ms-name" class="form-label"> Name (e.g. <i>Flateyjarbók</i>): </label>
                 <input type="text" class="form-control" formControlName="name" id="ms-name" placeholder="Name" />
               </div>
             </div>
 
+            <!-- SHELFMARK FIELD -->
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-repo-n" class="form-label">Shelfmark:</label>
@@ -125,9 +136,41 @@
               </div>
             </div>
 
+            <!-- DATE FIELD -->
+            <div class="row mb-3">
+              <div class="col">
+                <label for="ms-date" class="form-label"> Date (format: 1600 or 1600-1700): </label>
+                <input type="text" class="form-control" formControlName="date" id="ms-date" placeholder="Date"
+                 [class.invalid-input]="date.invalid && showValidationErrors" />
+                @if (date.invalid && showValidationErrors) {
+                  @if (date.hasError("pattern")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Date format is not correct (e.g. 1500 or 1500-1600).</small>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+
+            <!-- HANDRIT LINK FIELD -->
+            <div class="row mb-3">
+              <div class="col">
+                <label for="ms-handrit" class="form-label"> Link to handrit<i>.is</i> entry: </label>
+                <input type="text" class="form-control" formControlName="handritLink" id="ms-handrit" placeholder="handrit.is" />
+              </div>
+            </div>
+
+            <!-- FASNL LINK FIELD -->
+            <div class="row mb-3">
+              <div class="col">
+                <label for="ms-fasnl" class="form-label"> Link to FASNL entry: </label>
+                <input type="text" class="form-control" formControlName="fasnlLink" id="ms-fasnl" placeholder="fasnl.net" />
+              </div>
+            </div>
+
+            <!-- DESCRIPTION FIELD -->
             <div class="row mb-2">
               <div class="col">
-                <!-- DESCRIPTION FIELD -->
                 <label for="saga-description" class="form-label">Description:</label>
                 <quill-editor
                   class="quill-editor"
@@ -150,7 +193,9 @@
             <div class="row my-2">
               <div class="col-1">✓</div>
               <div class="col">Saga</div>
-              <div class="col">Folio number</div>
+              <div class="col">Folio number<span style="color: rgb(210, 74, 74)">*</span>
+              </div>
+              <div class="col">Note</div>
             </div>
 
             <hr />
@@ -164,6 +209,7 @@
                   <div class="col">
                     <i>{{ msSaga.get("sagaTitle")?.value }}</i>
                   </div>
+                  <!-- Folio nr -->
                   <div class="col">
                     <input
                       type="text"
@@ -177,6 +223,13 @@
                         </div>
                       }
                     }
+                  </div>
+                  <!-- Note -->
+                  <div class="col">
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="note" />
                   </div>
                 </div>
               }
@@ -213,7 +266,7 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete repository?</h1>
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete {{ activeMs.shelfmark }}?</h1>
         <button (click)="closeDeleteModal()" type="button" class="btn-close" aria-label="Close"></button>
       </div>
       <div class="modal-body">

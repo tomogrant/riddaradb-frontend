@@ -1,4 +1,12 @@
-import { FormGroup, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  FormGroup,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+  ValidatorFn,
+  AbstractControl,
+  ValidationErrors,
+} from "@angular/forms";
 import { Component } from "@angular/core";
 import { Modal } from "bootstrap";
 import { RouterModule, Router } from "@angular/router";
@@ -26,11 +34,21 @@ export class MsAll {
   //Forms
   editForm = new FormGroup({
     id: new FormControl<number | null>({ value: null, disabled: true }),
-    name: new FormControl<string>(""),
+    name: new FormControl<string>("", [Validators.required, this.repositoryUnique()]),
+    city: new FormControl<string>("", Validators.required),
+    country: new FormControl<string>("", Validators.required),
   });
 
   get name() {
     return this.editForm.get("name") as FormControl;
+  }
+
+  get city() {
+    return this.editForm.get("city") as FormControl;
+  }
+
+  get country() {
+    return this.editForm.get("country") as FormControl;
   }
 
   filterForm = new FormGroup({
@@ -88,6 +106,8 @@ export class MsAll {
       var repoVm: IMsRepositoryVm = this.initialiseRepositoryVm();
       if (repoDto.id) repoVm.id = repoDto.id;
       repoVm.name = repoDto.name;
+      repoVm.city = repoDto.city;
+      repoVm.country = repoDto.country;
 
       repoDto.msIds.forEach((id) => {
         var ms = this.msMap.get(id);
@@ -122,6 +142,8 @@ export class MsAll {
     const repo = this.repositoriesVmMap.get(id);
     if (repo) {
       this.name.setValue(repo.name);
+      this.city.setValue(repo.city);
+      this.country.setValue(repo.country);
       this.repositoryDto.id = id;
     }
     this.openAddEditModal();
@@ -177,6 +199,8 @@ export class MsAll {
     return {
       id: null,
       name: "",
+      city: "",
+      country: "",
       msIds: [],
     };
   }
@@ -185,6 +209,8 @@ export class MsAll {
     return {
       id: 0,
       name: "",
+      city: "",
+      country: "",
       manuscripts: [],
       accordionOpen: false,
     };
@@ -223,14 +249,16 @@ export class MsAll {
   }
 
   submitAddOrEdit() {
-    this.name.clearValidators();
-    this.name.addValidators(Validators.required);
     this.name.updateValueAndValidity();
+    this.city.updateValueAndValidity();
+    this.country.updateValueAndValidity();
 
     if (this.editForm.valid) {
       this.closeAddEditModal();
 
       this.repositoryDto.name = this.name.value;
+      this.repositoryDto.city = this.city.value;
+      this.repositoryDto.country = this.country.value;
 
       if (this.mode === Mode.ADD) {
         this.postMsRepository();
@@ -247,11 +275,17 @@ export class MsAll {
     this.msService.postMsRepository(this.repositoryDto).subscribe({
       next: (repo) => {
         console.log("Saved successfully! " + repo);
-
+        if (!repo.id) return;
         //Add new repo to collection and repo map
-        var repoVm = this.initialiseRepositoryVm();
-        if (repo.id) repoVm.id = repo.id;
-        repoVm.name = repo.name;
+        var repoVm: IMsRepositoryVm = {
+          id: repo.id,
+          name: repo.name,
+          city: repo.city,
+          country: repo.country,
+          manuscripts: [],
+          accordionOpen: false,
+        };
+
         this.repositoriesVm.push(repoVm);
         this.repositoriesVmMap.set(repoVm.id, repoVm);
         this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
@@ -289,6 +323,8 @@ export class MsAll {
         var repoToChange = this.repositoriesVm.find((repoInCollection) => repoInCollection.id == repo.id);
         if (repoToChange) {
           repoToChange.name = repo.name;
+          repoToChange.city = repo.city;
+          repoToChange.country = repo.country;
           this.repositoriesVmMap.set(repo.id, repo);
           this.repositoriesVm.sort((a, b) => a.name.localeCompare(b.name));
           this.updateFilter("");
@@ -316,5 +352,23 @@ export class MsAll {
         console.log("Problem deleting");
       },
     });
+  }
+
+  repositoryUnique(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = String(control.value ?? "")
+        .trim()
+        .toLowerCase();
+
+      if (!value) {
+        return null;
+      }
+
+      const duplicate = this.repositoriesDto.find(
+        (dto) => dto.name.trim().toLowerCase() === value && dto.id !== control.parent?.get("id")?.value,
+      );
+
+      return duplicate ? { repositoryNotUnique: true } : null;
+    };
   }
 }

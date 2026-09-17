@@ -24,7 +24,7 @@
                   [attr.aria-expanded]="repo.accordionOpen"
                   (click)="repo.accordionOpen = !repo.accordionOpen">
                   <span class="me-3" style="font-variant: small-caps; font-size: 1.3rem">
-                    {{ repo.name }}
+                    {{ repo.name }} ({{ repo.city }}, {{ repo.country }})
                   </span>
 
                   <span class="me-1">
@@ -135,7 +135,7 @@
                     <div style="color: rgb(210, 74, 74)">
                       <small>Name is required.</small>
                     </div>
-                  } @else if (name.hasError("nameNotUnique")) {
+                  } @else if (name.hasError("repositoryNotUnique")) {
                     <div style="color: rgb(210, 74, 74)">
                       <small>Repository with this name already exists.</small>
                     </div>
@@ -143,6 +143,51 @@
                 }
               </div>
             </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- CITY FIELD -->
+                <label for="ms-repo-city" class="form-label">City:</label>
+                <span style="color: rgb(210, 74, 74)">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="city"
+                  id="ms-repo-city"
+                  placeholder="Repository city"
+                  [class.invalid-input]="city.invalid && showValidationErrors" />
+                @if (city.invalid && showValidationErrors) {
+                  @if (city.hasError("required")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>City is required.</small>
+                    </div>
+                  } 
+                }
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- COUNTRY FIELD -->
+                <label for="ms-repo-country" class="form-label">Country:</label>
+                <span style="color: rgb(210, 74, 74)">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="country"
+                  id="ms-repo-country"
+                  placeholder="Repository country"
+                  [class.invalid-input]="country.invalid && showValidationErrors" />
+                @if (country.invalid && showValidationErrors) {
+                  @if (country.hasError("required")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Country is required.</small>
+                    </div>
+                  } 
+                }
+              </div>
+            </div>
+
           </div>
         </form>
       </div>
