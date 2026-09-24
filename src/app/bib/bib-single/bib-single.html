@@ -31,8 +31,8 @@
       </div>
     }
 
-    <!-- Edit button -->
-    @if (mode !== Mode.ADD) {
+    @if ($loggedIn() && mode !== Mode.ADD) {
+      <!-- Edit button -->
       <button
         data-testid="edit-button"
         (click)="editBib()"
@@ -41,10 +41,13 @@
         class="btn btn-secondary btn-sm">
         Edit
       </button>
-      <!-- Delete button -->
-      <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">
-        Delete
-      </button>
+
+      @if ($isAdmin()) {
+        <!-- Delete button -->
+        <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">
+          Delete
+        </button>
+      }
     }
   </div>
 </div>

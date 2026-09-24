@@ -1,5 +1,5 @@
 TODO
 * Add citation feature
 * Implement backend validation
-* Add validation for duplicate repositories
 * Add a Boberg asterisk to motifs
+* Add a search bar to manuscripts on saga page 

@@ -8,11 +8,12 @@ import {
   Validators,
   ValidatorFn,
 } from "@angular/forms";
+import { AuthService } from "../../auth/auth.service";
 import { Title } from "@angular/platform-browser";
-import { Collapse, Modal } from "bootstrap";
-import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { Collapse, Modal, Popover } from "bootstrap";
+import { AfterViewInit, Component, computed, inject, OnInit, ViewEncapsulation } from "@angular/core";
 import { ActivatedRoute, RouterModule, Router } from "@angular/router";
-import { CommonModule } from "@angular/common";
+import { CommonModule, formatDate } from "@angular/common";
 import { QuillModule } from "ngx-quill";
 import { IBib, PublicationType } from "../../bib/common/IBib";
 import { BibService } from "../../bib/common/bib.service";
@@ -41,16 +42,19 @@ import { PageHeader } from "../../page-header/page-header";
   encapsulation: ViewEncapsulation.None,
 })
 export class SagasSingle implements OnInit {
-  constructor(
-    private route: ActivatedRoute,
-    private sagasService: SagaService,
-    private bibService: BibService,
-    private msService: MsService,
-    private sagaMapper: SagaMapper,
-    private bibMapper: BibMapper,
-    private router: Router,
-    private pageTitle: Title,
-  ) {}
+
+  private route = inject(ActivatedRoute);
+  private sagasService = inject(SagaService);
+  private bibService = inject(BibService);
+  private msService = inject(MsService);
+  private sagaMapper = inject(SagaMapper);
+  private bibMapper = inject(BibMapper);
+  private router = inject(Router);
+  private pageTitle = inject(Title);
+  private authService = inject(AuthService);
+
+  $loggedIn = computed(() => this.authService.$loggedIn());
+  $isAdmin = computed(() => this.authService.$isAdmin());
 
   readonly PublicationType = PublicationType;
   readonly SagaDate = SagaDate;
@@ -76,11 +80,15 @@ export class SagasSingle implements OnInit {
 
   showValidationErrors: boolean = false;
 
+  copyButtonClicked = false;
+  date: string = formatDate(Date.now(), "longDate", "en-UK");
+
   //---------------
   //  INIT
   //---------------
 
   ngOnInit() {
+
     const mode = this.route.snapshot.paramMap.get("mode");
 
     //ADD MODE
@@ -259,6 +267,38 @@ export class SagasSingle implements OnInit {
         modal.hide();
       }
     }
+  }
+
+  openCiteModal() {
+    var citeModal = document.getElementById("citeSaga");
+    if (citeModal != null) {
+      var modal = Modal.getOrCreateInstance(citeModal);
+      if (modal != null) {
+        this.copyButtonClicked = false;
+        modal.show();
+      }
+    }
+  }
+
+  closeCiteModal() {
+    var citeModal = document.getElementById("citeSaga");
+    if (citeModal != null) {
+      var modal = Modal.getInstance(citeModal);
+      if (modal != null) {
+        modal.hide();
+      }
+    }
+  }
+
+  copyReference(){
+
+    var ref: string = "A. User, " + "'" + this.sagaEntry.title 
+      + "', riddaraDB: Database of Medieval Icelandic Romance," 
+      + " ed. Tom Grant and Jonathan Y. H. Hui."
+      + " Last accessed: " + this.date;
+
+    navigator.clipboard.writeText(ref);
+    this.copyButtonClicked = true;
   }
 
   initialiseSaga(): ISagaVm {

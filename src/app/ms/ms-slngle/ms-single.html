@@ -139,13 +139,13 @@
             <!-- DATE FIELD -->
             <div class="row mb-3">
               <div class="col">
-                <label for="ms-date" class="form-label"> Date (format: 1600 or 1600-1700): </label>
+                <label for="ms-date" class="form-label"> Date: </label>
                 <input type="text" class="form-control" formControlName="date" id="ms-date" placeholder="Date"
                  [class.invalid-input]="date.invalid && showValidationErrors" />
                 @if (date.invalid && showValidationErrors) {
                   @if (date.hasError("pattern")) {
                     <div style="color: rgb(210, 74, 74)">
-                      <small>Date format is not correct (e.g. 1500 or 1500-1600).</small>
+                      <small>Date should be a year (e.g. 1600) or a range of years (e.g. 1600-1700).</small>
                     </div>
                   }
                 }
@@ -156,7 +156,15 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-handrit" class="form-label"> Link to handrit<i>.is</i> entry: </label>
-                <input type="text" class="form-control" formControlName="handritLink" id="ms-handrit" placeholder="handrit.is" />
+                <input type="text" class="form-control" formControlName="handritLink" id="ms-handrit" placeholder="handrit.is"
+                  [class.invalid-input]="handritLink.invalid && showValidationErrors" />
+                @if (handritLink.invalid && showValidationErrors) {
+                  @if (handritLink.hasError("pattern")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Link should point to a manuscript page (<i>https://handrit.is/manuscript/</i>).</small>
+                    </div>
+                  }
+                }
               </div>
             </div>
 
@@ -164,7 +172,15 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-fasnl" class="form-label"> Link to FASNL entry: </label>
-                <input type="text" class="form-control" formControlName="fasnlLink" id="ms-fasnl" placeholder="fasnl.net" />
+                <input type="text" class="form-control" formControlName="fasnlLink" id="ms-fasnl" placeholder="fasnl.net"
+                  [class.invalid-input]="fasnlLink.invalid && showValidationErrors" />
+                @if (fasnlLink.invalid && showValidationErrors) {
+                  @if (fasnlLink.hasError("pattern")) {
+                    <div style="color: rgb(210, 74, 74)">
+                      <small>Link should point to a manuscript page (<i>https://fasnl.net/manuscripts/</i>).</small>
+                    </div>
+                  }
+                }
               </div>
             </div>
 

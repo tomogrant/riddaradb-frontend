@@ -1,5 +1,5 @@
 import { FormGroup, FormControl, ReactiveFormsModule } from "@angular/forms";
-import { Component } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import { Mode } from "../../shared/Enums";
 import { BibService } from "../common/bib.service";
@@ -9,6 +9,7 @@ import { CommonModule } from "@angular/common";
 import { IBibVm } from "../common/IBibVm";
 import { debounceTime, distinctUntilChanged } from "rxjs";
 import { PageHeader } from "../../page-header/page-header";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-bibs",
@@ -17,11 +18,13 @@ import { PageHeader } from "../../page-header/page-header";
   styleUrl: "./bib-all.css",
 })
 export class BibAll {
-  constructor(
-    private bibService: BibService,
-    private bibMapper: BibMapper,
-    private router: Router,
-  ) {}
+
+  private bibService = inject(BibService);
+  private bibMapper = inject(BibMapper);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
+  $loggedIn = computed(() => this.authService.$loggedIn());
 
   bibs: IBib[] = [];
 

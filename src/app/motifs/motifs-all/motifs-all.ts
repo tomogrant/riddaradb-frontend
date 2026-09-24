@@ -9,6 +9,7 @@ import { Mode } from "../../shared/Enums";
 import { QuillModule } from "ngx-quill";
 import { IMotifForm } from "../common/IMotifForm";
 import { PageHeader } from "../../page-header/page-header";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-motifs-all",
@@ -29,6 +30,9 @@ export class MotifsAll {
   private motifStore = inject(MotifStore);
   private motifModalService = inject(MotifModalService);
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+
+  $loggedIn = computed(() => this.authService.$loggedIn());
 
   readonly Mode = Mode;
 

@@ -12,6 +12,7 @@ import { ISagaTitleDto } from "./ISagaTitleDto";
 })
 export class SagaService {
   sagasMain = "/api/sagas";
+  sagaVersionsMain = "/api/sagaversions"
   constructor(private httpClient: HttpClient) {}
 
   //SAGAS
@@ -67,7 +68,7 @@ export class SagaService {
   //SAGA VERSIONS
 
   getSagaVersions(): Observable<ISagaVersionResponseDto[]> {
-    return this.httpClient.get<ISagaVersionResponseDto[]>(`${this.sagasMain}/getsagaversions`).pipe(
+    return this.httpClient.get<ISagaVersionResponseDto[]>(`${this.sagaVersionsMain}/getsagaversions`).pipe(
       tap((data) => console.log("All saga version data got: " + JSON.stringify(data))),
       catchError(this.errorHandler),
     );
@@ -75,14 +76,14 @@ export class SagaService {
 
   //READ SAGA VERSION BY ID
   getSagaVersionById(id: number): Observable<ISagaVersionResponseDto> {
-    return this.httpClient.get<ISagaVersionResponseDto>(`${this.sagasMain}/getsagaversionbyid/${id}`).pipe(
+    return this.httpClient.get<ISagaVersionResponseDto>(`${this.sagaVersionsMain}/getsagaversionbyid/${id}`).pipe(
       tap((data) => console.log(`Saga version with ID ${id}: ` + JSON.stringify(data))),
       catchError(this.errorHandler),
     );
   }
 
   getSagaVersionTitles(): Observable<ISagaVersionTitleDto[]> {
-    return this.httpClient.get<ISagaVersionTitleDto[]>(`${this.sagasMain}/getsagaversiontitles`).pipe(
+    return this.httpClient.get<ISagaVersionTitleDto[]>(`${this.sagaVersionsMain}/getsagaversiontitles`).pipe(
       tap((data) => console.log("All saga version title data got: " + JSON.stringify(data))),
       catchError(this.errorHandler),
     );

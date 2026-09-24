@@ -1,5 +1,61 @@
 <app-page-header backgroundImg="vignette.jpg">Characters</app-page-header>
 
 <div class="card-body page-container">
-  <div class="container"></div>
+  <div class="container">
+
+    <!-- Search bar -->
+    <div class="card mb-5 p-3" style="background-color: rgb(255, 254, 249); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)">
+      <div class="row gx-3">
+        <div class="col-4">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search motif entries..." />
+            <button type="button" class="btn btn-outline-success">Search</button>
+            <button type="button" class="btn btn-outline-danger">Clear</button>
+          </div>
+        </div>
+        <div class="col-3">
+          <button type="button" class="me-3 btn btn-outline-secondary">Collapse all</button>
+          <button type="button" class="btn btn-outline-secondary">Text</button>
+        </div>
+      </div>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Type</th>
+          <th scope="col">Sagas</th>
+          <th scope="col">Locations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">1</th>
+          <td>Ector</td>
+          <td>Human</td>
+          <td><i>Ectors saga</i></td>
+          <td>Grikkland, Turkland</td>
+        </tr>
+        <tr>
+          <th scope="row">2</th>
+          <td>Glebula</td>
+          <td>Troll</td>
+          <td><i>Ectors saga</i></td>
+          <td>Turkland</td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td>Perus</td>
+          <td>Human</td>
+          <td><i>Klári saga</i></td>
+          <td>Arabía</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

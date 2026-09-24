@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, input, computed } from "@an
 import { MotifStore } from "../common/motif.store";
 import { MotifModalService } from "../common/motif-modal.service";
 import { RouterLink } from "@angular/router";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-motif-node",
@@ -13,6 +14,7 @@ import { RouterLink } from "@angular/router";
 export class MotifNode {
   motifStore = inject(MotifStore);
   motifModalService = inject(MotifModalService);
+  authService = inject(AuthService);
 
   //Inputs
   $nodeId = input.required<number>();
@@ -31,8 +33,12 @@ export class MotifNode {
   $searchTerm = computed(() => this.motifStore.$searchTerm());
   $showColourCoding = computed(() => this.motifStore.$showColourCoding());
 
-  $sagas = computed(() => this.motifStore.$sagaTitles());
+  //Auth signals
+  $loggedIn = computed(() => this.authService.$loggedIn());
+  $isAdmin = computed(() => this.authService.$isAdmin());
 
+  //Sagas
+  $sagas = computed(() => this.motifStore.$sagaTitles());
   $assignedSagas = computed(() => {
     const node = this.$node();
     if (!node) return;

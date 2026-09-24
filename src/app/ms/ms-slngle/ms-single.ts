@@ -35,9 +35,9 @@ export class MsSingle {
     id: new FormControl<number | null>({ value: null, disabled: true }),
     name: new FormControl<string>(""),
     shelfmark: new FormControl<string>("", [Validators.required, this.shelfmarkUnique()]),
-    date: new FormControl<string>("", Validators.pattern('[^\d{4}(?:-\d{4})?$)]')),
-    handritLink: new FormControl<string>(""),
-    fasnlLink: new FormControl<string>(""),
+    date: new FormControl<string>("", Validators.pattern(/^\d{4}(?:-\d{4})?$/)),
+    handritLink: new FormControl<string>("", Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?handrit\.is\/manuscript\/[^\s]+$/)),
+    fasnlLink: new FormControl<string>("", Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?fasnl\.net\/manuscripts\/[^\s]+$/)),
     description: new FormControl<string>(""),
     msSagas: new FormArray<FormGroup>([]),
   });
@@ -215,6 +215,8 @@ export class MsSingle {
   submitAddOrEdit() {
     this.shelfmark.updateValueAndValidity();
     this.date.updateValueAndValidity();
+    this.handritLink.updateValueAndValidity();
+    this.fasnlLink.updateValueAndValidity();
 
     const formValue = this.editForm.getRawValue();
 

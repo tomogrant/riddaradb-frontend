@@ -5,37 +5,60 @@
   <main class="content">
     <nav class="navbar navbar-expand-lg bg-body-tertiary" 
         style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); 
-                background-color: rgb(255, 240, 203) !important">
+                background-color: rgb(255, 243, 212) !important">
 
       <div class="container-fluid">
 
-        <a class="navbar-brand ms-4 pe-4" ><i>riddara</i>DB</a>
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-underline">
-          <li class="nav-item pe-3">
+        <a class="navbar-brand ms-4 pe-2" ><i>riddara</i>DB</a>
+        <ul class="navbar-nav w-100 d-flex mb-2 mb-lg-0 nav-underline">
+          <li class="nav-item pe-2">
             <a class="nav-link" routerLink="/home" routerLinkActive="active">Home</a>
           </li>
+
+          <li class="nav-item pe-2">
+            <a class="nav-link" routerLink="/#" routerLinkActive="active">About</a>
+          </li>
+
+          <li class="nav-item pe-2 mt-2">
+            <span>|</span>
+          </li>
         
-          <li class="nav-item pe-3">
+          <li class="nav-item pe-2">
             <a class="nav-link" routerLink="/sagas" routerLinkActive="active">Sagas</a>
           </li>
 
-          <li class="nav-item pe-3">
+          <li class="nav-item pe-2">
             <a class="nav-link" routerLink="/bib" routerLinkActive="active">Bibliography</a>
           </li>
 
-          <li class="nav-item pe-3">
-            <a class="nav-link" routerLink="/motifs" routerLinkActive="active">Motifs</a>
-          </li>
-          <li class="nav-item pe-3">
+          <li class="nav-item pe-2">
             <a class="nav-link" routerLink="/ms" routerLinkActive="active">Manuscripts</a>
           </li>
-          <li class="nav-item pe-3">
+
+          <li class="nav-item pe-2 mt-2">
+            <a>|</a>
+          </li>
+
+          <li class="nav-item pe-2">
+            <a class="nav-link" routerLink="/motifs" routerLinkActive="active">Motifs</a>
+          </li>
+
+          <li class="nav-item pe-2">
             <a class="nav-link" routerLink="/characters" routerLinkActive="active">Characters</a>
           </li>
-          <li class="nav-item pe-3">
+          <li class="nav-item pe-2">
             <a class="nav-link" routerLink="/locations" routerLinkActive="active">Locations</a>
           </li>
+          <li class="nav-item ms-auto me-3">
+            @if ($loggedIn()){
+              <a class="nav-link" href="#" (click)="logout()" onclick="event.preventDefault();">Log out</a>
+            }
+            @else {
+              <a class="nav-link" routerLink="/login" routerLinkActive="active">Log in</a>
+            }
+          </li>
         </ul>
+
       </div>
 
     </nav>

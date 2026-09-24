@@ -18,10 +18,11 @@ import { Mode } from "../../shared/Enums";
 import { IMsRepositoryDto } from "../common/IMsRepositoryDto";
 import { debounceTime, distinctUntilChanged } from "rxjs";
 import { RouterTestingHarness } from "@angular/router/testing";
+import { PageHeader } from "../../page-header/page-header";
 
 @Component({
   selector: "app-ms-all",
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, PageHeader],
   templateUrl: "./ms-all.html",
   styleUrl: "./ms-all.css",
 })
@@ -131,6 +132,7 @@ export class MsAll {
   addRepository() {
     this.mode = Mode.ADD;
     this.editForm.reset();
+    this.showValidationErrors = false;
     this.repositoryDto = this.initialiseRepository();
     this.openAddEditModal();
   }
@@ -138,6 +140,7 @@ export class MsAll {
   editRepository(id: number) {
     this.mode = Mode.EDIT;
     this.editForm.reset();
+    this.showValidationErrors = false;
     this.repositoryDto = this.initialiseRepository();
     const repo = this.repositoriesVmMap.get(id);
     if (repo) {

@@ -10,11 +10,12 @@ import { IMsRepositoryDto } from "./IMsRepositoryDto";
 })
 export class MsService {
   msMain = "/api/ms";
+  msRepoMain = "/api/msrepository"
   constructor(private httpClient: HttpClient) {}
 
   //GET MS REPOSITORIES
   getMsRepositories(): Observable<IMsRepositoryDto[]> {
-    return this.httpClient.get<IMsRepositoryDto[]>(`${this.msMain}/getmsrepositories`).pipe(
+    return this.httpClient.get<IMsRepositoryDto[]>(`${this.msRepoMain}/getmsrepositories`).pipe(
       tap((data) => console.log("All MS repository data got: " + JSON.stringify(data))),
       catchError(this.errorHandler),
     );
@@ -22,7 +23,7 @@ export class MsService {
 
   //GET MS REPOSITORY BY ID
   getMsRepository(id: number): Observable<IMsRepositoryDto> {
-    return this.httpClient.get<IMsRepositoryDto>(`${this.msMain}/getmsrepositorybyid/${id}`).pipe(
+    return this.httpClient.get<IMsRepositoryDto>(`${this.msRepoMain}/getmsrepositorybyid/${id}`).pipe(
       tap((data) => console.log("MS repository got: " + JSON.stringify(data))),
       catchError(this.errorHandler),
     );
@@ -31,7 +32,7 @@ export class MsService {
   //POST MS REPOSITORY
   postMsRepository(repo: IMsRepositoryDto): Observable<IMsRepositoryDto> {
     console.log("Posting repo: " + JSON.stringify(repo));
-    return this.httpClient.post<IMsRepositoryDto>(`${this.msMain}/postmsrepository`, repo).pipe(
+    return this.httpClient.post<IMsRepositoryDto>(`${this.msRepoMain}/postmsrepository`, repo).pipe(
       tap((data) => console.log("Repo posted: " + JSON.stringify(data))),
       catchError(this.errorHandler),
     );
@@ -40,7 +41,7 @@ export class MsService {
   //PUT MS REPOSITORY
   putMsRepository(repo: IMsRepositoryDto): Observable<IMsRepositoryVm> {
     console.log("Posting repo: " + JSON.stringify(repo));
-    return this.httpClient.put<IMsRepositoryVm>(`${this.msMain}/putmsrepository`, repo).pipe(
+    return this.httpClient.put<IMsRepositoryVm>(`${this.msRepoMain}/putmsrepository`, repo).pipe(
       tap((data) => console.log("Repo posted: " + JSON.stringify(data))),
       catchError(this.errorHandler),
     );
@@ -48,7 +49,7 @@ export class MsService {
 
   //DELETE MS REPOSITORY BY ID
   deleteMsRepository(id: number): Observable<IMsRepositoryDto> {
-    console.log("request sent: " + `${this.msMain}/deletemsrepository/${id}`);
+    console.log("request sent: " + `${this.msRepoMain}/deletemsrepository/${id}`);
     return this.httpClient.delete<IMsRepositoryDto>(`${this.msMain}/deletemsrepository/${id}`);
   }
 

@@ -15,17 +15,20 @@
         </div>
       </div>
     }
-    <div class="row mt-3">
-      <div class="col-sm ms-3">
-        <button
-          (click)="addSaga()"
-          type="button"
-          class="btn btn-success btn-sm"
-          data-bs-toggle="modal"
-          data-bs-target="#editAddSaga">
-          Add
-        </button>
+
+    @if ($loggedIn()) {
+      <div class="row mt-3">
+        <div class="col-sm ms-3">
+          <button
+            (click)="addSaga()"
+            type="button"
+            class="btn btn-success btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#editAddSaga">
+            Add
+          </button>
+        </div>
       </div>
-    </div>
+    }
   </div>
 </div>

@@ -31,7 +31,7 @@
     }
 
     @if (secondarySources.length > 0) {
-      <div class="row">
+      <div class="row mt-5">
         <h3 style="font-variant: small-caps">Secondary sources</h3>
       </div>
       @for (bib of secondarySources; track $index) {
@@ -47,11 +47,12 @@
     }
 
     <!-- 'Add' button -->
-    <p></p>
-    <div class="row">
-      <div class="col-sm">
-        <button (click)="addBib()" type="button" class="btn btn-success btn-sm">Add</button>
+    @if ($loggedIn()) {
+      <div class="row">
+        <div class="col-sm">
+          <button (click)="addBib()" type="button" class="btn btn-success btn-sm">Add</button>
+        </div>
       </div>
-    </div>
+    }
   </div>
 </div>

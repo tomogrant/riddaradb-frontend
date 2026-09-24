@@ -29,10 +29,13 @@
     <app-motif-node [$nodeId]="rootId" [$depth]="1"></app-motif-node>
   }
 
-  <!-- Add motif button -->
-  <div class="mt-3">
-    <a type="button" class="btn btn-success" (click)="openAddModal()">Add motif</a>
-  </div>
+  @if ($loggedIn()){
+    <!-- Add motif button -->
+    <div class="mt-3">
+      <a type="button" class="btn btn-success" (click)="openAddModal()">Add motif</a>
+    </div>
+  }
+
 </div>
 
 <!--Add/edit modal-->

@@ -5,23 +5,16 @@
 @if (sagaEntry) {
   <div class="card-body page-container">
     <div class="container">
-      <div class="mb-3">
-        <button
-          data-testid="edit-button"
-          (click)="editSaga()"
-          type="button"
-          style="margin-left: 0.5rem"
-          class="btn btn-secondary btn-sm">
-          Edit
-        </button>
-        <button
-          data-testid="delete-button"
-          (click)="openDeleteModal()"
-          type="button"
-          style="margin-left: 0.5rem"
-          class="btn btn-danger btn-sm">
-          Delete
-        </button>
+      <div class="row mb-3">
+        <div class="col">
+          <button type="button" class="btn btn-success me-2" (click)="openCiteModal()"> Cite this page </button>
+          @if($loggedIn()){
+            <button data-testid="edit-button" (click)="editSaga()" type="button" class="btn btn-secondary me-2"> Edit </button>
+            @if($isAdmin()){
+              <button data-testid="delete-button" (click)="openDeleteModal()" type="button" class="btn btn-danger">Delete</button>
+            }
+          }
+        </div>
       </div>
 
       @if (sagaEntry.sagaVersions.length == 1 && sagaEntry.sagaVersions[0].date != SagaDate.UNDEFINED) {
@@ -99,11 +92,11 @@
           <div class="row mb-1">
             <span>
               <a [routerLink]="['/ms', ms.msId]">
-                <span style="font-variant: small-caps;">{{ms.shelfmark}}</span> 
-                <span> ({{ms.date}}),</span>
-                <span> {{ms.folioNumber}}</span>
-                @if (ms.note){
-                  <span> ({{ms.note}})</span>
+                <span style="font-variant: small-caps">{{ ms.shelfmark }}</span>
+                <span> ({{ ms.date }}),</span>
+                <span> {{ ms.folioNumber }}</span>
+                @if (ms.note) {
+                  <span> ({{ ms.note }})</span>
                 }
               </a>
             </span>
@@ -356,10 +349,7 @@
                               </div>
 
                               <div class="col" [id]="i">
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  formControlName="note"/>
+                                <input type="text" class="form-control" formControlName="note" />
                               </div>
                             </div>
                           }
@@ -639,6 +629,39 @@
         <button data-testid="delete-confirm-button" (click)="deleteSaga()" type="submit" class="btn btn-danger">
           Delete
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Delete modal-->
+<div
+  class="modal fade"
+  id="citeSaga"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel"> Cite this page </h1>
+        <button (click)="closeCiteModal()" type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <span>A. User,</span>
+        <span
+          ><i> '{{ sagaEntry.title }}',</i></span
+        >
+        <span><i> riddaraDB: Database of Medieval Icelandic Romance</i>, ed. Tom Grant and Jonathan Y. H. Hui.</span>
+        <span> Last accessed: {{ date }}</span>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeCiteModal()" type="button" class="btn btn-secondary">Back</button>
+        <button data-testid="copy-button" (click)="copyReference()" class="btn btn-success" style="min-width: 140px">{{
+          copyButtonClicked ? "Copied" : "Copy to clipboard"
+        }}</button>
       </div>
     </div>
   </div>

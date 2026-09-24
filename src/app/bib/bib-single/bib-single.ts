@@ -7,7 +7,7 @@ import {
   Validators,
   ValidatorFn,
 } from "@angular/forms";
-import { Component } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import {
   RouterModule,
   ActivatedRoute,
@@ -26,6 +26,7 @@ import { BibMapper } from "../common/bib.mapper";
 import { IBibVm } from "../common/IBibVm";
 import { ISagaTitleDto } from "../../sagas/common/ISagaTitleDto";
 import { PageHeader } from "../../page-header/page-header";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-bibs",
@@ -40,15 +41,16 @@ import { PageHeader } from "../../page-header/page-header";
   templateUrl: "./bib-single.html",
 })
 export class BibSingle {
-  constructor(
-    private bibService: BibService,
-    private sagaService: SagaService,
-    private bibMapper: BibMapper,
-    private route: ActivatedRoute,
-    private router: Router,
-  ) {}
 
-  pageTitle = "Bibliography entry";
+  private bibService = inject(BibService);
+  private sagaService = inject(SagaService);
+  private bibMapper = inject(BibMapper);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
+  $loggedIn = computed(() => this.authService.$loggedIn());
+  $isAdmin = computed(() => this.authService.$isAdmin());
 
   urlPattern =
     /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
@@ -204,6 +206,7 @@ export class BibSingle {
           this.navigateToBibAllPage();
         }
         this.activeBib = receivedEntry;
+        console.log("SAGA IDS: " + this.activeBib.sagaIds);
         this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
         this.getSagas();
       });

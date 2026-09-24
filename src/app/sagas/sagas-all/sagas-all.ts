@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, computed, inject, OnInit } from "@angular/core";
 import { PageHeader } from "../../page-header/page-header";
 import { RouterModule, Router } from "@angular/router";
 import { CommonModule } from "@angular/common";
@@ -6,6 +6,7 @@ import { SagaService } from "../common/saga.service";
 import { SagaMapper } from "../common/saga.mapper";
 import { ISagaVm } from "../common/ISagaVm";
 import { ISagaTitleDto } from "../common/ISagaTitleDto";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-sagas",
@@ -14,12 +15,12 @@ import { ISagaTitleDto } from "../common/ISagaTitleDto";
   styleUrl: "./sagas-all.css",
 })
 export class SagasAll implements OnInit {
-  constructor(
-    private sagaService: SagaService,
-    private router: Router,
-  ) {}
 
-  pageTitle = "Sagas";
+  private sagaService = inject(SagaService);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
+  $loggedIn = computed(() => this.authService.$loggedIn());
 
   sagas: ISagaTitleDto[] = [];
 

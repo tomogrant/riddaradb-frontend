@@ -47,19 +47,23 @@
         }
 
         <div class="card-footer">
-          <span class="me-1">
-            <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">Edit</a>
-          </span>
+          @if ($loggedIn()) {
+            <span class="me-1">
+              <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">Edit</a>
+            </span>
 
-          <span class="me-1">
-            <a class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
-              Add sub-motif
-            </a>
-          </span>
+            <span class="me-1">
+              <a class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
+                Add sub-motif
+              </a>
+            </span>
 
-          <span>
-            <a type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">Delete</a>
-          </span>
+            @if ($isAdmin()) {
+              <span>
+                <a type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">Delete</a>
+              </span>
+            }
+          }
 
           @if ($node()?.hasChildren && !$searchActive()) {
             <span style="float: right">
