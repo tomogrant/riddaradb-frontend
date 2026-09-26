@@ -24,7 +24,7 @@
               <div class="col">
                 <label for="password" class="form-label">Password:</label>
                 <span style="color: rgb(210, 74, 74)">*</span>
-                <input type="text" class="form-control" formControlName="password" id="password"
+                <input type="password" class="form-control" formControlName="password" id="password"
                 [class.invalid-input]="password.invalid && showValidationErrors" />
                 @if (password.invalid && showValidationErrors) {
                   <div style="color: rgb(210, 74, 74)">

@@ -65,13 +65,15 @@
             }
           }
 
+          <span class="toggle-slot">
           @if ($node()?.hasChildren && !$searchActive()) {
-            <span style="float: right">
+
               <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
                 {{ $expanded() ? "&minus;" : "&plus;" }}
               </a>
-            </span>
+
           }
+                      </span>
         </div>
       </div>
     </div>

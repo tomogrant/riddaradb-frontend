@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home/home';
+import { Home } from './home/home';
 import { SagasAll } from './sagas/sagas-all/sagas-all';
 import { SagasSingle } from './sagas/sagas-single/sagas-single';
 import { BibAll } from './bib/bib-all/bib-all';
@@ -10,10 +10,13 @@ import { MsSingle } from './ms/ms-slngle/ms-single';
 import { Characters } from './characters/characters';
 import { Locations } from './locations/locations';
 import { Login } from './auth/login';
+import { About } from './about/about';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'home', component: HomeComponent, title: 'riddaraDB - Home' },
+    { path: 'home', component: Home, title: 'riddaraDB - Home' },
+
+    { path: 'about', component: About, title: 'riddaraDB - About' },
 
     { path: 'sagas', component: SagasAll, title: 'riddaraDB - Sagas' },
     { path: 'sagas/:id', component: SagasSingle },

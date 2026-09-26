@@ -1,5 +1,5 @@
 TODO
-* Add citation feature
 * Implement backend validation
 * Add a Boberg asterisk to motifs
 * Add a search bar to manuscripts on saga page 
+* Update/add tests in frontend and backend

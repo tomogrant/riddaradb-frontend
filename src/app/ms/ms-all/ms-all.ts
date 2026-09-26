@@ -7,7 +7,7 @@ import {
   AbstractControl,
   ValidationErrors,
 } from "@angular/forms";
-import { Component } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import { Modal } from "bootstrap";
 import { RouterModule, Router } from "@angular/router";
 import { MsService } from "../common/ms.service";
@@ -19,6 +19,7 @@ import { IMsRepositoryDto } from "../common/IMsRepositoryDto";
 import { debounceTime, distinctUntilChanged } from "rxjs";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { PageHeader } from "../../page-header/page-header";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-ms-all",
@@ -27,10 +28,10 @@ import { PageHeader } from "../../page-header/page-header";
   styleUrl: "./ms-all.css",
 })
 export class MsAll {
-  constructor(
-    private router: Router,
-    private msService: MsService,
-  ) {}
+
+  private router = inject(Router);
+  private msService = inject(MsService);
+  private authService = inject(AuthService);
 
   //Forms
   editForm = new FormGroup({
@@ -61,8 +62,9 @@ export class MsAll {
   }
 
   //Variables
+  $loggedIn = computed(() => this.authService.$loggedIn());
+  $isAdmin = computed(() => this.authService.$isAdmin());
   showValidationErrors: boolean = false;
-
   repoToDelete: number = 0;
 
   readonly Mode = Mode;

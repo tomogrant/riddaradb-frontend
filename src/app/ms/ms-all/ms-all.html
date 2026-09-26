@@ -25,38 +25,42 @@
                     {{ repo.name }} ({{ repo.city }}, {{ repo.country }})
                   </span>
 
-                  <span class="me-1">
-                    <button
-                      class="me-1"
-                      type="button"
-                      class="btn btn-sm btn-outline-success"
-                      (click)="addManuscript(repo.id)"
-                      onclick="event.stopPropagation()">
-                      Add MS
-                    </button>
-                  </span>
+                  @if ($loggedIn()) {
+                    <span class="me-1">
+                      <button
+                        class="me-1"
+                        type="button"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="addManuscript(repo.id)"
+                        onclick="event.stopPropagation()">
+                        Add MS
+                      </button>
+                    </span>
 
-                  <span class="me-1">
-                    <button
-                      class="me-1"
-                      type="button"
-                      class="btn btn-sm btn-outline-secondary"
-                      (click)="editRepository(repo.id)"
-                      onclick="event.stopPropagation()">
-                      Edit
-                    </button>
-                  </span>
+                    <span class="me-1">
+                      <button
+                        class="me-1"
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="editRepository(repo.id)"
+                        onclick="event.stopPropagation()">
+                        Edit
+                      </button>
+                    </span>
 
-                  <span class="me-1">
-                    <button
-                      class="me-1"
-                      type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="openDeleteModal(repo.id)"
-                      onclick="event.stopPropagation()">
-                      Delete
-                    </button>
-                  </span>
+                    @if ($isAdmin()) {
+                      <span class="me-1">
+                        <button
+                          class="me-1"
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="openDeleteModal(repo.id)"
+                          onclick="event.stopPropagation()">
+                          Delete
+                        </button>
+                      </span>
+                    }
+                  }
                 </button>
               </h2>
               <div [id]="repo.id" class="accordion-collapse" [class.show]="repo.accordionOpen">
@@ -86,13 +90,14 @@
       </div>
     </div>
 
-    <!-- 'Add' button -->
-    <p></p>
-    <div class="row">
-      <div class="col-sm">
-        <button (click)="addRepository()" type="button" class="btn btn-success btn-sm">Add repository</button>
+    @if ($loggedIn()) {
+      <!-- 'Add' button -->
+      <div class="row mt-4">
+        <div class="col-sm">
+          <button (click)="addRepository()" type="button" class="btn btn-success btn-sm">Add repository</button>
+        </div>
       </div>
-    </div>
+    }
   </div>
 </div>
 
@@ -159,7 +164,7 @@
                     <div style="color: rgb(210, 74, 74)">
                       <small>City is required.</small>
                     </div>
-                  } 
+                  }
                 }
               </div>
             </div>
@@ -181,11 +186,10 @@
                     <div style="color: rgb(210, 74, 74)">
                       <small>Country is required.</small>
                     </div>
-                  } 
+                  }
                 }
               </div>
             </div>
-
           </div>
         </form>
       </div>
@@ -218,7 +222,7 @@
       </div>
       <div class="modal-body">
         <span>Are you sure?</span>
-        <span style="color: rgb(210, 74, 74)">This will also remove all associated manuscripts!</span>
+        <span style="color: rgb(210, 74, 74)"> This will also remove all associated manuscripts!</span>
       </div>
       <div class="modal-footer">
         <button (click)="closeDeleteModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">

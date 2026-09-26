@@ -10,8 +10,8 @@ import {
 } from "@angular/forms";
 import { AuthService } from "../../auth/auth.service";
 import { Title } from "@angular/platform-browser";
-import { Collapse, Modal, Popover } from "bootstrap";
-import { AfterViewInit, Component, computed, inject, OnInit, ViewEncapsulation } from "@angular/core";
+import { Collapse, Modal } from "bootstrap";
+import { Component, computed, inject, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule, Router } from "@angular/router";
 import { CommonModule, formatDate } from "@angular/common";
 import { QuillModule } from "ngx-quill";
@@ -32,17 +32,14 @@ import { MsService } from "../../ms/common/ms.service";
 import { ISagaTitleDto } from "../common/ISagaTitleDto";
 import { PageHeader } from "../../page-header/page-header";
 
-//See if you can add the saga date to the ISagaMs interface on loading the saga. 
 
 @Component({
   selector: "app-saga-entry",
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule, PageHeader],
   templateUrl: "./sagas-single.html",
   styleUrl: "./sagas-single.css",
-  encapsulation: ViewEncapsulation.None,
 })
 export class SagasSingle implements OnInit {
-
   private route = inject(ActivatedRoute);
   private sagasService = inject(SagaService);
   private bibService = inject(BibService);
@@ -88,7 +85,6 @@ export class SagasSingle implements OnInit {
   //---------------
 
   ngOnInit() {
-
     const mode = this.route.snapshot.paramMap.get("mode");
 
     //ADD MODE
@@ -103,6 +99,10 @@ export class SagasSingle implements OnInit {
 
     this.bibFilter.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe({
       next: (value) => this.updateBibFilter(value),
+    });
+
+    this.msFilter.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe({
+      next: (value) => this.updateMsFilter(value),
     });
   }
 
@@ -121,6 +121,8 @@ export class SagasSingle implements OnInit {
     msForms: new FormArray<FormGroup>([]),
     msFilter: new FormControl<string>(""),
   });
+
+  msFormsFiltered = new FormArray<AbstractControl>([]);
 
   get title() {
     return this.editForm.get("title") as FormControl;
@@ -148,6 +150,10 @@ export class SagasSingle implements OnInit {
 
   get msForms() {
     return this.editForm.get("msForms") as FormArray;
+  }
+
+  get msFilter() {
+    return this.editForm.get("msFilter") as FormControl;
   }
 
   createSagaVersionForm(sagaVersion?: ISagaVersionVm) {
@@ -184,6 +190,7 @@ export class SagasSingle implements OnInit {
       trackingId: new FormControl<number>(this.sagaVersionTrackingId++, { nonNullable: true }),
       msId: new FormControl<number | null>(ms.id),
       shelfmark: new FormControl<string>(ms.shelfmark),
+      date: new FormControl<string>(ms.date),
       folioNumber: new FormControl<string | null>(
         {
           value: msInSaga ? msInSaga.folioNumber : null,
@@ -191,12 +198,10 @@ export class SagasSingle implements OnInit {
         },
         Validators.required,
       ),
-      note: new FormControl<string | null | undefined>(
-        {
-          value: msInSaga ? msInSaga.note : null,
-          disabled: !selected,
-        },
-      ),
+      note: new FormControl<string | null | undefined>({
+        value: msInSaga ? msInSaga.note : null,
+        disabled: !selected,
+      }),
       selected: new FormControl<boolean>(!!msInSaga),
     });
   }
@@ -290,12 +295,15 @@ export class SagasSingle implements OnInit {
     }
   }
 
-  copyReference(){
-
-    var ref: string = "A. User, " + "'" + this.sagaEntry.title 
-      + "', riddaraDB: Database of Medieval Icelandic Romance," 
-      + " ed. Tom Grant and Jonathan Y. H. Hui."
-      + " Last accessed: " + this.date;
+  copyReference() {
+    var ref: string =
+      "A. User, " +
+      "'" +
+      this.sagaEntry.title +
+      "', riddaraDB: Database of Medieval Icelandic Romance," +
+      " ed. Tom Grant and Jonathan Y. H. Hui." +
+      " Last accessed: " +
+      this.date;
 
     navigator.clipboard.writeText(ref);
     this.copyButtonClicked = true;
@@ -340,6 +348,13 @@ export class SagasSingle implements OnInit {
   updateBibFilter(searchTerm: string) {
     this.filteredBibVms = this.bibVms.filter((bib) =>
       bib.bibliographyEntry.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }
+
+  updateMsFilter(searchTerm: string) {
+    
+    this.msFormsFiltered.controls = this.msForms.controls.filter((form) =>
+      form.get('shelfmark')?.value.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }
 
@@ -459,6 +474,8 @@ export class SagasSingle implements OnInit {
   editSaga() {
     this.mode = Mode.EDIT;
     this.showValidationErrors = false;
+    this.updateBibFilter("");
+    this.updateMsFilter("");
     this.fillInputFields();
     this.openAddEditModal();
     this.hideAccordion();
@@ -529,14 +546,15 @@ export class SagasSingle implements OnInit {
     this.sagaEntry.bibIds = [...this.bibIds.value];
 
     const msFormsRaw = this.msForms.getRawValue();
+
     this.sagaEntry.manuscripts = msFormsRaw
       .filter((ms) => ms["selected"])
       .map((ms) => ({
         msId: ms["msId"],
         shelfmark: ms["shelfmark"],
+        date: ms["date"],
         folioNumber: String(ms["folioNumber"]).trim(),
-        date: String(ms["date"].trim()),
-        note: String(ms["note"]).trim()
+        note: ms["note"] == null ? null : String(ms["note"]).trim(),
       }));
 
     //Fill VM saga versions
@@ -603,6 +621,7 @@ export class SagasSingle implements OnInit {
         this.sagaEntry.manuscripts.sort((a, b) => a.shelfmark.localeCompare(b.shelfmark));
 
         this.populateMsForms();
+        this.updateMsFilter("");
       },
       error: (err) => {},
     });

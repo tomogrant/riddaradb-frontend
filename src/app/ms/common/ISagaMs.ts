@@ -3,5 +3,5 @@ export interface ISagaMs {
   shelfmark: string;
   folioNumber: string;
   date: string;
-  note?: string;
+  note?: string | null;
 }

@@ -233,7 +233,7 @@ export class MsSingle {
         .map((saga) => ({
           sagaId: saga["sagaId"],
           folioNumber: String(saga["folioNumber"]).trim(),
-          note: String(saga["note"]).trim()
+          note: saga["note"] == null ? null : String(saga["note"]).trim()
         })),
       msRepositoryId: this.activeMs.msRepositoryId,
     };
@@ -369,6 +369,7 @@ export class MsSingle {
       id: null,
       name: "",
       shelfmark: "",
+      date: "",
       description: "",
       msSagaDtos: [],
       msRepositoryId: 0,

@@ -93,7 +93,9 @@
             <span>
               <a [routerLink]="['/ms', ms.msId]">
                 <span style="font-variant: small-caps">{{ ms.shelfmark }}</span>
-                <span> ({{ ms.date }}),</span>
+                @if (ms.date){
+                  <span> ({{ ms.date }}),</span>
+                }
                 <span> {{ ms.folioNumber }}</span>
                 @if (ms.note) {
                   <span> ({{ ms.note }})</span>
@@ -317,15 +319,21 @@
                     <div id="ms-accordion" class="accordion-collapse collapse">
                       <div class="accordion-body">
                         <!-- Accordion body -->
+                        <input
+                          type="text"
+                          class="form-control"
+                          formControlName="msFilter"
+                          id="msFilter"
+                          placeholder="Filter manuscripts..." />
                         <div class="row my-2">
                           <div class="col-1">✓</div>
-                          <div class="col">Manuscript</div>
-                          <div class="col">Folio number<span style="color: rgb(210, 74, 74)">*</span></div>
-                          <div class="col">Note</div>
+                          <div class="col">Manuscript:</div>
+                          <div class="col">Folio number:<span style="color: rgb(210, 74, 74)">*</span></div>
+                          <div class="col">Note:</div>
                         </div>
                         <hr />
                         <div formArrayName="msForms">
-                          @for (msForm of msForms.controls; track msForm.get("trackingId")?.value; let i = $index) {
+                          @for (msForm of msFormsFiltered.controls; track msForm.get("trackingId")?.value; let i = $index) {
                             <div class="row mb-1" [formGroupName]="i">
                               <div class="col-1">
                                 <input class="form-check-input" type="checkbox" formControlName="selected" />

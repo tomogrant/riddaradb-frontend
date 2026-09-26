@@ -25,3 +25,9 @@
   border-color: khaki;
   border-width: 5px;
 }
+
+.toggle-slot {
+  float: right;
+  height: 1.9rem;
+}
+

@@ -22,7 +22,7 @@ export class App {
 
   logout(){
     this.authService.logout().subscribe({
-      //next: () => this.redirectToHome()
+      next: () => this.redirectToHome()
     });
   }
 

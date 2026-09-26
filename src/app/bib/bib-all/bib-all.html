@@ -15,23 +15,25 @@
     </div>
 
     @if (primarySources.length > 0) {
-      <div class="row">
-        <h3 style="font-variant: small-caps">Editions and translations</h3>
-      </div>
-      @for (bib of primarySources; track $index) {
-        <div class="row mb-1">
-          <span>
-            @if (bib.recommended) {
-              <span style="color: rgb(210, 74, 74)">*</span>
-            }
-            <a [routerLink]="['/bib', bib.id]" [innerHTML]="bib.bibliographyEntry"></a>
-          </span>
+      <div class="mb-4">
+        <div class="row">
+          <h3 style="font-variant: small-caps">Editions and translations</h3>
         </div>
-      }
+        @for (bib of primarySources; track $index) {
+          <div class="row mb-1">
+            <span>
+              @if (bib.recommended) {
+                <span style="color: rgb(210, 74, 74)">*</span>
+              }
+              <a [routerLink]="['/bib', bib.id]" [innerHTML]="bib.bibliographyEntry"></a>
+            </span>
+          </div>
+        }
+      </div>
     }
 
     @if (secondarySources.length > 0) {
-      <div class="row mt-5">
+      <div class="row">
         <h3 style="font-variant: small-caps">Secondary sources</h3>
       </div>
       @for (bib of secondarySources; track $index) {
@@ -48,7 +50,7 @@
 
     <!-- 'Add' button -->
     @if ($loggedIn()) {
-      <div class="row">
+      <div class="row mt-4">
         <div class="col-sm">
           <button (click)="addBib()" type="button" class="btn btn-success btn-sm">Add</button>
         </div>
