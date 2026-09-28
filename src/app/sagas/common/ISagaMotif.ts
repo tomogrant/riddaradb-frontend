@@ -3,4 +3,5 @@ export interface ISagaMotif {
   motifCode: string;
   motifName: string;
   pageChapterNumber: string;
+  inBoberg: boolean
 }

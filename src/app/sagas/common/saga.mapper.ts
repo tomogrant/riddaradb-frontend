@@ -40,6 +40,7 @@ export class SagaMapper {
     return {
       id: dto.id,
       title: dto.title,
+      translatedTitle: dto.translatedTitle,
       description: dto.description,
       translated: dto.translated,
       sagaVersions: sagaVersionVms,
@@ -58,6 +59,7 @@ export class SagaMapper {
     return {
       id: vm.id,
       title: vm.title,
+      translatedTitle: vm.translatedTitle,
       description: vm.description,
       translated: vm.translated,
       sagaVersions: sagaVersionRequestDtos,

@@ -32,7 +32,6 @@ import { MsService } from "../../ms/common/ms.service";
 import { ISagaTitleDto } from "../common/ISagaTitleDto";
 import { PageHeader } from "../../page-header/page-header";
 
-
 @Component({
   selector: "app-saga-entry",
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule, PageHeader],
@@ -74,11 +73,18 @@ export class SagasSingle implements OnInit {
   motifs: IMotif[] = [];
 
   manuscripts: IMs[] = [];
+  filteredMsForms: {
+    form: FormGroup;
+    index: number;
+  }[] = [];
 
   showValidationErrors: boolean = false;
 
   copyButtonClicked = false;
   date: string = formatDate(Date.now(), "longDate", "en-UK");
+
+  selectADateText: string = "Select a date:";
+  sagaDatesUi: string[] = [];
 
   //---------------
   //  INIT
@@ -97,12 +103,19 @@ export class SagasSingle implements OnInit {
       this.getSaga();
     }
 
+    for (let sagaDate of Object.values(SagaDate)) {
+      this.sagaDatesUi.push(this.mapDateToUi(sagaDate));
+    }
+    //Filters out "UNDEFINED"
+    this.sagaDatesUi = this.sagaDatesUi.filter(sagaDate => sagaDate.startsWith("1"));
+    this.sagaDatesUi.forEach(date => console.log(date));
+
     this.bibFilter.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe({
-      next: (value) => this.updateBibFilter(value),
+      next: (value) => this.updateBibFilter(value ? String(value).trim().toLowerCase() : ""),
     });
 
     this.msFilter.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe({
-      next: (value) => this.updateMsFilter(value),
+      next: (value) => this.updateMsFilter(value ? String(value).trim().toLowerCase() : ""),
     });
   }
 
@@ -113,6 +126,7 @@ export class SagasSingle implements OnInit {
   editForm = new FormGroup({
     id: new FormControl<number | null>({ value: null, disabled: true }),
     title: new FormControl<string>("", { validators: [Validators.required, this.sagaTitleUnique()] }),
+    translatedTitle: new FormControl<string>("", Validators.required),
     translated: new FormControl<boolean>(false),
     description: new FormControl<string>(""),
     sagaVersionForms: new FormArray<FormGroup>([]),
@@ -122,34 +136,36 @@ export class SagasSingle implements OnInit {
     msFilter: new FormControl<string>(""),
   });
 
-  msFormsFiltered = new FormArray<AbstractControl>([]);
-
-  get title() {
-    return this.editForm.get("title") as FormControl;
+  get title(): FormControl {
+    return this.editForm.controls.title;
   }
 
-  get translated() {
-    return this.editForm.get("translated") as FormControl;
+  get translatedTitle(): FormControl {
+    return this.editForm.controls.translatedTitle;
   }
 
-  get description() {
-    return this.editForm.get("description") as FormControl;
+  get translated(): FormControl {
+    return this.editForm.controls.translated;
   }
 
-  get sagaVersionForms() {
-    return this.editForm.get("sagaVersionForms") as FormArray;
+  get description(): FormControl {
+    return this.editForm.controls.description;
   }
 
-  get bibFilter() {
-    return this.editForm.get("bibFilter") as FormControl;
+  get sagaVersionForms(): FormArray<FormGroup> {
+    return this.editForm.controls.sagaVersionForms;
   }
 
-  get bibIds() {
-    return this.editForm.get("bibIds") as FormControl;
+  get bibFilter(): FormControl {
+    return this.editForm.controls.bibFilter;
   }
 
-  get msForms() {
-    return this.editForm.get("msForms") as FormArray;
+  get bibIds(): FormControl {
+    return this.editForm.controls.bibIds;
+  }
+
+  get msForms(): FormArray<FormGroup> {
+    return this.editForm.controls.msForms;
   }
 
   get msFilter() {
@@ -164,7 +180,7 @@ export class SagasSingle implements OnInit {
         nonNullable: true,
         validators: [Validators.required, this.sagaVersionTitleUnique()],
       }),
-      date: new FormControl<string>(sagaVersion ? this.mapToUi(sagaVersion.date) : "Select a date:", {
+      date: new FormControl<string>(sagaVersion ? this.mapDateToUi(sagaVersion.date) : this.selectADateText, {
         nonNullable: true,
         validators: this.dateNotSelected(),
       }),
@@ -180,6 +196,8 @@ export class SagasSingle implements OnInit {
 
       this.msForms.push(msForm);
     });
+    //Rebuilding the collection is necessary to avoid stale tracking in the template
+    this.updateMsFilter();
   }
 
   createMsForm(ms: IMs) {
@@ -187,15 +205,12 @@ export class SagasSingle implements OnInit {
     const selected = !!msInSaga;
 
     return new FormGroup({
-      trackingId: new FormControl<number>(this.sagaVersionTrackingId++, { nonNullable: true }),
-      msId: new FormControl<number | null>(ms.id),
-      shelfmark: new FormControl<string>(ms.shelfmark),
-      date: new FormControl<string>(ms.date),
+      trackingId: new FormControl<number>({ value: this.sagaVersionTrackingId++, disabled: true }),
+      msId: new FormControl<number | null>({ value: ms.id, disabled: true }),
+      shelfmark: new FormControl<string>({ value: ms.shelfmark, disabled: true }),
+      date: new FormControl<string>({ value: ms.date, disabled: true }),
       folioNumber: new FormControl<string | null>(
-        {
-          value: msInSaga ? msInSaga.folioNumber : null,
-          disabled: !selected,
-        },
+        { value: msInSaga ? msInSaga.folioNumber : null, disabled: !selected },
         Validators.required,
       ),
       note: new FormControl<string | null | undefined>({
@@ -313,6 +328,7 @@ export class SagasSingle implements OnInit {
     return {
       id: null,
       title: "",
+      translatedTitle: "",
       description: "",
       translated: false,
       sagaVersions: [],
@@ -345,20 +361,21 @@ export class SagasSingle implements OnInit {
     this.bibIds.setValue(ids.includes(id) ? ids.filter((e) => e !== id) : [...ids, id]);
   }
 
-  updateBibFilter(searchTerm: string) {
+  updateBibFilter(searchTerm: string = "") {
     this.filteredBibVms = this.bibVms.filter((bib) =>
       bib.bibliographyEntry.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }
 
-  updateMsFilter(searchTerm: string) {
-    
-    this.msFormsFiltered.controls = this.msForms.controls.filter((form) =>
-      form.get('shelfmark')?.value.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  updateMsFilter(searchTerm: string = "") {
+    this.filteredMsForms = this.msForms.controls
+      //Maps MS form and its index into object corresponding with filteredMsForms. 
+      .map((form, index) => ({ form: form, index: index }))
+      //Filter to only include those MS forms whose shelfmark matches query
+      .filter((form) => String(form.form.get("shelfmark")?.value).trim().toLowerCase().includes(searchTerm));
   }
 
-  mapToUi(sagaDate: SagaDate) {
+  mapDateToUi(sagaDate: SagaDate) {
     switch (sagaDate) {
       case SagaDate._1200_1250: {
         return "1200-1250";
@@ -382,12 +399,12 @@ export class SagasSingle implements OnInit {
         return "1500-1550";
       }
       default: {
-        return "Select a date:";
+        return this.selectADateText;
       }
     }
   }
 
-  mapFromUi(sagaDate: string) {
+  mapDateFromUi(sagaDate: string) {
     switch (sagaDate) {
       case "1200-1250": {
         return SagaDate._1200_1250;
@@ -420,21 +437,23 @@ export class SagasSingle implements OnInit {
     this.editForm.patchValue({
       id: this.sagaEntry.id,
       title: this.sagaEntry.title,
+      translatedTitle: this.sagaEntry.translatedTitle,
       description: this.sagaEntry.description,
       translated: this.sagaEntry.translated,
       bibIds: [...this.sagaEntry.bibIds],
     });
 
+    this.populateMsForms();
+
     this.sagaVersionForms.clear();
     this.sagaEntry.sagaVersions.forEach((sagaVersion) => {
       this.sagaVersionForms.push(this.createSagaVersionForm(sagaVersion));
     });
-
-    this.populateMsForms();
   }
 
   resetValidators() {
     this.title.updateValueAndValidity();
+    this.translatedTitle.updateValueAndValidity();
 
     this.sagaVersionForms.controls.forEach((control) => {
       control.get("title")?.updateValueAndValidity();
@@ -474,8 +493,8 @@ export class SagasSingle implements OnInit {
   editSaga() {
     this.mode = Mode.EDIT;
     this.showValidationErrors = false;
-    this.updateBibFilter("");
-    this.updateMsFilter("");
+    this.updateBibFilter();
+    this.updateMsFilter();
     this.fillInputFields();
     this.openAddEditModal();
     this.hideAccordion();
@@ -534,6 +553,8 @@ export class SagasSingle implements OnInit {
   formToVm() {
     this.sagaEntry.title = this.title.value;
 
+    this.sagaEntry.translatedTitle = this.translatedTitle.value;
+
     //Ugly fix until Quill releases update
     if (this.description.value == null) {
       this.sagaEntry.description = "";
@@ -547,12 +568,16 @@ export class SagasSingle implements OnInit {
 
     const msFormsRaw = this.msForms.getRawValue();
 
+    msFormsRaw.forEach((msForm) => {
+      console.log("Form selected: " + msForm["selected"]);
+    });
+
     this.sagaEntry.manuscripts = msFormsRaw
       .filter((ms) => ms["selected"])
       .map((ms) => ({
         msId: ms["msId"],
         shelfmark: ms["shelfmark"],
-        date: ms["date"],
+        date: this.manuscripts.find((manuscript) => manuscript.id == ms["msId"])?.date ?? "",
         folioNumber: String(ms["folioNumber"]).trim(),
         note: ms["note"] == null ? null : String(ms["note"]).trim(),
       }));
@@ -585,7 +610,7 @@ export class SagasSingle implements OnInit {
 
       const sagaVersionFormDate = sagaVersionForm.get("date");
       if (!sagaVersionFormDate) this.sagaVersions[i].date = SagaDate.UNDEFINED;
-      else this.sagaVersions[i].date = this.mapFromUi(sagaVersionFormDate.value);
+      else this.sagaVersions[i].date = this.mapDateFromUi(sagaVersionFormDate.value);
     }
 
     this.sagaEntry.sagaVersions = this.sagaVersions;
@@ -609,7 +634,7 @@ export class SagasSingle implements OnInit {
         this.bibVms = [];
         this.bibs.forEach((bib) => this.bibVms.push(this.bibMapper.mapDtoToVm(bib)));
         this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
-        this.updateBibFilter("");
+        this.updateBibFilter();
       },
     });
   }
@@ -621,7 +646,7 @@ export class SagasSingle implements OnInit {
         this.sagaEntry.manuscripts.sort((a, b) => a.shelfmark.localeCompare(b.shelfmark));
 
         this.populateMsForms();
-        this.updateMsFilter("");
+        this.updateMsFilter();
       },
       error: (err) => {},
     });
@@ -736,13 +761,11 @@ export class SagasSingle implements OnInit {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
 
-      console.log("date value: " + value);
-
       if (!value) {
         return null;
       }
 
-      if (value === "Select a date:") {
+      if (value === this.selectADateText) {
         return { dateNotSelected: true };
       } else {
         return null;

@@ -11,6 +11,11 @@ import { IMotifForm } from "../common/IMotifForm";
 import { PageHeader } from "../../page-header/page-header";
 import { AuthService } from "../../auth/auth.service";
 
+export interface MotifDetails {
+  pageChapterNumber: string | null;
+  inBoberg: boolean
+}
+
 @Component({
   selector: "app-motifs-all",
   imports: [MotifNode, FormField, QuillModule, PageHeader],
@@ -67,11 +72,16 @@ export class MotifsAll {
 
   $showColourCoding = computed(() => this.motifStore.$showColourCoding());
 
+
+
   readonly selectedSagaMap = computed(() => {
-    const map = new Map<number, string | null>();
+    const map = new Map<number, MotifDetails>();
 
     for (const saga of this.$editModel().sagas) {
-      map.set(saga.sagaVersionId, saga.pageChapterNumber);
+      map.set(saga.sagaVersionId, {
+        pageChapterNumber: saga.pageChapterNumber,
+        inBoberg: saga.inBoberg
+      });
     }
 
     return map;
@@ -109,46 +119,61 @@ export class MotifsAll {
     this.motifStore.search(searchTerm, true);
   }
 
-  checkboxUpdate(id: number) {
+  updateSelection(id: number) {
     //Called when a checkbox next to a saga is clicked. Gets ID from DOM.
     //Removes saga (id, pageChapterNumber) from array or adds
     //with an empty pageChapterNumber
     this.$editModel.update((current) => {
-      const sagas = current.sagas;
-      const index = sagas.findIndex((saga) => saga.sagaVersionId === id);
+      const index = current.sagas.findIndex((saga) => saga.sagaVersionId === id);
       //Saga already associated with motif; remove
       if (index >= 0) {
-        sagas.splice(index, 1);
-      }
-      //Saga not associated with motif; add
-      else {
-        sagas.push({
-          sagaVersionId: id,
-          pageChapterNumber: "",
-        });
+        return {
+          ...current,
+          //collection of sagas whose IDs do not match the ID provided
+          sagas: current.sagas.filter(saga => saga.sagaVersionId !== id)
+        }
       }
 
+      //Saga not associated with motif; add
       return {
         ...current,
-        sagas: sagas,
-      };
+        sagas: [
+          ...current.sagas,
+          {
+            sagaVersionId: id,
+            pageChapterNumber: "",
+            inBoberg: true
+          }
+        ]
+      }
     });
+  }
+
+  updateBoberg(id: number){
+    this.$editModel.update((current) => ({
+      ...current,
+      sagas: current.sagas.map(saga => 
+        saga.sagaVersionId === id 
+        ? {...saga, inBoberg: !saga.inBoberg}
+        : saga
+      )
+      }));
   }
 
   //Called when a page/chapter number field associated with a saga changes
   pageChapterNumberUpdate(id: number, pageChapterNumber: string) {
     this.$editModel.update((current) => {
-      const sagas = current.sagas;
-      const index = sagas.findIndex((saga) => saga.sagaVersionId === id);
-      if (index >= 0) {
-        sagas[index].pageChapterNumber = pageChapterNumber;
+        return {
+          ...current,
+          sagas: current.sagas.map(saga => saga.sagaVersionId === id 
+            ? {
+                ...saga,
+                pageChapterNumber: pageChapterNumber ?? ""
+              }
+            : saga)
+        }
       }
-
-      return {
-        ...current,
-        sagas: sagas,
-      };
-    });
+    );
   }
 
   submitSearchRequest() {
@@ -191,7 +216,7 @@ export class MotifsAll {
         motifCode: currentNode.motifCode,
         motifName: currentNode.motifName,
         description: currentNode.description,
-        sagas: currentNode.sagaMotifs,
+        sagas: currentNode.sagaMotifs.map(saga => ({...saga}))
       });
     }
   }

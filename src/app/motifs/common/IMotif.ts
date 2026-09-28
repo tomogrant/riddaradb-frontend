@@ -10,5 +10,6 @@ export interface IMotif {
     //Saga version ID is always non-null as motifs can only be attached to existing saga versions.
     sagaVersionId: number;
     pageChapterNumber: string | null;
+    inBoberg: boolean;
   }[];
 }

@@ -125,7 +125,7 @@
               <div class="col">
                 <!-- NAME FIELD -->
                 <label for="ms-repo-name" class="form-label">Name:</label>
-                <span style="color: rgb(210, 74, 74)">*</span>
+                <span class="red">*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -135,11 +135,11 @@
                   [class.invalid-input]="name.invalid && showValidationErrors" />
                 @if (name.invalid && showValidationErrors) {
                   @if (name.hasError("required")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Name is required.</small>
                     </div>
                   } @else if (name.hasError("repositoryNotUnique")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Repository with this name already exists.</small>
                     </div>
                   }
@@ -151,7 +151,7 @@
               <div class="col">
                 <!-- CITY FIELD -->
                 <label for="ms-repo-city" class="form-label">City:</label>
-                <span style="color: rgb(210, 74, 74)">*</span>
+                <span class="red">*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -161,7 +161,7 @@
                   [class.invalid-input]="city.invalid && showValidationErrors" />
                 @if (city.invalid && showValidationErrors) {
                   @if (city.hasError("required")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>City is required.</small>
                     </div>
                   }
@@ -173,7 +173,7 @@
               <div class="col">
                 <!-- COUNTRY FIELD -->
                 <label for="ms-repo-country" class="form-label">Country:</label>
-                <span style="color: rgb(210, 74, 74)">*</span>
+                <span class="red">*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -183,7 +183,7 @@
                   [class.invalid-input]="country.invalid && showValidationErrors" />
                 @if (country.invalid && showValidationErrors) {
                   @if (country.hasError("required")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Country is required.</small>
                     </div>
                   }
@@ -222,7 +222,7 @@
       </div>
       <div class="modal-body">
         <span>Are you sure?</span>
-        <span style="color: rgb(210, 74, 74)"> This will also remove all associated manuscripts!</span>
+        <span class="red"> This will also remove all associated manuscripts!</span>
       </div>
       <div class="modal-footer">
         <button (click)="closeDeleteModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">

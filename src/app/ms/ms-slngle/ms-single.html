@@ -114,7 +114,7 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-repo-n" class="form-label">Shelfmark:</label>
-                <span style="color: rgb(210, 74, 74)">*</span>
+                <span class="red">*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -124,11 +124,11 @@
                   [class.invalid-input]="shelfmark.invalid && showValidationErrors" />
                 @if (shelfmark.invalid && showValidationErrors) {
                   @if (shelfmark.hasError("required")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Shelfmark is required.</small>
                     </div>
                   } @else if (shelfmark.hasError("shelfmarkNotUnique")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Manuscript with this shelfmark already exists.</small>
                     </div>
                   }
@@ -144,7 +144,7 @@
                  [class.invalid-input]="date.invalid && showValidationErrors" />
                 @if (date.invalid && showValidationErrors) {
                   @if (date.hasError("pattern")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Date should be a year (e.g. 1600) or a range of years (e.g. 1600-1700).</small>
                     </div>
                   }
@@ -160,7 +160,7 @@
                   [class.invalid-input]="handritLink.invalid && showValidationErrors" />
                 @if (handritLink.invalid && showValidationErrors) {
                   @if (handritLink.hasError("pattern")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Link should point to a manuscript page (<i>https://handrit.is/manuscript/</i>).</small>
                     </div>
                   }
@@ -176,7 +176,7 @@
                   [class.invalid-input]="fasnlLink.invalid && showValidationErrors" />
                 @if (fasnlLink.invalid && showValidationErrors) {
                   @if (fasnlLink.hasError("pattern")) {
-                    <div style="color: rgb(210, 74, 74)">
+                    <div class="red">
                       <small>Link should point to a manuscript page (<i>https://fasnl.net/manuscripts/</i>).</small>
                     </div>
                   }
@@ -209,7 +209,7 @@
             <div class="row my-2">
               <div class="col-1">✓</div>
               <div class="col">Saga</div>
-              <div class="col">Folio number<span style="color: rgb(210, 74, 74)">*</span>
+              <div class="col">Folio number<span class="red">*</span>
               </div>
               <div class="col">Note</div>
             </div>
@@ -234,7 +234,7 @@
                       [class.invalid-input]="msSaga.get('folioNumber')?.invalid && showValidationErrors" />
                     @if (msSaga.get("folioNumber")?.invalid && showValidationErrors) {
                       @if (msSaga.get("folioNumber")?.hasError("required")) {
-                        <div style="color: rgb(210, 74, 74)">
+                        <div class="red">
                           <small>Folio number is required.</small>
                         </div>
                       }

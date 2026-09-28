@@ -42,36 +42,36 @@ export class MsSingle {
     msSagas: new FormArray<FormGroup>([]),
   });
 
-  get id() {
-    return this.editForm.get("id") as FormControl;
+  get id(): FormControl {
+    return this.editForm.controls.id;
   }
 
-  get name() {
-    return this.editForm.get("name") as FormControl;
+  get name(): FormControl {
+    return this.editForm.controls.name;
   }
 
-  get shelfmark() {
-    return this.editForm.get("shelfmark") as FormControl;
+  get shelfmark(): FormControl {
+    return this.editForm.controls.shelfmark;
   }
 
-  get date() {
-    return this.editForm.get("date") as FormControl;
+  get date(): FormControl {
+    return this.editForm.controls.date;
   }
 
-  get handritLink() {
-    return this.editForm.get("handritLink") as FormControl;
+  get handritLink(): FormControl {
+    return this.editForm.controls.handritLink;
   }
 
-  get fasnlLink() {
-    return this.editForm.get("fasnlLink") as FormControl;
+  get fasnlLink(): FormControl {
+    return this.editForm.controls.fasnlLink;
   }
 
-  get description() {
-    return this.editForm.get("description") as FormControl;
+  get description(): FormControl {
+    return this.editForm.controls.description;
   }
 
-  get msSagas() {
-    return this.editForm.get("msSagas") as FormArray<FormGroup>;
+  get msSagas(): FormArray<FormGroup> {
+    return this.editForm.controls.msSagas;
   }
 
   showValidationErrors: boolean = false;

@@ -53,6 +53,7 @@ export class MotifNode {
           sagaTitle: saga.title,
           sagaId: saga.sagaId,
           pageChapterNumber: sagaMotif.pageChapterNumber,
+          inBoberg: sagaMotif.inBoberg
         });
       }
     }

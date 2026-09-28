@@ -134,56 +134,56 @@ export class BibSingle {
   };
 
   //GETTERS FOR EDITFORM
-  get type() {
-    return this.editForm.get("type") as FormControl;
+  get type(): FormControl {
+    return this.editForm.controls.type;
   }
-  get authors() {
-    return this.editForm.get("authors") as FormControl;
+  get authors(): FormControl {
+    return this.editForm.controls.authors;
   }
-  get editors() {
-    return this.editForm.get("editors") as FormControl;
+  get editors(): FormControl {
+    return this.editForm.controls.editors;
   }
-  get translators() {
-    return this.editForm.get("translators") as FormControl;
+  get translators(): FormControl {
+    return this.editForm.controls.translators;
   }
-  get title() {
-    return this.editForm.get("title") as FormControl;
+  get title(): FormControl {
+    return this.editForm.controls.title;
   }
-  get url() {
-    return this.editForm.get("url") as FormControl;
+  get url(): FormControl {
+    return this.editForm.controls.url;
   }
-  get bookEditors() {
-    return this.editForm.get("bookEditors") as FormControl;
+  get bookEditors(): FormControl {
+    return this.editForm.controls.bookEditors;
   }
-  get book() {
-    return this.editForm.get("book") as FormControl;
+  get book(): FormControl {
+    return this.editForm.controls.book;
   }
-  get bookSeries() {
-    return this.editForm.get("bookSeries") as FormControl;
+  get bookSeries(): FormControl {
+    return this.editForm.controls.bookSeries;
   }
-  get volume() {
-    return this.editForm.get("volume") as FormControl;
+  get volume(): FormControl {
+    return this.editForm.controls.volume;
   }
-  get numOfVolumes() {
-    return this.editForm.get("numOfVolumes") as FormControl;
+  get numOfVolumes(): FormControl {
+    return this.editForm.controls.numOfVolumes;
   }
-  get placeOfPublication() {
-    return this.editForm.get("placeOfPublication") as FormControl;
+  get placeOfPublication(): FormControl {
+    return this.editForm.controls.placeOfPublication;
   }
-  get publisher() {
-    return this.editForm.get("publisher") as FormControl;
+  get publisher(): FormControl {
+    return this.editForm.controls.publisher;
   }
-  get publicationYear() {
-    return this.editForm.get("publicationYear") as FormControl;
+  get publicationYear(): FormControl {
+    return this.editForm.controls.publicationYear;
   }
-  get pageNumbers() {
-    return this.editForm.get("pageNumbers") as FormControl;
+  get pageNumbers(): FormControl{
+    return this.editForm.controls.pageNumbers;
   }
-  get recommended() {
-    return this.editForm.get("recommended") as FormControl;
+  get recommended(): FormControl {
+    return this.editForm.controls.recommended;
   }
-  get description() {
-    return this.editForm.get("description") as FormControl;
+  get description(): FormControl {
+    return this.editForm.controls.description;
   }
 
   ngOnInit() {

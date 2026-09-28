@@ -9,11 +9,11 @@
             <div class="row justify-content-md-center">
               <div class="col">
                 <label for="username" class="form-label">Username:</label>
-                <span style="color: rgb(210, 74, 74)">*</span>
+                <span class="red">*</span>
                 <input type="text" class="form-control" formControlName="username" id="username"
                 [class.invalid-input]="username.invalid && showValidationErrors" />
                 @if (username.invalid && showValidationErrors) {
-                  <div style="color: rgb(210, 74, 74)">
+                  <div class="red">
                     <small>Please enter a username.</small>
                   </div>
                 }
@@ -23,11 +23,11 @@
             <div class="row mt-4 justify-content-md-center">
               <div class="col">
                 <label for="password" class="form-label">Password:</label>
-                <span style="color: rgb(210, 74, 74)">*</span>
+                <span class="red">*</span>
                 <input type="password" class="form-control" formControlName="password" id="password"
                 [class.invalid-input]="password.invalid && showValidationErrors" />
                 @if (password.invalid && showValidationErrors) {
-                  <div style="color: rgb(210, 74, 74)">
+                  <div class="red">
                     <small>Please enter a password.</small>
                   </div>
                 }

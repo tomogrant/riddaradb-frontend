@@ -41,24 +41,24 @@ export class MsAll {
     country: new FormControl<string>("", Validators.required),
   });
 
-  get name() {
-    return this.editForm.get("name") as FormControl;
+  get name(): FormControl {
+    return this.editForm.controls.name;
   }
 
-  get city() {
-    return this.editForm.get("city") as FormControl;
+  get city(): FormControl {
+    return this.editForm.controls.city;
   }
 
-  get country() {
-    return this.editForm.get("country") as FormControl;
+  get country(): FormControl {
+    return this.editForm.controls.country;
   }
 
   filterForm = new FormGroup({
     filter: new FormControl("", { nonNullable: true }),
   });
 
-  get filter() {
-    return this.filterForm.get("filter") as FormControl;
+  get filter(): FormControl {
+    return this.filterForm.controls.filter;
   }
 
   //Variables

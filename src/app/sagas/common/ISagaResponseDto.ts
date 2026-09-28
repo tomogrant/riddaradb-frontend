@@ -1,10 +1,11 @@
 import { IBib } from "../../bib/common/IBib";
-import { ISagaMs } from "../../ms/common/ISagaMs";
+import { ISagaMs } from "./ISagaMs";
 import { ISagaVersionResponseDto } from "./ISagaVersionResponseDto";
 
 export interface ISagaResponseDto {
   id: number;
   title: string;
+  translatedTitle: string;
   description: string;
   translated: boolean;
   sagaVersions: ISagaVersionResponseDto[];

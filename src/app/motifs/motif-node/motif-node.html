@@ -38,8 +38,11 @@
                     <i>{{ saga.sagaTitle }}</i>
                   </a>
                 }
-                @if (saga.pageChapterNumber != "") {
+                @if (saga.pageChapterNumber) {
                   <span>, {{ saga.pageChapterNumber }}</span>
+                }
+                @if (!saga.inBoberg){
+                  <span class="red">*</span>
                 }
               </div>
             }

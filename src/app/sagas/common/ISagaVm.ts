@@ -1,10 +1,11 @@
 import { IBibVm } from "../../bib/common/IBibVm";
-import { ISagaMs } from "../../ms/common/ISagaMs";
+import { ISagaMs } from "./ISagaMs";
 import { ISagaVersionVm } from "./ISagaVersionVm";
 
 export interface ISagaVm {
   id: number | null;
   title: string;
+  translatedTitle: string;
   description: string;
   translated: boolean;
   sagaVersions: ISagaVersionVm[];

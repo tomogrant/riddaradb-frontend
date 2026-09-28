@@ -297,6 +297,7 @@ export class MotifStore {
   }
 
   putMotifNode(updatedMotifNode: IMotif) {
+    console.log(updatedMotifNode.sagaMotifs);
     this.motifService.updateMotif(updatedMotifNode).subscribe((updatedMotif) => {
       //Retain children after edit. Children are not returned by backend API
       //and field 'hasChildren' is not set until after a following get request.

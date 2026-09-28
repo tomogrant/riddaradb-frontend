@@ -5,5 +5,6 @@ export interface IMotifForm {
   sagas: {
     sagaVersionId: number;
     pageChapterNumber: string | null;
+    inBoberg: boolean;
   }[];
 }
