@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { CanActivateFn, Router, Routes } from '@angular/router';
 import { Home } from './home/home';
 import { SagasAll } from './sagas/sagas-all/sagas-all';
 import { SagasSingle } from './sagas/sagas-single/sagas-single';
@@ -11,6 +11,16 @@ import { Characters } from './characters/characters';
 import { Locations } from './locations/locations';
 import { Login } from './auth/login';
 import { About } from './about/about';
+import { Admin } from './admin/admin';
+import { computed, inject } from '@angular/core';
+import { AuthService } from './auth/auth.service';
+
+export const adminGuard: CanActivateFn = () => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+
+   return authService.$isAdmin() ? true : router.createUrlTree(['/']);;
+}
 
 export const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -36,6 +46,8 @@ export const routes: Routes = [
     { path: 'characters', component: Characters, title: 'riddaraDB - Characters'},
 
     { path: 'locations', component: Locations, title: 'riddaraDB - Locations'},
+
+    { path: 'admin', component: Admin, canActivate: [adminGuard], title: 'riddaraDB - Admin'},
 
     { path: 'login', component: Login, title: 'riddaraDB - Log in'},
 

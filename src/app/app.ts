@@ -13,6 +13,7 @@ export class App {
   private router = inject(Router);
 
   $loggedIn = computed(() => this.authService.$loggedIn());
+  $isAdmin = computed(() => this.authService.$isAdmin());
 
   ngOnInit(){
     //When application starts on load or refresh, set logged-in user

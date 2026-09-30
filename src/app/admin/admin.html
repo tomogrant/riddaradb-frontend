@@ -1,0 +1,273 @@
+<app-page-header backgroundImg="vignette.jpg">Administrator dashboard</app-page-header>
+
+<div class="card-body page-container">
+  <div class="container">
+    @for (user of users; track $index) {
+      <div class="col-4">
+      <div class="card mb-3" style="background-color: rgb(255, 254, 249); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)">
+      <div class="row p-3">
+        <div class="col">
+          <div class="mb-3">
+            <span>
+              <button
+                (click)="editUser(user.id)"
+                data-testid="edit-button"
+                type="button"
+                class="btn btn-secondary btn-sm me-1">
+                Edit
+              </button>
+              <button
+                (click)="openDeleteModal(user.username)"
+                data-testid="delete-button"
+                type="button"
+                class="btn btn-danger btn-sm">
+                Delete
+              </button>
+            </span>
+          </div>
+          <div class="mb-2" style="font-size: 1.2rem;">
+            <b>{{user.username}}</b>
+          </div>
+          <div class="mb-2">
+            Name: {{user.firstName}} {{user.lastNames}}
+          </div>
+          <div class="mb-2">
+            Email: {{user.email}}
+          </div>
+        </div>
+      </div>
+                    </div>
+                    </div>
+
+    }
+
+    <div class="row mt-4">
+      <div class="col-sm">
+        <button (click)="addUser()" type="button" class="btn btn-success btn-sm">Add user</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Edit modal-->
+<div
+  class="modal fade"
+  id="addEditUser"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">
+          {{ mode == Mode.ADD ? "Add user" : "Edit user" }}
+        </h1>
+        <button (click)="closeAddEditModal()" type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editForm">
+          <div class="container-fluid">
+            <div class="row mb-3">
+              <div class="col">
+                <!-- USERNAME FIELD -->
+                <label for="admin-user-username" class="form-label">Username:</label>
+                <span class="red">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="username"
+                  id="admin-user-username"
+                  placeholder="Username"
+                  [class.invalid-input]="username.invalid && showValidationErrors" />
+                @if (username.invalid && showValidationErrors) {
+                  @if (username.hasError("required")) {
+                    <div class="red">
+                      <small>Name is required.</small>
+                    </div>
+                  } @else if (username.hasError("usernameNotUnique")) {
+                    <div class="red">
+                      <small>Username already exists.</small>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- EMAIL FIELD -->
+                <label for="admin-user-email" class="form-label">Email address:</label>
+                <span class="red">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="email"
+                  id="admin-user-email"
+                  placeholder="Email address"
+                  [class.invalid-input]="email.invalid && showValidationErrors" />
+                @if (email.invalid && showValidationErrors) {
+                  @if (email.hasError("required")) {
+                    <div class="red">
+                      <small>Email address is required.</small>
+                    </div>
+                  } @else if (email.hasError("email")) {
+                    <div class="red">
+                      <small>Email address not formatted correctly.</small>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- FIRST NAME FIELD -->
+                <label for="admin-user-first-name" class="form-label">First name:</label>
+                <span class="red">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="firstName"
+                  id="admin-user-first-name"
+                  placeholder="First name"
+                  [class.invalid-input]="firstName.invalid && showValidationErrors" />
+                @if (firstName.invalid && showValidationErrors) {
+                  @if (firstName.hasError("required")) {
+                    <div class="red">
+                      <small>First name is required.</small>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- LAST NAMES FIELD -->
+                <label for="admin-user-last-names" class="form-label">Last name(s)</label>
+                <span class="red">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="lastNames"
+                  id="admin-user-first-name"
+                  placeholder="Last name(s)"
+                  [class.invalid-input]="lastNames.invalid && showValidationErrors" />
+                @if (lastNames.invalid && showValidationErrors) {
+                  @if (lastNames.hasError("required")) {
+                    <div class="red">
+                      <small>Last name is required.</small>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- PASSWORD FIELD -->
+                <label for="admin-user-password" class="form-label">
+                  @if (mode === Mode.ADD) {
+                    Password:
+                  } @else {
+                    Update password:
+                  }
+                </label>
+                @if (mode === Mode.ADD){
+                  <span class="red">*</span>
+                }
+
+                <input
+                  type="password"
+                  class="form-control"
+                  formControlName="password"
+                  id="admin-user-password"
+                  [placeholder]="mode === Mode.ADD ? 'Password' : 'Update password'"
+                  [class.invalid-input]="password.invalid && showValidationErrors" />
+                @if (password.invalid && showValidationErrors) {
+                  @if (password.hasError("required")) {
+                    <div class="red">
+                      <small>Password is required.</small>
+                    </div>
+                  } @else if (password.hasError("passwordsDoNotMatchError") && repeatPassword.hasError("passwordsDoNotMatchError")) {
+                    <div class="red">
+                      <small>Passwords do not match.</small>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <!-- REPEAT PASSWORD FIELD -->
+                <label for="admin-user-password-repeat" class="form-label">Repeat password:</label>
+                @if (mode === Mode.ADD){
+                  <span class="red">*</span>
+                }
+                <input
+                  type="password"
+                  class="form-control"
+                  formControlName="repeatPassword"
+                  id="admin-user-password-repeat"
+                  placeholder="Repeat password"
+                  [class.invalid-input]="repeatPassword.invalid && showValidationErrors" />
+                @if (repeatPassword.invalid && showValidationErrors) {
+                  @if (repeatPassword.hasError("required")) {
+                    <div class="red">
+                      <small>Repeat password is required.</small>
+                    </div>
+                  } @else if (repeatPassword.hasError("passwordsDoNotMatchError") && password.hasError("passwordsDoNotMatchError") ) {
+                    <div class="red">
+                      <small>Passwords do not match.</small>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- END OF FIELDS -->
+      <div class="modal-footer">
+        <button (click)="closeAddEditModal()" type="button" class="btn btn-secondary">Close</button>
+        <button data-testid="save-button" (click)="submitAddOrEdit()" type="submit" class="btn btn-primary">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Delete modal-->
+<div
+  class="modal fade"
+  id="deleteUser"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete user?</h1>
+        <button (click)="closeDeleteModal()" type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <span>Are you sure?</span>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeDeleteModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Back
+        </button>
+        <button (click)="deleteUser()" data-testid="delete-confirm-button" type="submit" class="btn btn-danger">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

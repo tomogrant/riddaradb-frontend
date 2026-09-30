@@ -44,7 +44,7 @@ export class BibService {
   putBib(bib: IBib): Observable<IBib> {
     console.log("Putting bib: " + JSON.stringify(bib));
     return this.httpClient.put<IBib>(`${this.bibMain}/putbibentry`, bib).pipe(
-      tap((data) => console.log("Saga updated: " + JSON.stringify(data))),
+      tap((data) => console.log("Bib updated: " + JSON.stringify(data))),
       catchError(this.errorHandler),
     );
   }

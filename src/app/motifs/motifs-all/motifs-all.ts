@@ -72,8 +72,6 @@ export class MotifsAll {
 
   $showColourCoding = computed(() => this.motifStore.$showColourCoding());
 
-
-
   readonly selectedSagaMap = computed(() => {
     const map = new Map<number, MotifDetails>();
 

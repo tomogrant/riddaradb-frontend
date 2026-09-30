@@ -465,7 +465,6 @@ export class BibSingle {
 
   addBib() {
     this.mode = Mode.ADD;
-
     this.activeBib = this.initialiseBib();
     this.openAddEditModal();
   }
