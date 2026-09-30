@@ -477,6 +477,11 @@ export class SagasSingle implements OnInit {
     this.router.navigate([`sagas`]);
   }
 
+  navigateToSagasSinglePage(id: number) {
+    this.closeAddEditModal();
+    this.router.navigate([`sagas/${id}`]);
+  }
+
   navigateToMotif(motifCode: string) {
     this.router.navigate([`motifs/${motifCode}`]);
   }
@@ -695,8 +700,7 @@ export class SagasSingle implements OnInit {
 
     this.sagasService.postSaga(this.sagaMapper.mapSagaVmToRequestDto(this.sagaEntry)).subscribe({
       next: (receivedSaga) => {
-        console.log("Saved successfully! " + receivedSaga);
-        this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedSaga);
+        this.navigateToSagasSinglePage(receivedSaga.id);
       },
       error: (err) => {
         console.log("Problem with saving.");

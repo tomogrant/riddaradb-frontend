@@ -11,7 +11,7 @@
             class="form-control"
             [formField]="searchForm.searchTerm"
             placeholder="Search motif entries..." />
-          <button type="button" class="btn btn-outline-success" (click)="submitSearchRequest()">Search</button>
+          <button type="button" class="btn btn-outline-success" (click)="submitSearchRequest()" [disabled]="!searchForm.searchTerm().value()">Search</button>
           <button type="button" class="btn btn-outline-danger" (click)="clearSearch()">Clear</button>
         </div>
       </div>
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <!-- Motif cards -->
+  <!-- Root motif cards -->
   @for (rootId of $rootIds(); track rootId) {
     <app-motif-node [$nodeId]="rootId" [$depth]="1"></app-motif-node>
   }

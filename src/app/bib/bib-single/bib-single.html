@@ -215,7 +215,7 @@
             }
 
             @if (editFormConfig.includeSagas) {
-              <div class="row mb-2">
+              <div class="row mb-2 mt-1">
                 <div class="col">
                   <label class="form-label">Sagas mentioned:</label>
                   @for (saga of sagas; track $index) {
@@ -359,7 +359,14 @@
                   id="bib-title-quill"
                   placeholder=""
                   [class.invalid-input]="editFormConfig.requireTitle && title.invalid && showValidationErrors"
-                  [modules]="{ toolbar: [['italic']] }"></quill-editor>
+                  [modules]="{
+                    toolbar: [['italic']],
+                    keyboard: {
+                      bindings: {
+                        tab: false,
+                      },
+                    },
+                  }"></quill-editor>
                 @if (editFormConfig.requireTitle && title.invalid && showValidationErrors) {
                   @if (title.hasError("required")) {
                     <div class="red">
@@ -609,7 +616,7 @@
 
             <!-- Recommended template -->
             <ng-template #recommendedTemplate>
-              <div class="form-check">
+              <div class="form-check my-2">
                 <input
                   class="form-check-input"
                   type="checkbox"

@@ -1,6 +1,7 @@
 TODO
 * Implement backend validation
-* Add a Boberg asterisk to motifs
-* Update edit form getters across frontend 
 * Update/add tests in frontend and backend
-* Add translatedTitle field to saga entity
+* Add an admin page
+* Complete characters page
+* Complete location page 
+* Change saga date to date of earliest MS

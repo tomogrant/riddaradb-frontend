@@ -1,20 +1,27 @@
 <app-page-header backgroundImg="vignette.jpg">
-  <i>{{sagaEntry.title}}</i> (<i>{{sagaEntry.translatedTitle}}</i>)
+  <i>{{ sagaEntry.title }}</i> (<i>{{ sagaEntry.translatedTitle }}</i
+  >)
 </app-page-header>
 
 @if (sagaEntry) {
   <div class="card-body page-container">
     <div class="container">
       <div class="row mb-3">
-        <div class="col">
-          <button type="button" class="btn btn-success me-2" (click)="openCiteModal()"> Cite this page </button>
-          @if($loggedIn()){
-            <button data-testid="edit-button" (click)="editSaga()" type="button" class="btn btn-secondary me-2"> Edit </button>
-            @if($isAdmin()){
-              <button data-testid="delete-button" (click)="openDeleteModal()" type="button" class="btn btn-danger">Delete</button>
+        @if (mode !== Mode.ADD) {
+          <div class="col">
+            <button type="button" class="btn btn-success me-2" (click)="openCiteModal()"> Cite this page </button>
+            @if ($loggedIn()) {
+              <button data-testid="edit-button" (click)="editSaga()" type="button" class="btn btn-secondary me-2">
+                Edit
+              </button>
+              @if ($isAdmin()) {
+                <button data-testid="delete-button" (click)="openDeleteModal()" type="button" class="btn btn-danger"
+                  >Delete</button
+                >
+              }
             }
-          }
-        </div>
+          </div>
+        }
       </div>
 
       @if (sagaEntry.sagaVersions.length == 1 && sagaEntry.sagaVersions[0].date != SagaDate.UNDEFINED) {
@@ -69,7 +76,7 @@
                   @if (sagaMotif.pageChapterNumber !== "") {
                     <span>{{ sagaMotif.pageChapterNumber }}.</span>
                   }
-                  @if (sagaMotif.inBoberg){
+                  @if (sagaMotif.inBoberg) {
                     <span class="red">*</span>
                   }
                 </a>
@@ -96,7 +103,7 @@
             <span>
               <a [routerLink]="['/ms', ms.msId]">
                 <span style="font-variant: small-caps">{{ ms.shelfmark }}</span>
-                @if (ms.date){
+                @if (ms.date) {
                   <span> ({{ ms.date }}),</span>
                 }
                 <span> {{ ms.folioNumber }}</span>
@@ -167,7 +174,7 @@
   <div class="modal-dialog modal-dialog-scrollable modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">{{ mode == Mode.ADD ? "Add saga" : "Edit saga" }}</h1>
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">{{ mode == Mode.ADD ? "Add saga" : "Edit saga"}}</h1>
         <button
           (click)="mode == Mode.ADD ? navigateToSagasAllPage() : closeAddEditModal()"
           type="button"
@@ -178,16 +185,15 @@
         <form [formGroup]="editForm">
           <div class="container-fluid">
             <div class="row mb-3">
-
               <!-- TITLE FIELD -->
               <div class="col">
-                <label class="form-label">Icelandic title:</label>
+                <label class="form-label">Old Norse-Icelandic title:</label>
                 <span class="red">*</span>
                 <input
                   type="text"
                   class="form-control"
                   formControlName="title"
-                  placeholder="Saga title"
+                  placeholder="Old Norse-Icelandic title"
                   [class.invalid-input]="title.invalid && showValidationErrors" />
                 @if (title.invalid && showValidationErrors) {
                   @if (title.hasError("required")) {
@@ -202,7 +208,7 @@
                 }
               </div>
 
-              <!-- TRANSLATED TITLE FIELD -->              
+              <!-- TRANSLATED TITLE FIELD -->
               <div class="col">
                 <label class="form-label">Translated title:</label>
                 <span class="red">*</span>
@@ -225,7 +231,7 @@
               @if (sagaVersionForms.length == 1) {
                 <div class="col" formArrayName="sagaVersionForms">
                   <div [formGroupName]="0">
-                    <label for="saga-version-date" class="form-label">Date:</label>
+                    <label for="saga-version-date" class="form-label">Earliest manuscript attestation:</label>
                     <span class="red">*</span>
                     <select
                       class="form-select"
@@ -233,7 +239,7 @@
                       id="saga-version-date"
                       [class.invalid-input]="sagaVersionForms.controls[0].get('date')?.invalid && showValidationErrors">
                       <option [value]="selectADateText" disabled>{{ selectADateText }}</option>
-                      @for (sagaDate of sagaDatesUi; track $index){
+                      @for (sagaDate of sagaDatesUi; track $index) {
                         <option [value]="sagaDate">{{ sagaDate }}</option>
                       }
                     </select>
@@ -365,7 +371,9 @@
                                   type="text"
                                   class="form-control"
                                   formControlName="folioNumber"
-                                  [class.invalid-input]="msForm.form.get('folioNumber')?.invalid && showValidationErrors" />
+                                  [class.invalid-input]="
+                                    msForm.form.get('folioNumber')?.invalid && showValidationErrors
+                                  " />
                                 @if (msForm.form.get("folioNumber")?.invalid && showValidationErrors) {
                                   @if (msForm.form.get("folioNumber")?.hasError("required")) {
                                     <div class="red">
@@ -485,7 +493,7 @@
                     @if (sagaVersionForms.length > 1) {
                       <!-- DATE FIELD -->
                       <div class="col-5">
-                        <label for="saga-version-date" class="form-label">Date:</label>
+                        <label for="saga-version-date" class="form-label">Earliest manuscript attestation:</label>
                         <span class="red">*</span>
                         <select
                           class="form-select"
@@ -494,7 +502,7 @@
                           [class.invalid-input]="sagaVersionForm.get('date')?.invalid && showValidationErrors">
                           <!-- Define these in the TS file -->
                           <option [value]="selectADateText" disabled>{{ selectADateText }}</option>
-                          @for (sagaDate of sagaDatesUi; track $index){
+                          @for (sagaDate of sagaDatesUi; track $index) {
                             <option [value]="sagaDate">{{ sagaDate }}</option>
                           }
                         </select>
