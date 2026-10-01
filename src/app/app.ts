@@ -23,11 +23,11 @@ export class App {
 
   logout(){
     this.authService.logout().subscribe({
-      next: () => this.redirectToHome()
+      next: () => this.redirectToLogin()
     });
   }
 
-  redirectToHome(){
-    this.router.navigate(['/home']);
+  redirectToLogin(){
+    this.router.navigate(['/login']);
   }
 }

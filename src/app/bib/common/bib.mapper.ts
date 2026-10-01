@@ -72,7 +72,7 @@ export class BibMapper {
       }
     }
     if (dto.editors !== "") {
-      if (dto.authors !== "" && dto.translators === "") {
+      if (dto.authors !== "") {
         str = str + ("ed. " + dto.editors + ". ");
       } else {
         str = str + (dto.editors + ", ed., ");
@@ -80,8 +80,8 @@ export class BibMapper {
     }
 
     if (dto.translators !== "") {
-      if (dto.authors !== "" && dto.editors !== "") {
-        str = str + (dto.translators + ", trans., ");
+      if (dto.authors === "" && dto.editors === "") {
+        str = str + (dto.translators + ", trans. ");
       } else {
         str = str + ("tr. " + dto.translators + ". ");
       }
@@ -113,7 +113,7 @@ export class BibMapper {
       }
     }
     if (dto.editors !== "") {
-      if (dto.authors !== "" && dto.translators === "") {
+      if (dto.authors !== "") {
         str = str + ("ed. " + dto.editors + ". ");
       } else {
         str = str + (dto.editors + ", ed., ");
@@ -121,8 +121,8 @@ export class BibMapper {
     }
 
     if (dto.translators !== "") {
-      if (dto.authors !== "" && dto.editors !== "") {
-        str = str + (dto.translators + ", trans., ");
+      if (dto.authors === "" && dto.editors === "") {
+        str = str + (dto.translators + ", trans. ");
       } else {
         str = str + ("tr. " + dto.translators + ". ");
       }
