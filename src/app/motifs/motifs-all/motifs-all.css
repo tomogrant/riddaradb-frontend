@@ -1,3 +1,13 @@
 .tree {
   overflow-x: auto;
 }
+
+.masonry-grid {
+  columns: 250px;
+  column-gap: 15px;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 15px;
+}

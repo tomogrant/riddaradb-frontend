@@ -61,7 +61,6 @@ export class MotifService {
 
   //UPDATE MOTIF
   updateMotif(motif: IMotif): Observable<IMotif> {
-    console.log(motif.sagaMotifs[0].inBoberg);
     return this.httpClient.put<IMotif>(`${this.motifMain}/putmotif`, motif).pipe(
       tap((motif) => console.log("Motif put: " + JSON.stringify(motif))),
       catchError(this.errorHandler),

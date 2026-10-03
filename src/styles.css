@@ -1,5 +1,6 @@
 @import 'quill/dist/quill.snow.css';
 @import 'bootstrap/dist/css/bootstrap.min.css';
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
 /* GLOBAL PAGE STYLING */
 body {
@@ -10,6 +11,14 @@ body {
 
 .red {
   color: rgb(210, 74, 74)
+}
+
+.beige {
+  background-color: rgb(255, 254, 249);
+}
+
+.custom-shadow {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .page-container{

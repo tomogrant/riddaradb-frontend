@@ -28,6 +28,8 @@ export class MotifNode {
   $visible = computed(() => this.motifStore.$visibleNodes().has(this.$nodeId()));
   $result = computed(() => this.motifStore.$resultNodes().has(this.$nodeId()));
 
+  $pinnedNode = computed(() => this.motifStore.$pinnedNodes().has(this.$nodeId()));
+
   //UI signals
   $searchActive = computed(() => this.motifStore.$searchActive());
   $searchTerm = computed(() => this.motifStore.$searchTerm());
@@ -79,6 +81,10 @@ export class MotifNode {
     if (this.$node()?.hasChildren && !this.$node()?.childIds) {
       this.motifStore.getMotifChildren(this.$nodeId());
     }
+  }
+
+  togglePinNode(){
+    this.motifStore.togglePinnedNode(this.$nodeId());
   }
 
   openAddModal() {

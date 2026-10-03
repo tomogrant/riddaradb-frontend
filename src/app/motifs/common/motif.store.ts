@@ -20,6 +20,8 @@ export class MotifStore {
   //Normalised store of motifs
   $motifNodes = signal(new Map<number, IMotif>());
 
+  $pinnedNodes = signal(new Map<number, IMotif>());
+
   //Sets to control which nodes are displayed
   $expandedNodes = signal(new Set<number>());
   $visibleNodes = signal(new Set<number>());
@@ -57,6 +59,57 @@ export class MotifStore {
       this.clearVisibleNodes();
       this.clearResultNodes();
     }
+  }
+
+  togglePinnedNode(nodeId: number) {
+    this.$pinnedNodes.update((current) => {
+      const next = new Map(current);
+      const node = this.$motifNodes().get(nodeId);
+
+      if (!node || !node.id) return next;
+
+      if (next.has(node.id)) {
+        next.delete(node.id);
+      } else {
+        next.set(node.id, node);
+      }
+
+      return next;
+    });
+  }
+
+  movePinnedNode(id: number, direction: number) {
+    this.$pinnedNodes.update((current) => {
+      const next = new Map(current);
+
+      const pinnedNodesArray = [...next];
+      const index = pinnedNodesArray.findIndex(([motifKey]) => motifKey === id);
+
+      if (index < 0) {
+        //Motif not found.
+        return next;
+      }
+
+      const nodeToSwap = pinnedNodesArray[index];
+
+      //Move motif up
+      if (index < next.size && direction === 1) {
+        pinnedNodesArray[index] = pinnedNodesArray[index + 1];
+        pinnedNodesArray[index + 1] = nodeToSwap;
+      }
+
+      //Move motif down
+      else if (index > 0 && direction === -1) {
+        pinnedNodesArray[index] = pinnedNodesArray[index - 1];
+        pinnedNodesArray[index - 1] = nodeToSwap;
+      }
+
+      return new Map(pinnedNodesArray);
+    });
+  }
+
+  clearPinnedNodes(){
+    this.$pinnedNodes.set(new Map());
   }
 
   toggleColourCoding() {

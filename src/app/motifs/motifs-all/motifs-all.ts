@@ -70,6 +70,8 @@ export class MotifsAll {
 
   $modalState = this.motifModalService.$modalState;
 
+  $pinnedNodes = this.motifStore.$pinnedNodes;
+
   $showColourCoding = computed(() => this.motifStore.$showColourCoding());
 
   readonly selectedSagaMap = computed(() => {
@@ -189,6 +191,18 @@ export class MotifsAll {
 
   toggleColourCoding() {
     this.motifStore.toggleColourCoding();
+  }
+
+  togglePinnedNode(id: number){
+    this.motifStore.togglePinnedNode(id);
+  }
+
+  movePinnedNode(id: number, direction: number){
+    this.motifStore.movePinnedNode(id, direction);
+  }
+
+  clearPinnedNodes(){
+    this.motifStore.clearPinnedNodes();
   }
 
   openAddModal() {

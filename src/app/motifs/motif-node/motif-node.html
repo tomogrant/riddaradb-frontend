@@ -2,7 +2,7 @@
   <div class="row mb-3">
     <div class="col-4">
       <div
-        class="card motif-card"
+        class="card custom-shadow"
         [style.background-color]="$showColourCoding() ? nodeColour : 'rgb(255, 254, 249)'"
         [class.result]="$result()">
         <div class="card-header">
@@ -41,7 +41,7 @@
                 @if (saga.pageChapterNumber) {
                   <span>, {{ saga.pageChapterNumber }}</span>
                 }
-                @if (!saga.inBoberg){
+                @if (!saga.inBoberg) {
                   <span class="red">*</span>
                 }
               </div>
@@ -69,14 +69,23 @@
           }
 
           <span class="toggle-slot">
-          @if ($node()?.hasChildren && !$searchActive()) {
-
+            <a type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="togglePinNode()" aria-label="Pin">
+              @if ($pinnedNode()) {
+                <i class="bi bi-pin-angle"></i>
+              } @else {
+                <i class="bi bi-pin-angle-fill"></i>
+              }
+            </a>
+            @if ($node()?.hasChildren && !$searchActive()) {
               <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
-                {{ $expanded() ? "&minus;" : "&plus;" }}
+                @if ($expanded()) {
+                  <i class="bi bi-dash-lg"></i>
+                } @else {
+                  <i class="bi bi-plus-lg"></i>
+                }
               </a>
-
-          }
-                      </span>
+            }
+          </span>
         </div>
       </div>
     </div>
