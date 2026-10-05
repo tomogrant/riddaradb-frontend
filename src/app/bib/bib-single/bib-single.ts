@@ -27,6 +27,7 @@ import { IBibVm } from "../common/IBibVm";
 import { ISagaTitleDto } from "../../sagas/common/ISagaTitleDto";
 import { PageHeader } from "../../page-header/page-header";
 import { AuthService } from "../../auth/auth.service";
+import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "app-bibs",
@@ -183,7 +184,7 @@ export class BibSingle {
     return this.editForm.controls.recommended;
   }
   get description(): FormControl {
-    return this.editForm.controls.description;
+    return this.editForm.controls.description
   }
 
   ngOnInit() {
@@ -200,7 +201,8 @@ export class BibSingle {
       this.getSagas();
       this.addBib();
     } else if (!Number.isNaN(id)) {
-      this.bibService.getBibEntryById(id).subscribe((receivedEntry) => {
+      this.bibService.getBibEntryById(id).subscribe({
+        next: (receivedEntry) => {
         if (receivedEntry == null) {
           console.log("Bib entry not found");
           this.navigateToBibAllPage();
@@ -209,7 +211,11 @@ export class BibSingle {
         console.log("SAGA IDS: " + this.activeBib.sagaIds);
         this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
         this.getSagas();
-      });
+      },
+      error: (err: HttpErrorResponse) => {
+        console.log("Error encountered retrieving bibliography entry: " + JSON.stringify(err.error));
+      }
+    });
     } else {
       console.log("parameter is incorrect");
       this.navigateToBibAllPage();
@@ -465,6 +471,7 @@ export class BibSingle {
 
   addBib() {
     this.mode = Mode.ADD;
+
     this.activeBib = this.initialiseBib();
     this.openAddEditModal();
   }

@@ -31,6 +31,7 @@ import { IMs } from "../../ms/common/IMs";
 import { MsService } from "../../ms/common/ms.service";
 import { ISagaTitleDto } from "../common/ISagaTitleDto";
 import { PageHeader } from "../../page-header/page-header";
+import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "app-saga-entry",
@@ -125,7 +126,7 @@ export class SagasSingle implements OnInit {
 
   editForm = new FormGroup({
     id: new FormControl<number | null>({ value: null, disabled: true }),
-    title: new FormControl<string>("", { validators: [Validators.required, this.sagaTitleUnique()] }),
+    title: new FormControl<string>("", { validators: [this.sagaTitleUnique()] }),
     translatedTitle: new FormControl<string>("", Validators.required),
     translated: new FormControl<boolean>(false),
     description: new FormControl<string>(""),
@@ -702,8 +703,8 @@ export class SagasSingle implements OnInit {
       next: (receivedSaga) => {
         this.navigateToSagasSinglePage(receivedSaga.id);
       },
-      error: (err) => {
-        console.log("Problem with saving.");
+      error: (err: HttpErrorResponse) => {
+        console.log("Problem with posting saga: " + JSON.stringify(err.error));
       },
     });
   }

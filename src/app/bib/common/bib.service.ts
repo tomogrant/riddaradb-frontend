@@ -56,7 +56,6 @@ export class BibService {
   }
 
   private errorHandler(error: HttpErrorResponse) {
-    let errorMessage = "error";
-    return throwError(() => errorMessage);
+    return throwError(() => error);
   }
 }

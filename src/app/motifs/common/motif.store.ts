@@ -32,13 +32,37 @@ export class MotifStore {
   $searchTerm = signal("");
   $showColourCoding = signal(false);
 
-  initialise() {
+  async initialise() {
     this.collapseAll();
     this.clearVisibleNodes();
     this.clearResultNodes();
     this.$searchActive.set(false);
     this.$searchTerm.set("");
     this.$showColourCoding.set(false);
+    this.$pinnedNodes.set(await this.retrievePinnedNodesFromLocalStorage());
+  }
+
+  //Gets pinned node IDs from local storage and retrieves them from the database. 
+  //Nodes are placed in the $pinnedNodes map. 
+  async retrievePinnedNodesFromLocalStorage(): Promise<Map<number, IMotif>> {
+    
+    const raw = localStorage.getItem("pinnedNodes");
+    const nodeIds: number[] = raw ? JSON.parse(raw) : [];
+
+    const pinnedNodes = await firstValueFrom(this.motifService.getMotifsByIds(nodeIds)); 
+
+    //1. Type predicate filters for IMotifs with numeric + non-null IDs
+    //2. Sorts IMotifs according to IDs in local storage (we don't want the order changing)
+    //3. Creates a map from the filtered, sorted IMotifs. 
+    return new Map(pinnedNodes
+      .filter((pinnedNode): pinnedNode is IMotif & {id: number} => pinnedNode.id !== null)
+      .sort((a, b) => nodeIds.indexOf(a.id!) - nodeIds.indexOf(b.id!))
+      .map(pinnedNode => [pinnedNode.id, pinnedNode]));
+  }
+
+  savePinnedNodesToLocalStorage() {
+    localStorage.setItem("pinnedNodes", JSON.stringify([...this.$pinnedNodes().keys()]));
+    console.log("Pinned nodes saved to local storage");
   }
 
   async getSagaTitles() {
@@ -76,8 +100,11 @@ export class MotifStore {
 
       return next;
     });
+
+    this.savePinnedNodesToLocalStorage();
   }
 
+  //Moves pinned node up or down in map
   movePinnedNode(id: number, direction: number) {
     this.$pinnedNodes.update((current) => {
       const next = new Map(current);
@@ -106,10 +133,40 @@ export class MotifStore {
 
       return new Map(pinnedNodesArray);
     });
+
+    this.savePinnedNodesToLocalStorage();
   }
 
-  clearPinnedNodes(){
+  clearPinnedNodes() {
     this.$pinnedNodes.set(new Map());
+    this.savePinnedNodesToLocalStorage();
+  }
+
+  editPinnedNode(node: IMotif) {
+    this.$pinnedNodes.update((current) => {
+      const next = new Map(current);
+
+      if (next.get(node.id!)) {
+        next.set(node.id!, node);
+      }
+
+      return next;
+    });
+
+    this.savePinnedNodesToLocalStorage();
+  }
+
+  removePinnedNode(id: number) {
+    this.$pinnedNodes.update((current) => {
+      const next = new Map(current);
+      if (next.get(id)) {
+        next.delete(id);
+      }
+
+      return next;
+    });
+
+    this.savePinnedNodesToLocalStorage();
   }
 
   toggleColourCoding() {
@@ -350,7 +407,6 @@ export class MotifStore {
   }
 
   putMotifNode(updatedMotifNode: IMotif) {
-    console.log(updatedMotifNode.sagaMotifs);
     this.motifService.updateMotif(updatedMotifNode).subscribe((updatedMotif) => {
       //Retain children after edit. Children are not returned by backend API
       //and field 'hasChildren' is not set until after a following get request.
@@ -367,6 +423,8 @@ export class MotifStore {
       } else {
         this.sortRootIds();
       }
+
+      this.editPinnedNode(updatedMotif);
     });
   }
 
@@ -432,6 +490,8 @@ export class MotifStore {
 
     console.log("deleting motif " + id);
     this.motifService.deleteMotif(id).subscribe();
+
+    this.removePinnedNode(id);
   }
 
   async getMotifChildren(id: number): Promise<void> {

@@ -1,7 +1,7 @@
 import { Injectable, inject } from "@angular/core";
 import { Observable, catchError, throwError, tap } from "rxjs";
 import { IMotif } from "./IMotif";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { IMotifSearchResult } from "./IMotifSearchResult";
 
 @Injectable({
@@ -20,10 +20,19 @@ export class MotifService {
   }
 
   //READ ALL MOTIFS
-  getMotifs(): Observable<IMotif[]> {
+  getAllMotifs(): Observable<IMotif[]> {
     return this.httpClient.get<IMotif[]>(`${this.motifMain}/getmotifs`).pipe(
       tap((motifs) => console.log("Motif posted: " + JSON.stringify(motifs))),
       catchError(this.errorHandler),
+    );
+  }
+
+  getMotifsByIds(ids: number[]): Observable<IMotif[]>{
+
+    const params = new HttpParams().set('id', ids.join(','));
+
+    return this.httpClient.get<IMotif[]>(`${this.motifMain}/getmotifsbyids`, {params}).pipe(
+      catchError(this.errorHandler)
     );
   }
 
