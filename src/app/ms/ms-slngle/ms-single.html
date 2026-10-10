@@ -11,23 +11,23 @@
   <div class="container">
     @if (mode !== Mode.ADD) {
       <div class="row">
-        <div class="col">Repository: {{repo.name}}</div>
+        <div class="col">Repository: {{ repo.name }}</div>
       </div>
 
       <div class="row mb-3">
-        <div class="col">Shelfmark: {{activeMs.shelfmark}}</div>
+        <div class="col">Shelfmark: {{ activeMs.shelfmark }}</div>
       </div>
 
       <div class="row mb-3">
-        <div class="col">Date: {{activeMs.date}}</div>
+        <div class="col">Date: {{ activeMs.date }}</div>
       </div>
 
       <div class="row mb-3">
-        <div class="col">Handrit link: {{activeMs.handritLink}}</div>
+        <div class="col">Handrit link: {{ activeMs.handritLink }}</div>
       </div>
 
       <div class="row mb-3">
-        <div class="col">Shelfmark: {{activeMs.fasnlLink}}</div>
+        <div class="col">Shelfmark: {{ activeMs.fasnlLink }}</div>
       </div>
 
       <div class="row mb-3">
@@ -41,10 +41,10 @@
           <div class="row">
             <div class="col">
               <a [routerLink]="['/sagas', saga.sagaId]">
-                {{saga.folioNumber}}:
-                <i>{{saga.sagaTitle}}</i>
-                @if (saga.note){
-                  ({{saga.note}})
+                {{ saga.folioNumber }}:
+                <i>{{ saga.sagaTitle }}</i>
+                @if (saga.note) {
+                  ({{ saga.note }})
                 }
               </a>
             </div>
@@ -52,21 +52,25 @@
         }
       }
 
-      <div class="mt-3">
-        <!-- Edit button -->
-        <button
-          data-testid="edit-button"
-          (click)="editMs()"
-          type="button"
-          style="margin-right: 0.25rem"
-          class="btn btn-secondary btn-sm">
-          Edit
-        </button>
-        <!-- Delete button -->
-        <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">
-          Delete
-        </button>
-      </div>
+      @if ($loggedIn()) {
+        <div class="mt-3">
+          <!-- Edit button -->
+          <button
+            data-testid="edit-button"
+            (click)="editMs()"
+            type="button"
+            style="margin-right: 0.25rem"
+            class="btn btn-secondary btn-sm">
+            Edit
+          </button>
+          @if ($isAdmin()) {
+            <!-- Delete button -->
+            <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">
+              Delete
+            </button>
+          }
+        </div>
+      }
     }
   </div>
 </div>
@@ -140,8 +144,13 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-date" class="form-label"> Date: </label>
-                <input type="text" class="form-control" formControlName="date" id="ms-date" placeholder="Date"
-                 [class.invalid-input]="date.invalid && showValidationErrors" />
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="date"
+                  id="ms-date"
+                  placeholder="Date"
+                  [class.invalid-input]="date.invalid && showValidationErrors" />
                 @if (date.invalid && showValidationErrors) {
                   @if (date.hasError("pattern")) {
                     <div class="red">
@@ -156,7 +165,12 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-handrit" class="form-label"> Link to handrit<i>.is</i> entry: </label>
-                <input type="text" class="form-control" formControlName="handritLink" id="ms-handrit" placeholder="handrit.is"
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="handritLink"
+                  id="ms-handrit"
+                  placeholder="handrit.is"
                   [class.invalid-input]="handritLink.invalid && showValidationErrors" />
                 @if (handritLink.invalid && showValidationErrors) {
                   @if (handritLink.hasError("pattern")) {
@@ -172,7 +186,12 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-fasnl" class="form-label"> Link to FASNL entry: </label>
-                <input type="text" class="form-control" formControlName="fasnlLink" id="ms-fasnl" placeholder="fasnl.net"
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="fasnlLink"
+                  id="ms-fasnl"
+                  placeholder="fasnl.net"
                   [class.invalid-input]="fasnlLink.invalid && showValidationErrors" />
                 @if (fasnlLink.invalid && showValidationErrors) {
                   @if (fasnlLink.hasError("pattern")) {
@@ -209,8 +228,7 @@
             <div class="row my-2">
               <div class="col-1">✓</div>
               <div class="col">Saga</div>
-              <div class="col">Folio number<span class="red">*</span>
-              </div>
+              <div class="col">Folio number<span class="red">*</span> </div>
               <div class="col">Note</div>
             </div>
 
@@ -242,10 +260,7 @@
                   </div>
                   <!-- Note -->
                   <div class="col">
-                    <input
-                      type="text"
-                      class="form-control"
-                      formControlName="note" />
+                    <input type="text" class="form-control" formControlName="note" />
                   </div>
                 </div>
               }

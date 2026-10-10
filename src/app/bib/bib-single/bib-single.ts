@@ -8,12 +8,7 @@ import {
   ValidatorFn,
 } from "@angular/forms";
 import { Component, computed, inject } from "@angular/core";
-import {
-  RouterModule,
-  ActivatedRoute,
-  Router,
-  RouterLink,
-} from "@angular/router";
+import { RouterModule, ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { Modal } from "bootstrap";
 import { Mode } from "../../shared/Enums";
 import { BibService } from "../common/bib.service";
@@ -31,18 +26,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "app-bibs",
-  imports: [
-    CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    QuillModule,
-    PageHeader,
-    RouterLink,
-  ],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule, PageHeader, RouterLink],
   templateUrl: "./bib-single.html",
 })
 export class BibSingle {
-
   private bibService = inject(BibService);
   private sagaService = inject(SagaService);
   private bibMapper = inject(BibMapper);
@@ -53,8 +40,7 @@ export class BibSingle {
   $loggedIn = computed(() => this.authService.$loggedIn());
   $isAdmin = computed(() => this.authService.$isAdmin());
 
-  urlPattern =
-    /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  urlPattern = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   publicationTypesUi: string[] = [];
 
@@ -177,14 +163,14 @@ export class BibSingle {
   get publicationYear(): FormControl {
     return this.editForm.controls.publicationYear;
   }
-  get pageNumbers(): FormControl{
+  get pageNumbers(): FormControl {
     return this.editForm.controls.pageNumbers;
   }
   get recommended(): FormControl {
     return this.editForm.controls.recommended;
   }
   get description(): FormControl {
-    return this.editForm.controls.description
+    return this.editForm.controls.description;
   }
 
   ngOnInit() {
@@ -200,22 +186,18 @@ export class BibSingle {
     if (mode == "add") {
       this.getSagas();
       this.addBib();
-    } else if (!Number.isNaN(id)) {
+    } else if (Number.isFinite(Number(id))) {
       this.bibService.getBibEntryById(id).subscribe({
         next: (receivedEntry) => {
-        if (receivedEntry == null) {
-          console.log("Bib entry not found");
+          this.activeBib = receivedEntry;
+          this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
+          this.getSagas();
+        },
+        error: (err: HttpErrorResponse) => {
+          console.log("Error encountered retrieving bibliography entry: " + JSON.stringify(err.error));
           this.navigateToBibAllPage();
-        }
-        this.activeBib = receivedEntry;
-        console.log("SAGA IDS: " + this.activeBib.sagaIds);
-        this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
-        this.getSagas();
-      },
-      error: (err: HttpErrorResponse) => {
-        console.log("Error encountered retrieving bibliography entry: " + JSON.stringify(err.error));
-      }
-    });
+        },
+      });
     } else {
       console.log("parameter is incorrect");
       this.navigateToBibAllPage();
@@ -228,9 +210,7 @@ export class BibSingle {
       sagas.forEach((saga) => this.sagas.push(saga));
       this.sagas.sort((a, b) => a.title.localeCompare(b.title));
 
-      this.attachedSagas = this.sagas.filter((saga) =>
-        this.activeBib.sagaIds.includes(saga.id),
-      );
+      this.attachedSagas = this.sagas.filter((saga) => this.activeBib.sagaIds.includes(saga.id));
     });
   }
 
@@ -311,8 +291,7 @@ export class BibSingle {
         this.editFormConfig = editFormConfigs[PublicationType.MONOGRAPH];
         break;
       case PublicationType.EDITED_COLLECTION:
-        this.editFormConfig =
-          editFormConfigs[PublicationType.EDITED_COLLECTION];
+        this.editFormConfig = editFormConfigs[PublicationType.EDITED_COLLECTION];
         break;
       case PublicationType.THESIS:
         this.editFormConfig = editFormConfigs[PublicationType.THESIS];
@@ -366,9 +345,7 @@ export class BibSingle {
     if (this.editFormConfig.requireAuthorsEditorsTranslators) {
       this.editForm.addValidators(this.authorsEditorsTranslatorsNotProvided());
     } else {
-      this.editForm.removeValidators(
-        this.authorsEditorsTranslatorsNotProvided(),
-      );
+      this.editForm.removeValidators(this.authorsEditorsTranslatorsNotProvided());
     }
 
     if (this.editFormConfig.requireAuthors) {
@@ -439,10 +416,7 @@ export class BibSingle {
   }
 
   convertEnumToUi(publicationType: PublicationType) {
-    return (
-      String(publicationType).charAt(0) +
-      String(publicationType.slice(1).toLowerCase())
-    ).replace("_", " ");
+    return (String(publicationType).charAt(0) + String(publicationType.slice(1).toLowerCase())).replace("_", " ");
   }
 
   convertUiToEnum(publicationType: string) {
@@ -652,63 +626,50 @@ export class BibSingle {
     //only relevant data is persisted.
     this.activeBib.publicationType = this.convertUiToEnum(this.type.value);
 
-    if (this.editFormConfig.includeAuthors)
-      this.activeBib.authors = this.authors.value;
+    if (this.editFormConfig.includeAuthors) this.activeBib.authors = this.authors.value;
     else this.activeBib.authors = this.authors.defaultValue;
 
-    if (this.editFormConfig.includeEditors)
-      this.activeBib.editors = this.editors.value;
+    if (this.editFormConfig.includeEditors) this.activeBib.editors = this.editors.value;
     else this.activeBib.editors = this.editors.defaultValue;
 
-    if (this.editFormConfig.includeTranslators)
-      this.activeBib.translators = this.translators.value;
+    if (this.editFormConfig.includeTranslators) this.activeBib.translators = this.translators.value;
     else this.activeBib.translators = this.translators.defaultValue;
 
-    if (this.editFormConfig.includeTitle)
-      this.activeBib.title = this.title.value.replaceAll(/<\/?p[^>]*>/g, "");
+    if (this.editFormConfig.includeTitle) this.activeBib.title = this.title.value.replaceAll(/<\/?p[^>]*>/g, "");
     else this.activeBib.title = this.title.defaultValue;
 
     if (this.editFormConfig.includeUrl) this.activeBib.url = this.url.value;
     else this.activeBib.url = this.url.defaultValue;
 
-    if (this.editFormConfig.includeBookEditors)
-      this.activeBib.bookEditors = this.bookEditors.value;
+    if (this.editFormConfig.includeBookEditors) this.activeBib.bookEditors = this.bookEditors.value;
     else this.activeBib.bookEditors = this.bookEditors.defaultValue;
 
     if (this.editFormConfig.includeBook) this.activeBib.book = this.book.value;
     else this.activeBib.book = this.book.defaultValue;
 
-    if (this.editFormConfig.includeBookSeries)
-      this.activeBib.bookSeries = this.bookSeries.value;
+    if (this.editFormConfig.includeBookSeries) this.activeBib.bookSeries = this.bookSeries.value;
     else this.activeBib.bookSeries = this.bookSeries.defaultValue;
 
-    if (this.editFormConfig.includeVolume)
-      this.activeBib.volume = this.volume.value;
+    if (this.editFormConfig.includeVolume) this.activeBib.volume = this.volume.value;
     else this.activeBib.volume = this.volume.defaultValue;
 
-    if (this.editFormConfig.includeNumOfVolumes)
-      this.activeBib.numOfVolumes = this.numOfVolumes.value;
+    if (this.editFormConfig.includeNumOfVolumes) this.activeBib.numOfVolumes = this.numOfVolumes.value;
     else this.activeBib.numOfVolumes = this.numOfVolumes.defaultValue;
 
     if (this.editFormConfig.includePlaceOfPublication)
       this.activeBib.placeOfPublication = this.placeOfPublication.value;
-    else
-      this.activeBib.placeOfPublication = this.placeOfPublication.defaultValue;
+    else this.activeBib.placeOfPublication = this.placeOfPublication.defaultValue;
 
-    if (this.editFormConfig.includePublisher)
-      this.activeBib.publisher = this.publisher.value;
+    if (this.editFormConfig.includePublisher) this.activeBib.publisher = this.publisher.value;
     else this.activeBib.publisher = this.publisher.defaultValue;
 
-    if (this.editFormConfig.includePublicationYear)
-      this.activeBib.publicationYear = this.publicationYear.value;
+    if (this.editFormConfig.includePublicationYear) this.activeBib.publicationYear = this.publicationYear.value;
     else this.activeBib.publicationYear = this.publicationYear.defaultValue;
 
-    if (this.editFormConfig.includePageNumbers)
-      this.activeBib.pageNumbers = this.pageNumbers.value;
+    if (this.editFormConfig.includePageNumbers) this.activeBib.pageNumbers = this.pageNumbers.value;
     else this.activeBib.pageNumbers = this.pageNumbers.defaultValue;
 
-    if (this.editFormConfig.includeRecommended)
-      this.activeBib.recommended = this.recommended.value;
+    if (this.editFormConfig.includeRecommended) this.activeBib.recommended = this.recommended.value;
     else this.activeBib.recommended = this.recommended.defaultValue;
 
     if (this.editFormConfig.includeDescription) {
@@ -717,10 +678,7 @@ export class BibSingle {
         //Quill replaces all empty spaces with the character &nbsp;. This causes the
         //string in innerHTML to be treated as one line, which causes it to run off
         //the page. This is a fix.
-        this.activeBib.description = this.description.value.replaceAll(
-          /((?:&nbsp;)*)&nbsp;/g,
-          "$1 ",
-        );
+        this.activeBib.description = this.description.value.replaceAll(/((?:&nbsp;)*)&nbsp;/g, "$1 ");
     } else {
       this.activeBib.description = this.description.defaultValue;
     }
@@ -757,16 +715,11 @@ export class BibSingle {
     this.fillBibDto();
     this.bibService.putBib(this.activeBib).subscribe({
       next: (receivedBib) => {
-        console.log(
-          "bibliography entry updated; sagas got from backend: " +
-            receivedBib.sagaIds,
-        );
+        console.log("bibliography entry updated; sagas got from backend: " + receivedBib.sagaIds);
         this.activeBib = receivedBib;
         this.activeBibVm = this.bibMapper.mapDtoToVm(this.activeBib);
 
-        this.attachedSagas = this.sagas.filter((saga) =>
-          this.activeBib.sagaIds.includes(saga.id),
-        );
+        this.attachedSagas = this.sagas.filter((saga) => this.activeBib.sagaIds.includes(saga.id));
       },
       error: (err) => {
         console.log("Error updating bib: " + err);
@@ -793,11 +746,7 @@ export class BibSingle {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
 
-      if (
-        value.authors.trim() !== "" ||
-        value.editors.trim() !== "" ||
-        value.translators.trim() !== ""
-      ) {
+      if (value.authors.trim() !== "" || value.editors.trim() !== "" || value.translators.trim() !== "") {
         return null;
       } else {
         return { authorsEditorsTranslatorsNotProvided: true };

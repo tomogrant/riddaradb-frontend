@@ -70,7 +70,7 @@ export class MotifNode {
     this.setBackgroundColour();
   }
 
-  toggle() {
+  toggleExpand() {
     if (this.$expanded()) {
       this.motifStore.collapse(this.$nodeId());
       return;

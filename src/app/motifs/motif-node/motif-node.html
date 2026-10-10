@@ -1,6 +1,6 @@
 @if (!$searchActive() || ($searchActive() && $visible())) {
   <div class="row mb-3">
-    <div class="col-4">
+    <div class="col-12 col-xl-4 col-lg-5 col-md-6 col-sm-9">
       <div
         class="card custom-shadow"
         [style.background-color]="$showColourCoding() ? nodeColour : 'rgb(255, 254, 249)'"
@@ -69,15 +69,18 @@
           }
 
           <span class="toggle-slot">
-            <a type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="togglePinNode()" aria-label="Pin">
-              @if ($pinnedNode()) {
-                <i class="bi bi-pin-angle"></i>
-              } @else {
-                <i class="bi bi-pin-angle-fill"></i>
-              }
-            </a>
+            @if ($depth() > 2) {
+              <a type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="togglePinNode()" aria-label="Pin">
+                @if ($pinnedNode()) {
+                  <i class="bi bi-pin-angle"></i>
+                } @else {
+                  <i class="bi bi-pin-angle-fill"></i>
+                }
+              </a>
+            }
+
             @if ($node()?.hasChildren && !$searchActive()) {
-              <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle()">
+              <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleExpand()">
                 @if ($expanded()) {
                   <i class="bi bi-dash-lg"></i>
                 } @else {

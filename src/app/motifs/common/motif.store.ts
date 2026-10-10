@@ -476,12 +476,14 @@ export class MotifStore {
       return next;
     });
 
+    //Remove root IDs which no longer exist in the $motifNodes map
     this.$rootIds().forEach((id) => {
       if (!this.$motifNodes().has(id)) {
         this.$rootIds().delete(id);
       }
     });
 
+    //Remove expanded node IDs which no longer exist in the $motifNodes map
     this.$expandedNodes().forEach((id) => {
       if (!this.$motifNodes().has(id)) {
         this.$expandedNodes().delete(id);
@@ -489,9 +491,10 @@ export class MotifStore {
     });
 
     console.log("deleting motif " + id);
-    this.motifService.deleteMotif(id).subscribe();
-
-    this.removePinnedNode(id);
+    this.motifService.deleteMotif(id).subscribe({
+      next: () => this.removePinnedNode(id),
+      error: err => console.log("Error deleting motif node: " + JSON.stringify(err.error))
+    });
   }
 
   async getMotifChildren(id: number): Promise<void> {

@@ -8,7 +8,7 @@
     <div class="container">
       <div class="row mb-3">
         @if (mode !== Mode.ADD) {
-          <div class="col">
+          <div class="col d-flex">
             <button type="button" class="btn btn-success me-2" (click)="openCiteModal()"> Cite this page </button>
             @if ($loggedIn()) {
               <button data-testid="edit-button" (click)="editSaga()" type="button" class="btn btn-secondary me-2">
@@ -34,7 +34,7 @@
       }
 
       @if (sagaEntry.description != "") {
-        <div class="mb-4 description-text" [innerHTML]="sagaEntry.description"></div>
+        <div class="row mb-4 description-text" [innerHTML]="sagaEntry.description"></div>
       }
 
       <!-- SAGA VERSION -->
@@ -156,7 +156,7 @@
         }
         <p></p>
       }
-    </div>
+  </div>
   </div>
 }
 

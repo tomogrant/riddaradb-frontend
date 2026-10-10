@@ -1,5 +1,5 @@
 import { FormGroup, FormControl, FormGroupName, FormArray, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Component } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import { Modal } from "bootstrap";
 import { RouterModule, Router, ActivatedRoute } from "@angular/router";
 import { MsService } from "../common/ms.service";
@@ -14,6 +14,7 @@ import { IMsSaga } from "../common/IMsSaga";
 import { ValidatorFn, AbstractControl, ValidationErrors } from "@angular/forms";
 import { Title } from "@angular/platform-browser";
 import { PageHeader } from "../../page-header/page-header";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-ms-single",
@@ -22,13 +23,13 @@ import { PageHeader } from "../../page-header/page-header";
   styleUrl: "./ms-single.css",
 })
 export class MsSingle {
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private msService: MsService,
-    private sagaService: SagaService,
-    private title: Title,
-  ) {}
+
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private msService = inject(MsService);
+    private sagaService = inject(SagaService);
+    private title = inject(Title);
+    private authService = inject(AuthService);
 
   //Forms
   editForm = new FormGroup({
@@ -36,8 +37,14 @@ export class MsSingle {
     name: new FormControl<string>(""),
     shelfmark: new FormControl<string>("", [Validators.required, this.shelfmarkUnique()]),
     date: new FormControl<string>("", Validators.pattern(/^\d{4}(?:-\d{4})?$/)),
-    handritLink: new FormControl<string>("", Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?handrit\.is\/manuscript\/[^\s]+$/)),
-    fasnlLink: new FormControl<string>("", Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?fasnl\.net\/manuscripts\/[^\s]+$/)),
+    handritLink: new FormControl<string>(
+      "",
+      Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?handrit\.is\/manuscript\/[^\s]+$/),
+    ),
+    fasnlLink: new FormControl<string>(
+      "",
+      Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?fasnl\.net\/manuscripts\/[^\s]+$/),
+    ),
     description: new FormControl<string>(""),
     msSagas: new FormArray<FormGroup>([]),
   });
@@ -84,6 +91,9 @@ export class MsSingle {
   readonly Mode = Mode;
   mode: Mode = Mode.NONE;
 
+  $loggedIn = computed(() => this.authService.$loggedIn());
+  $isAdmin = computed(() => this.authService.$isAdmin());
+
   index: number = 0;
 
   ngOnInit() {
@@ -102,16 +112,18 @@ export class MsSingle {
       this.getSagas();
       this.getRepo();
       this.addMs();
-    } else if (!Number.isNaN(id)) {
-      this.msService.getMsEntryById(id).subscribe((receivedEntry) => {
-        if (receivedEntry == null) {
-          console.log("Ms entry not found");
+    } else if (id !== null && Number.isFinite(Number(id))) {
+      this.msService.getMsEntryById(id).subscribe({
+        next: (receivedEntry) => {
+          this.activeMs = receivedEntry;
+          this.title.setTitle("riddaraDB - " + this.activeMs.shelfmark);
+          this.getSagas();
+          this.getRepo();
+        },
+        error: err => {
+          console.log("Error getting MS: " + JSON.stringify(err.error));
           this.navigateToMsAllPage();
         }
-        this.activeMs = receivedEntry;
-        this.title.setTitle("riddaraDB - " + this.activeMs.shelfmark);
-        this.getSagas();
-        this.getRepo();
       });
     } else {
       console.log("parameter is incorrect");
@@ -142,12 +154,10 @@ export class MsSingle {
         },
         Validators.required,
       ),
-      note: new FormControl<string | null>(
-        {
-          value: msSaga?.note ?? null,
-          disabled: !selected,
-        }
-      ),
+      note: new FormControl<string | null>({
+        value: msSaga?.note ?? null,
+        disabled: !selected,
+      }),
       selected: new FormControl<boolean>(selected),
     });
 
@@ -171,7 +181,7 @@ export class MsSingle {
           folioNumber.setValue(null);
         }
       }
-      if (note){
+      if (note) {
         if (selected) {
           note.enable();
         } else {
@@ -227,13 +237,15 @@ export class MsSingle {
       date: String(formValue.date).trim(),
       handritLink: String(formValue.handritLink)?.trim(),
       fasnlLink: String(formValue.fasnlLink)?.trim(),
-      description: formValue.description ? formValue.description.replaceAll(/((?:&nbsp;)*)&nbsp;/g, "$1 ").trim() : null,
+      description: formValue.description
+        ? formValue.description.replaceAll(/((?:&nbsp;)*)&nbsp;/g, "$1 ").trim()
+        : null,
       msSagaDtos: formValue.msSagas
         .filter((saga) => saga["selected"])
         .map((saga) => ({
           sagaId: saga["sagaId"],
           folioNumber: String(saga["folioNumber"]).trim(),
-          note: saga["note"] == null ? null : String(saga["note"]).trim()
+          note: saga["note"] == null ? null : String(saga["note"]).trim(),
         })),
       msRepositoryId: this.activeMs.msRepositoryId,
     };
@@ -359,7 +371,7 @@ export class MsSingle {
     if (this.activeMs.id) {
       this.msService.deleteMs(this.activeMs.id).subscribe({
         next: () => this.navigateToMsAllPage(),
-        error: (err) => console.log("problem with deleting")
+        error: (err) => console.log("problem with deleting"),
       });
     }
   }

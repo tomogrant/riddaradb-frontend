@@ -12,6 +12,7 @@ describe("SagasSingle", () => {
   let sagaResponseDto: ISagaResponseDto = {
     id: 1,
     title: "Title",
+    translatedTitle: "Translated title",
     description: "Description",
     translated: false,
     bibDtos: [],
@@ -24,6 +25,7 @@ describe("SagasSingle", () => {
   let updatedSagaResponseDto: ISagaResponseDto = {
     id: 1,
     title: "New title",
+    translatedTitle: "Translated title",
     description: "New description",
     translated: true,
     bibDtos: [],

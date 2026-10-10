@@ -1,15 +1,9 @@
 TODO
-* Implement backend validation
 * Update/add tests in frontend and backend
 * Complete characters page
 * Complete location page 
-* Think of a way of saving motif pinboard in browser
 * Think of an env variable-based way of locking the site behind a login screen 
-
-* Make sure all single page (e.g. bib/20) endpoints are protected against entering text 
+* Make DB columns unique
+* Make the site HTTPS
 * Make it so that you don't submit an interface directly when submitting a form; experiment with creating a new object
-
-* Remember that the 'title' field in saga is no longer required for testing purposes; this needs fixing
-* Add a single @ControllerAdvice class for handling exceptions in Spring
-* Add @Valid at controller level and validation at DTO level to catch problems before they reach the DB
-* Decide whether to return ResponseEntity or DTOs themselves in Spring
+* Make it so that a user who isn't logged in gets logged out after trying to submit something

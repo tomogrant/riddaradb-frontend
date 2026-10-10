@@ -2,17 +2,18 @@
 <div class="card-body page-container">
   <div class="container">
     <div class="row mb-4">
-      <div class="col-3">
+      <div class="col-8 col-md-3">
         <form [formGroup]="filterForm">
           <input type="text" class="form-control" formControlName="filter" placeholder="Filter manuscripts..." />
         </form>
       </div>
     </div>
 
-    <div class="row">
-      <div>
-        <div class="accordion custom-shadow" id="accordion-container">
-          @for (repo of filteredRepositoriesVm; track $index) {
+    <div class="accordion" id="accordion-container">
+      @for (repo of filteredRepositoriesVm; track $index) {
+        <div class="row g-0">
+          <div class="custom-shadow">
+          <div class="col-12">
             <div class="accordion-item">
               <h2 class="accordion-header">
                 <button
@@ -24,81 +25,85 @@
                   <span class="me-3" style="font-variant: small-caps; font-size: 1.3rem">
                     {{ repo.name }} ({{ repo.city }}, {{ repo.country }})
                   </span>
-
-                  @if ($loggedIn()) {
-                    <span class="me-1">
-                      <button
-                        class="me-1"
-                        type="button"
-                        class="btn btn-sm btn-outline-success"
-                        (click)="addManuscript(repo.id)"
-                        onclick="event.stopPropagation()">
-                        Add MS
-                      </button>
-                    </span>
-
-                    <span class="me-1">
-                      <button
-                        class="me-1"
-                        type="button"
-                        class="btn btn-sm btn-outline-secondary"
-                        (click)="editRepository(repo.id)"
-                        onclick="event.stopPropagation()">
-                        Edit
-                      </button>
-                    </span>
-
-                    @if ($isAdmin()) {
-                      <span class="me-1">
-                        <button
-                          class="me-1"
-                          type="button"
-                          class="btn btn-sm btn-outline-danger"
-                          (click)="openDeleteModal(repo.id)"
-                          onclick="event.stopPropagation()">
-                          Delete
-                        </button>
-                      </span>
-                    }
-                  }
                 </button>
               </h2>
-              <div [id]="repo.id" class="accordion-collapse" [class.show]="repo.accordionOpen">
-                <div class="accordion-body accordion-content">
-                  @if (repo.manuscripts.length > 0) {
-                    @for (ms of repo.manuscripts; track $index) {
-                      @if (ms.name) {
-                        <p>
-                          <a [routerLink]="['/ms', ms.id]" ]>{{ ms.shelfmark }} ({{ ms.name }})</a>
-                        </p>
-                      } @else {
-                        <p>
-                          <a [routerLink]="['/ms', ms.id]" ]>
-                            {{ ms.shelfmark }}
-                          </a>
-                        </p>
-                      }
+            </div>
+
+            <div [id]="repo.id" class="accordion-collapse" [class.show]="repo.accordionOpen">
+              <div class="accordion-body accordion-content">
+                @if (repo.manuscripts.length > 0) {
+                  @for (ms of repo.manuscripts; track $index) {
+                    @if (ms.name) {
+                      <p>
+                        <a [routerLink]="['/ms', ms.id]" ]>{{ ms.shelfmark }} ({{ ms.name }})</a>
+                      </p>
+                    } @else {
+                      <p>
+                        <a [routerLink]="['/ms', ms.id]" ]>
+                          {{ ms.shelfmark }}
+                        </a>
+                      </p>
                     }
-                  } @else {
-                    <p>This repository is empty.</p>
                   }
-                </div>
+                } @else {
+                  <p>This repository is empty.</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if ($loggedIn()) {
+            <div class="col">
+              <div class="card rounded-0 beige">
+                <span class="m-2">
+                  <button
+                    type="button"
+                    class="me-1 btn btn-sm btn-outline-success"
+                    (click)="addManuscript(repo.id)"
+                    onclick="event.stopPropagation()">
+                    Add MS
+                  </button>
+
+                  <button
+                    type="button"
+                    class="me-1 btn btn-sm btn-outline-secondary"
+                    (click)="editRepository(repo.id)"
+                    onclick="event.stopPropagation()">
+                    Edit
+                  </button>
+
+                  @if ($isAdmin()) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="openDeleteModal(repo.id)"
+                      onclick="event.stopPropagation()">
+                      Delete
+                    </button>
+                  }
+                </span>
               </div>
             </div>
           }
+          </div>
+
+          @if($loggedIn()){
+            <div class="col m-2"></div>
+          }
+
         </div>
+      }
+    </div>
+  </div>
+
+  @if ($loggedIn()) {
+    <!-- 'Add' button -->
+    <div class="row mt-4">
+      <div class="col-sm">
+        <button (click)="addRepository()" type="button" class="btn btn-success btn-sm">Add repository</button>
       </div>
     </div>
-
-    @if ($loggedIn()) {
-      <!-- 'Add' button -->
-      <div class="row mt-4">
-        <div class="col-sm">
-          <button (click)="addRepository()" type="button" class="btn btn-success btn-sm">Add repository</button>
-        </div>
-      </div>
-    }
-  </div>
+  }
 </div>
 
 <!--Edit modal-->

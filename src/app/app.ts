@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from './auth/auth.service';
+import { Collapse } from 'bootstrap';
 
 @Component({
   selector: 'app-root',
@@ -29,5 +30,13 @@ export class App {
 
   redirectToLogin(){
     this.router.navigate(['/login']);
+  }
+
+  closeNavbar(){
+    const nav = document.getElementById("mainNavbar");
+    if (nav){
+      const collapse = Collapse.getInstance(nav);
+      collapse?.hide();
+    }
   }
 }

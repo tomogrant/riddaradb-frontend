@@ -6,7 +6,15 @@
 body {
   background-color: rgb(242, 240, 237);
   font-family: garamond;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px){
+  body {
+    background-color: rgb(242, 240, 237);
+    font-family: garamond;
+    font-size: 1.1rem;
+  }
 }
 
 .red {
@@ -21,11 +29,29 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.page-container{
-    padding: 2rem;
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
+.page-container {
+    padding: 1rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
     background-color: white;
+}
+
+@media (min-width: 768px){
+  .page-container {
+    padding: 2rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    background-color: white;
+  }
+}
+
+@media (min-width: 992px){
+  .page-container {
+    padding: 3rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+    background-color: white;
+  }
 }
 
 /* LINK SETTINGS */
@@ -75,7 +101,7 @@ p {
 
 .description-text {
   text-align: justify;
-  text-justify: inter-word;
+  text-justify: auto
 }
 
 /* ACCORDION STYLING */

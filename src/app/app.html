@@ -1,76 +1,131 @@
-<body>
-  <!-- <nav class="navbar navbar-expand-lg bg-body-tertiary" 
-      style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); 
-            background-image: url(/img/ms_dark.jpg);"> -->
-  <main class="content">
-    <nav class="navbar sticky-top navbar-expand-lg bg-body-tertiary" 
-        style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); 
-                background-color: rgb(255, 243, 212) !important">
+<main class="content">
+  <nav
+    class="navbar sticky-top navbar-expand-md bg-body-tertiary"
+    style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+           background-color: rgb(255, 243, 212) !important"
+  >
+    <div class="container-fluid">
 
-      <div class="container-fluid">
+      <!-- Brand -->
+      <a class="navbar-brand ms-lg-4 pe-2">
+        <i>riddara</i>DB
+      </a>
 
-        <a class="navbar-brand ms-4 pe-2" ><i>riddara</i>DB</a>
-        <ul class="navbar-nav w-100 d-flex mb-2 mb-lg-0 nav-underline">
+      <!-- Hamburger button: visible on smaller screens -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"
+        aria-controls="mainNavbar"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Collapsible navigation -->
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav w-100 mb-2 mb-lg-0">
+
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/home" routerLinkActive="active">Home</a>
+            <a class="nav-link"
+               routerLink="/home"
+               routerLinkActive="active"
+               (click)="closeNavbar()">
+               <span>Home</span></a>
           </li>
 
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/about" routerLinkActive="active">About</a>
+            <a class="nav-link"
+               routerLink="/about"
+               routerLinkActive="active"
+               (click)="closeNavbar()">About</a>
           </li>
 
-          <li class="nav-item pe-2 mt-2">
+          <!-- Separator -->
+          <li class="nav-item d-none d-md-flex align-items-center pe-2">
             <span><b>|</b></span>
           </li>
-        
+
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/sagas" routerLinkActive="active">Sagas</a>
+            <a class="nav-link"
+               routerLink="/sagas"
+               routerLinkActive="active"
+               (click)="closeNavbar()">Sagas</a>
           </li>
 
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/bib" routerLinkActive="active">Bibliography</a>
+            <a class="nav-link"
+               routerLink="/bib"
+               routerLinkActive="active"
+               (click)="closeNavbar()">Bibliography</a>
           </li>
 
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/ms" routerLinkActive="active">Manuscripts</a>
+            <a class="nav-link"
+               routerLink="/ms"
+               routerLinkActive="active"
+               (click)="closeNavbar()">Manuscripts</a>
           </li>
 
-          <li class="nav-item pe-2 mt-2">
-            <a><b>|</b></a>
+          <!-- Separator -->
+          <li class="nav-item d-none d-md-flex align-items-center pe-2">
+            <span><b>|</b></span>
           </li>
 
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/motifs" routerLinkActive="active">Motifs</a>
+            <a class="nav-link"
+               routerLink="/motifs"
+               routerLinkActive="active"
+               (click)="closeNavbar()">Motifs</a>
           </li>
 
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/characters" routerLinkActive="active">Characters</a>
+            <a class="nav-link"
+               routerLink="/characters"
+               routerLinkActive="active"
+               (click)="closeNavbar()">Characters</a>
           </li>
+
           <li class="nav-item pe-2">
-            <a class="nav-link" routerLink="/locations" routerLinkActive="active">Locations</a>
+            <a class="nav-link"
+               routerLink="/locations"
+               routerLinkActive="active"
+               (click)="closeNavbar()">Locations</a>
           </li>
-          @if ($isAdmin()){
-            <li class="nav-item ms-auto">
-              <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin</a>
+
+          @if ($isAdmin()) {
+            <li class="nav-item ms-lg-auto">
+              <a class="nav-link"
+                 routerLink="/admin"
+                 routerLinkActive="active"
+                 (click)="closeNavbar()">Admin</a>
             </li>
           }
 
-          <li class="nav-item me-3" [class.ms-auto]="!$isAdmin()">
-            @if ($loggedIn()){
-              <a class="nav-link" href="#" (click)="logout()" onclick="event.preventDefault();">Log out</a>
-            }
-            @else {
-              <a class="nav-link" routerLink="/login" routerLinkActive="active">Log in</a>
+          <li class="nav-item me-lg-3"
+              [class.ms-lg-auto]="!$isAdmin()">
+            @if ($loggedIn()) {
+              <a class="nav-link"
+                 href="#"
+                 (click)="logout(); $event.preventDefault(); closeNavbar()">Log&nbsp;out</a>
+            } @else {
+              <a class="nav-link"
+                 routerLink="/login"
+                 routerLinkActive="active"
+                 (click)="closeNavbar()">Log&nbsp;in</a>
             }
           </li>
-        </ul>
 
+        </ul>
       </div>
 
-    </nav>
-    <router-outlet/>
-  </main>
-  
+    </div>
+  </nav>
+
+  <router-outlet />
+</main>
 
   <footer class="page-footer">
     <div class="card-body">
@@ -84,5 +139,4 @@
 
     </div>
   </footer>
-</body>
 
