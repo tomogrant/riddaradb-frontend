@@ -24,9 +24,15 @@
         }
       </div>
 
+      <div class="row mb-3">
+        <div class="col">
+          Page author: {{ sagaEntry.pageAuthor}}
+        </div>
+      </div>
+
       @if (sagaEntry.sagaVersions.length == 1 && sagaEntry.sagaVersions[0].date != SagaDate.UNDEFINED) {
         <div class="row mb-3">
-          <div>
+          <div class="col">
             <strong>Date:</strong>
             {{ mapDateToUi(sagaEntry.sagaVersions[0].date) }}
           </div>
@@ -156,7 +162,7 @@
         }
         <p></p>
       }
-  </div>
+    </div>
   </div>
 }
 
@@ -174,7 +180,7 @@
   <div class="modal-dialog modal-dialog-scrollable modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">{{ mode == Mode.ADD ? "Add saga" : "Edit saga"}}</h1>
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">{{ mode == Mode.ADD ? "Add saga" : "Edit saga" }}</h1>
         <button
           (click)="mode == Mode.ADD ? navigateToSagasAllPage() : closeAddEditModal()"
           type="button"
@@ -185,15 +191,34 @@
         <form [formGroup]="editForm">
           <div class="container-fluid">
             <div class="row mb-3">
+              <!-- PAGE AUTHOR FIELD -->
+              <div class="col">
+                <label class="form-label">Page author:</label>
+                <span class="red">*</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="pageAuthor"
+                  placeholder="Page author"
+                  [class.invalid-input]="pageAuthor.invalid && showValidationErrors" />
+                @if (translatedTitle.invalid && showValidationErrors) {
+                  @if (pageAuthor.hasError("required")) {
+                    <div class="red">
+                      <small>Page author is required.</small>
+                    </div>
+                  }
+                }
+              </div>
+
               <!-- TITLE FIELD -->
               <div class="col">
-                <label class="form-label">Old Norse-Icelandic title:</label>
+                <label class="form-label">Original title:</label>
                 <span class="red">*</span>
                 <input
                   type="text"
                   class="form-control"
                   formControlName="title"
-                  placeholder="Old Norse-Icelandic title"
+                  placeholder="Original title"
                   [class.invalid-input]="title.invalid && showValidationErrors" />
                 @if (title.invalid && showValidationErrors) {
                   @if (title.hasError("required")) {
@@ -226,10 +251,12 @@
                   }
                 }
               </div>
+            </div>
 
+            <div class="row mb-2">
               <!-- DATE FIELD -->
               @if (sagaVersionForms.length == 1) {
-                <div class="col" formArrayName="sagaVersionForms">
+                <div class="col-4" formArrayName="sagaVersionForms">
                   <div [formGroupName]="0">
                     <label for="saga-version-date" class="form-label">Earliest manuscript attestation:</label>
                     <span class="red">*</span>
@@ -681,12 +708,12 @@
         <button (click)="closeCiteModal()" type="button" class="btn-close" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <span>A. User,</span>
+        <span>{{sagaEntry.pageAuthor}}, </span>
         <span
           ><i> '{{ sagaEntry.title }}',</i></span
         >
         <span><i> riddaraDB: Database of Medieval Icelandic Romance</i>, ed. Tom Grant and Jonathan Y. H. Hui.</span>
-        <span> Last accessed: {{ date }}</span>
+        <span> Last accessed: {{ date }}.</span>
       </div>
       <div class="modal-footer">
         <button (click)="closeCiteModal()" type="button" class="btn btn-secondary">Back</button>

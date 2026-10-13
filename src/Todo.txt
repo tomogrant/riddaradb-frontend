@@ -3,7 +3,10 @@ TODO
 * Complete characters page
 * Complete location page 
 * Think of an env variable-based way of locking the site behind a login screen 
-* Make DB columns unique
-* Make the site HTTPS
+
+* Add an author field to the saga page
+
 * Make it so that you don't submit an interface directly when submitting a form; experiment with creating a new object
 * Make it so that a user who isn't logged in gets logged out after trying to submit something
+
+* Finish scraping Boberg

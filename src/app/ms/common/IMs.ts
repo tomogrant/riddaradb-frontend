@@ -5,8 +5,7 @@ export interface IMs {
   name: string | null;
   shelfmark: string;
   date: string;
-  handritLink?: string | null;
-  fasnlLink?: string | null;
+  entryLink?: string | null;
   description: string | null;
   msSagaDtos: IMsSaga[];
   msRepositoryId: number;

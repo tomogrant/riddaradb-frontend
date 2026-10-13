@@ -47,7 +47,7 @@ export class MotifNode {
 
     const sagaVersions = [];
 
-    for (const sagaMotif of node.sagaMotifs) {
+    for (const sagaMotif of node.motifSagas) {
       const saga = this.$sagas().find((saga) => saga.id === sagaMotif.sagaVersionId);
       if (saga) {
         sagaVersions.push({

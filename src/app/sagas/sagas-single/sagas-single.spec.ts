@@ -5,9 +5,16 @@ import { ISagaResponseDto } from "../common/ISagaResponseDto";
 import { ISagaTitleDto } from "../../sagas/common/ISagaTitleDto";
 import { of } from "rxjs";
 import { SagaService } from "../../sagas/common/saga.service";
+import { signal } from "@angular/core";
+import { AuthService } from "../../auth/auth.service";
 
 describe("SagasSingle", () => {
   let activatedRouteMock: any;
+
+    const authServiceMock = {
+    $loggedIn: signal(true),
+    $isAdmin: signal(true)
+  }
 
   let sagaResponseDto: ISagaResponseDto = {
     id: 1,
@@ -19,8 +26,6 @@ describe("SagasSingle", () => {
     sagaVersions: [],
     sagaMsDtos: [],
   };
-
-  let sagaResponseDtos: ISagaResponseDto[] = [sagaResponseDto];
 
   let updatedSagaResponseDto: ISagaResponseDto = {
     id: 1,
@@ -38,6 +43,8 @@ describe("SagasSingle", () => {
     title: "Example saga title",
   };
 
+  let sagaTitleDtos: ISagaTitleDto[] = [sagaTitleDto];
+
   //Executed before each it() test
   beforeEach(async () => {
     //Sets up the activated route to be provided to the TestBed
@@ -48,11 +55,16 @@ describe("SagasSingle", () => {
     };
 
     //Sets up the mock SagaService instance to be passed to the TestBed
-    const sagaServiceSpy = jasmine.createSpyObj<SagaService>(["getSagaById", "putSaga", "postSaga", "deleteSaga"]);
+    const sagaServiceSpy = jasmine.createSpyObj<SagaService>(["getSagaById", "getSagaTitles", "putSaga", "postSaga", "deleteSaga"]);
 
     sagaServiceSpy.getSagaById.and.callFake(function () {
       return of(sagaResponseDto);
     });
+
+    sagaServiceSpy.getSagaTitles.and.callFake(function () {
+      return of(sagaTitleDtos);
+    });
+
 
     sagaServiceSpy.postSaga.and.callFake(function () {
       return of(sagaResponseDto);
@@ -68,8 +80,11 @@ describe("SagasSingle", () => {
 
     await TestBed.configureTestingModule({
       imports: [SagasSingle],
-      //When BibSingle accesses these classes, spies are provided instead
       providers: [
+        {
+          provide: AuthService,
+          useValue: authServiceMock
+        },
         {
           provide: SagaService,
           useValue: sagaServiceSpy,
@@ -119,6 +134,7 @@ describe("SagasSingle", () => {
     fixture.detectChanges();
 
     component.title.setValue("Saga title");
+    component.translatedTitle.setValue("Translated saga title");
     component.description.setValue("Description");
     component.translated.setValue(false);
 

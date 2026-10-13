@@ -42,12 +42,10 @@
         Edit
       </button>
 
-      @if ($isAdmin()) {
-        <!-- Delete button -->
-        <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">
-          Delete
-        </button>
-      }
+      <!-- Delete button -->
+      <button (click)="openDeleteModal()" data-testid="delete-button" type="button" class="btn btn-danger btn-sm">
+        Delete
+      </button>
     }
   </div>
 </div>

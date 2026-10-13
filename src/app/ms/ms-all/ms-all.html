@@ -13,97 +13,93 @@
       @for (repo of filteredRepositoriesVm; track $index) {
         <div class="row g-0">
           <div class="custom-shadow">
-          <div class="col-12">
-            <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button
-                  class="accordion-button"
-                  type="button"
-                  [class.collapsed]="!repo.accordionOpen"
-                  [attr.aria-expanded]="repo.accordionOpen"
-                  (click)="repo.accordionOpen = !repo.accordionOpen">
-                  <span class="me-3" style="font-variant: small-caps; font-size: 1.3rem">
-                    {{ repo.name }} ({{ repo.city }}, {{ repo.country }})
-                  </span>
-                </button>
-              </h2>
-            </div>
+            <div class="col-12">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button"
+                    type="button"
+                    [class.collapsed]="!repo.accordionOpen"
+                    [attr.aria-expanded]="repo.accordionOpen"
+                    (click)="repo.accordionOpen = !repo.accordionOpen">
+                    <span class="me-3" style="font-variant: small-caps; font-size: 1.3rem">
+                      {{ repo.name }} ({{ repo.city }}, {{ repo.country }})
+                    </span>
+                  </button>
+                </h2>
+              </div>
 
-            <div [id]="repo.id" class="accordion-collapse" [class.show]="repo.accordionOpen">
-              <div class="accordion-body accordion-content">
-                @if (repo.manuscripts.length > 0) {
-                  @for (ms of repo.manuscripts; track $index) {
-                    @if (ms.name) {
-                      <p>
-                        <a [routerLink]="['/ms', ms.id]" ]>{{ ms.shelfmark }} ({{ ms.name }})</a>
-                      </p>
-                    } @else {
-                      <p>
-                        <a [routerLink]="['/ms', ms.id]" ]>
-                          {{ ms.shelfmark }}
-                        </a>
-                      </p>
+              <div [id]="repo.id" class="accordion-collapse" [class.show]="repo.accordionOpen">
+                <div class="accordion-body accordion-content">
+                  @if (repo.manuscripts.length > 0) {
+                    @for (ms of repo.manuscripts; track $index) {
+                      @if (ms.name) {
+                        <p>
+                          <a [routerLink]="['/ms', ms.id]" ]>{{ ms.shelfmark }} ({{ ms.name }})</a>
+                        </p>
+                      } @else {
+                        <p>
+                          <a [routerLink]="['/ms', ms.id]" ]>
+                            {{ ms.shelfmark }}
+                          </a>
+                        </p>
+                      }
                     }
+                  } @else {
+                    <p>This repository is empty.</p>
                   }
-                } @else {
-                  <p>This repository is empty.</p>
-                }
+                </div>
               </div>
             </div>
+
+            @if ($loggedIn()) {
+              <div class="col">
+                <div class="card rounded-0 beige">
+                  <span class="m-2">
+                    <button type="button" class="me-1 btn btn-sm btn-outline-success" (click)="addManuscript(repo.id)">
+                      Add MS
+                    </button>
+
+                    <button
+                      type="button"
+                      class="me-1 btn btn-sm btn-outline-secondary"
+                      (click)="editRepository(repo.id)">
+                      Edit
+                    </button>
+
+                    @if (repo.manuscripts.length > 0) {
+                      @if ($isAdmin()) {
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(repo.id)">
+                          Delete
+                        </button>
+                      }
+                    } @else {
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(repo.id)">
+                        Delete
+                      </button>
+                    }
+                  </span>
+                </div>
+              </div>
+            }
           </div>
 
           @if ($loggedIn()) {
-            <div class="col">
-              <div class="card rounded-0 beige">
-                <span class="m-2">
-                  <button
-                    type="button"
-                    class="me-1 btn btn-sm btn-outline-success"
-                    (click)="addManuscript(repo.id)"
-                    onclick="event.stopPropagation()">
-                    Add MS
-                  </button>
-
-                  <button
-                    type="button"
-                    class="me-1 btn btn-sm btn-outline-secondary"
-                    (click)="editRepository(repo.id)"
-                    onclick="event.stopPropagation()">
-                    Edit
-                  </button>
-
-                  @if ($isAdmin()) {
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="openDeleteModal(repo.id)"
-                      onclick="event.stopPropagation()">
-                      Delete
-                    </button>
-                  }
-                </span>
-              </div>
-            </div>
-          }
-          </div>
-
-          @if($loggedIn()){
             <div class="col m-2"></div>
           }
-
         </div>
       }
     </div>
-  </div>
 
-  @if ($loggedIn()) {
-    <!-- 'Add' button -->
-    <div class="row mt-4">
-      <div class="col-sm">
-        <button (click)="addRepository()" type="button" class="btn btn-success btn-sm">Add repository</button>
+    @if ($loggedIn()) {
+      <!-- 'Add' button -->
+      <div class="row mt-4">
+        <div class="col">
+          <button (click)="addRepository()" type="button" class="btn btn-success btn-sm">Add repository</button>
+        </div>
       </div>
-    </div>
-  }
+    }
+  </div>
 </div>
 
 <!--Edit modal-->

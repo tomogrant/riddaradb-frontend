@@ -6,6 +6,7 @@ export interface ISagaResponseDto {
   id: number;
   title: string;
   translatedTitle: string;
+  pageAuthor: string;
   description: string;
   translated: boolean;
   sagaVersions: ISagaVersionResponseDto[];

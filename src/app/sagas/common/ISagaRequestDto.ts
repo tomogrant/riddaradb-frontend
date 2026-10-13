@@ -6,6 +6,7 @@ export interface ISagaRequestDto {
   id: number | null;
   title: string;
   translatedTitle: string;
+  pageAuthor: string;
   description: string;
   translated: boolean;
   sagaVersions: ISagaVersionRequestDto[];

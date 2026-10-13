@@ -6,9 +6,16 @@ import { IBib, PublicationType } from "../common/IBib";
 import { of } from "rxjs";
 import { SagaService } from "../../sagas/common/saga.service";
 import { ISagaTitleDto } from "../../sagas/common/ISagaTitleDto";
+import { AuthService } from "../../auth/auth.service";
+import { signal } from "@angular/core";
 
 describe("BibSingle", () => {
   let activatedRouteMock: any;
+
+  const authServiceMock = {
+    $loggedIn: signal(true),
+    $isAdmin: signal(true)
+  }
 
   let bib: IBib = {
     id: 1,
@@ -106,6 +113,10 @@ describe("BibSingle", () => {
       //When BibSingle accesses these classes, spies are provided instead
       providers: [
         {
+          provide: AuthService,
+          useValue: authServiceMock,
+        },
+        {
           provide: BibService,
           useValue: bibServiceSpy,
         },
@@ -124,7 +135,9 @@ describe("BibSingle", () => {
   //Tests
   it("Component should be created", () => {
     //Creates testing harness
-    const fixture = TestBed.createComponent(BibSingle);
+    const fixture = TestBed.createComponent(BibSingle, {
+      
+    });
     //Instance of the component class
     const component = fixture.componentInstance;
     //Triggers change detection cycle, including running ngOnInit if not run before

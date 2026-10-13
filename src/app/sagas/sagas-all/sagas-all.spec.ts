@@ -4,27 +4,23 @@ import { SagasAll } from "./sagas-all";
 import { SagaService } from "../common/saga.service";
 import { ISagaResponseDto } from "../common/ISagaResponseDto";
 import { of } from "rxjs";
+import { ISagaTitleDto } from "../common/ISagaTitleDto";
 
 describe("SagasAll", () => {
   let component: SagasAll;
   let fixture: ComponentFixture<SagasAll>;
 
-  let sagaResponseDto: ISagaResponseDto = {
-    id: 1,
-    title: "Title",
-    description: "Description",
-    translated: false,
-    bibDtos: [],
-    sagaVersions: [],
-    sagaMsDtos: []
-  };
+  let sagaTitle: ISagaTitleDto = {
+    id: 0,
+    title: "Mock title"
+  }
 
-  let sagaResponseDtos: ISagaResponseDto[] = [sagaResponseDto];
+  let sagaTitles: ISagaTitleDto[] = [sagaTitle];
 
   beforeEach(async () => {
-    const sagaServiceSpy = jasmine.createSpyObj<SagaService>(["getSagas"]);
-    sagaServiceSpy.getSagas.and.callFake(function () {
-      return of(sagaResponseDtos);
+    const sagaServiceSpy = jasmine.createSpyObj<SagaService>(["getSagaTitles"]);
+    sagaServiceSpy.getSagaTitles.and.callFake(function () {
+      return of(sagaTitles);
     });
 
     await TestBed.configureTestingModule({
@@ -50,6 +46,6 @@ describe("SagasAll", () => {
 
   it("ngOnInit should return sagas", () => {
     expect(component.sagas.length).toBeGreaterThanOrEqual(1);
-    expect(component.sagas[0].title).toEqual(sagaResponseDto.title);
+    expect(component.sagas[0].title).toEqual(sagaTitle.title);
   });
 });

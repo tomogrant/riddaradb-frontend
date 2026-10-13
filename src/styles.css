@@ -30,7 +30,9 @@ body {
 }
 
 .page-container {
-    padding: 1rem;
+    padding: 0.5rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
     background-color: white;

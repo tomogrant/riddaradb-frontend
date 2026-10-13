@@ -127,6 +127,7 @@ export class SagasSingle implements OnInit {
     id: new FormControl<number | null>({ value: null, disabled: true }),
     title: new FormControl<string>("", { validators: [Validators.required, this.sagaTitleUnique()] }),
     translatedTitle: new FormControl<string>("", Validators.required),
+    pageAuthor: new FormControl<string>("", Validators.required),
     translated: new FormControl<boolean>(false),
     description: new FormControl<string>(""),
     sagaVersionForms: new FormArray<FormGroup>([]),
@@ -142,6 +143,10 @@ export class SagasSingle implements OnInit {
 
   get translatedTitle(): FormControl {
     return this.editForm.controls.translatedTitle;
+  }
+
+  get pageAuthor(): FormControl {
+    return this.editForm.controls.pageAuthor;
   }
 
   get translated(): FormControl {
@@ -170,6 +175,13 @@ export class SagasSingle implements OnInit {
 
   get msFilter() {
     return this.editForm.get("msFilter") as FormControl;
+  }
+
+  populateSagaVersionForms() {
+    this.sagaVersionForms.clear();
+    this.sagaEntry.sagaVersions.forEach((sagaVersion) => {
+      this.sagaVersionForms.push(this.createSagaVersionForm(sagaVersion));
+    });
   }
 
   createSagaVersionForm(sagaVersion?: ISagaVersionVm) {
@@ -312,8 +324,8 @@ export class SagasSingle implements OnInit {
 
   copyReference() {
     var ref: string =
-      "A. User, " +
-      "'" +
+      this.sagaEntry.pageAuthor +
+      ", '" +
       this.sagaEntry.title +
       "', riddaraDB: Database of Medieval Icelandic Romance," +
       " ed. Tom Grant and Jonathan Y. H. Hui." +
@@ -329,6 +341,7 @@ export class SagasSingle implements OnInit {
       id: null,
       title: "",
       translatedTitle: "",
+      pageAuthor: "",
       description: "",
       translated: false,
       sagaVersions: [],
@@ -438,22 +451,20 @@ export class SagasSingle implements OnInit {
       id: this.sagaEntry.id,
       title: this.sagaEntry.title,
       translatedTitle: this.sagaEntry.translatedTitle,
+      pageAuthor: this.sagaEntry.pageAuthor,
       description: this.sagaEntry.description,
       translated: this.sagaEntry.translated,
       bibIds: [...this.sagaEntry.bibIds],
     });
 
     this.populateMsForms();
-
-    this.sagaVersionForms.clear();
-    this.sagaEntry.sagaVersions.forEach((sagaVersion) => {
-      this.sagaVersionForms.push(this.createSagaVersionForm(sagaVersion));
-    });
+    this.populateSagaVersionForms();
   }
 
   resetValidators() {
     this.title.updateValueAndValidity();
     this.translatedTitle.updateValueAndValidity();
+    this.pageAuthor.updateValueAndValidity();
 
     this.sagaVersionForms.controls.forEach((control) => {
       control.get("title")?.updateValueAndValidity();
@@ -556,8 +567,8 @@ export class SagasSingle implements OnInit {
   //FILL VM
   formToVm() {
     this.sagaEntry.title = this.title.value;
-
     this.sagaEntry.translatedTitle = this.translatedTitle.value;
+    this.sagaEntry.pageAuthor = this.pageAuthor.value;
 
     //Ugly fix until Quill releases update
     if (this.description.value == null) {
@@ -663,20 +674,19 @@ export class SagasSingle implements OnInit {
     if (id !== null && Number.isFinite(id)) {
       //If saga id is valid, get saga
       this.sagasService.getSagaById(id).subscribe({
-        next: receivedEntry => {
+        next: (receivedEntry) => {
           this.sagaEntry = this.sagaMapper.mapSagaResponseDtoToVm(receivedEntry);
           this.pageTitle.setTitle("riddaraDB - " + this.sagaEntry.title);
           this.getSagaTitles();
           this.getBibs();
           this.getManuscripts();
         },
-        error: err => {
+        error: (err) => {
           console.log("Error fetching saga: " + JSON.stringify(err.error));
           this.navigateToSagasAllPage();
-        }
+        },
       });
-    }
-    else{
+    } else {
       console.log("Parameter is incorrect");
       this.navigateToSagasAllPage();
     }

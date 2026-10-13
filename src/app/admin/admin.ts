@@ -177,7 +177,7 @@ export class Admin {
         this.users = users.sort((a, b) => a.username.localeCompare(b.username));
       },
       error: (err) => {
-        console.log("error");
+        console.log("error getting users");
       },
     });
   }
@@ -189,7 +189,7 @@ export class Admin {
         this.users.push(receivedUser);
         this.users.sort((a, b) => a.username.localeCompare(b.username));
       },
-      error: (err) => console.log("Error with posting bib entry: " + err),
+      error: (err) => console.log("Error with posting user: " + JSON.stringify(err)),
     });
   }
 
@@ -200,7 +200,7 @@ export class Admin {
         const existingUserIndex = this.users.findIndex((user) => user.id === receivedUser.id);
         this.users[existingUserIndex] = receivedUser;
       },
-      error: (err) => console.log("Error with posting bib entry: " + err),
+      error: (err) => console.log("Error with posting user: " + JSON.stringify(err)),
     });
   }
 
@@ -214,7 +214,7 @@ export class Admin {
           this.users.splice(deletedUserIndex, 1);
         }
       },
-      error: (err) => console.log("problem with deleting"),
+      error: (err) => console.log("problem with deleting user"),
     });
   }
 

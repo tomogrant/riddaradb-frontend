@@ -228,7 +228,7 @@ export class MotifsAll {
         motifCode: currentNode.motifCode,
         motifName: currentNode.motifName,
         description: currentNode.description,
-        sagas: currentNode.sagaMotifs.map(saga => ({...saga}))
+        sagas: currentNode.motifSagas.map(saga => ({...saga}))
       });
     }
   }
@@ -261,7 +261,7 @@ export class MotifsAll {
           motifCode: this.editForm.motifCode().value(),
           motifName: this.editForm.motifName().value(),
           description: this.editForm.description().value(),
-          sagaMotifs: this.editForm.sagas().value(),
+          motifSagas: this.editForm.sagas().value(),
           //If adding child node, currentNode is the parent node; fill parentId.
           //If adding a root note, there is no parent; fill with null.
           parentId: !currentNode ? null : currentNode.id,
@@ -275,7 +275,7 @@ export class MotifsAll {
           motifName: this.editForm.motifName().value(),
           description: this.editForm.description().value(),
           hasChildren: currentNode.hasChildren,
-          sagaMotifs: this.editForm.sagas().value(),
+          motifSagas: this.editForm.sagas().value(),
         });
       }
 

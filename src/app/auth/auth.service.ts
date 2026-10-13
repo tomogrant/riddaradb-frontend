@@ -3,20 +3,14 @@ import { computed, Injectable } from "@angular/core";
 import { switchMap, tap } from "rxjs";
 import { signal } from "@angular/core";
 import { Roles } from "./roles";
-
-export interface User{
-  username: string,
-  firstName: string,
-  lastNames: string,
-  authorities: string[]
-}
+import { IUserLoginResponse } from "./IUserLoginResponse";
 
 @Injectable({
   providedIn: "root"
 })
 export class AuthService {
 
-  private $currentUserWritable = signal<User | null>(null);
+  private $currentUserWritable = signal<IUserLoginResponse | null>(null);
   readonly $currentUser = this.$currentUserWritable.asReadonly();
   readonly $loggedIn = computed(() => this.$currentUser() !== null);
   readonly $isAdmin = computed(() => this.$currentUser()?.authorities.includes(Roles.ROLE_ADMINISTRATOR));
@@ -33,7 +27,7 @@ export class AuthService {
   }
 
   getCurrentUser(){
-    return this.httpClient.get<User>(`${this.authMain}/me`, { withCredentials: true}) 
+    return this.httpClient.get<IUserLoginResponse>(`${this.authMain}/me`, { withCredentials: true}) 
     .pipe(tap(user => {
       this.$currentUserWritable.set(user);
       console.log("Current user: " + this.$currentUser()?.username);

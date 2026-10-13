@@ -36,15 +36,8 @@ export class MsSingle {
     id: new FormControl<number | null>({ value: null, disabled: true }),
     name: new FormControl<string>(""),
     shelfmark: new FormControl<string>("", [Validators.required, this.shelfmarkUnique()]),
-    date: new FormControl<string>("", Validators.pattern(/^\d{4}(?:-\d{4})?$/)),
-    handritLink: new FormControl<string>(
-      "",
-      Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?handrit\.is\/manuscript\/[^\s]+$/),
-    ),
-    fasnlLink: new FormControl<string>(
-      "",
-      Validators.pattern(/^(?:https?:\/\/)?(?:www\.)?fasnl\.net\/manuscripts\/[^\s]+$/),
-    ),
+    date: new FormControl<string>("", [Validators.required, Validators.pattern(/^\d{4}(?:-\d{4})?$/)]),
+    entryLink: new FormControl<string>(""),
     description: new FormControl<string>(""),
     msSagas: new FormArray<FormGroup>([]),
   });
@@ -65,12 +58,8 @@ export class MsSingle {
     return this.editForm.controls.date;
   }
 
-  get handritLink(): FormControl {
-    return this.editForm.controls.handritLink;
-  }
-
-  get fasnlLink(): FormControl {
-    return this.editForm.controls.fasnlLink;
+  get entryLink(): FormControl {
+    return this.editForm.controls.entryLink;
   }
 
   get description(): FormControl {
@@ -207,8 +196,7 @@ export class MsSingle {
     this.name.setValue(this.activeMs.name);
     this.shelfmark.setValue(this.activeMs.shelfmark);
     this.date.setValue(this.activeMs.date);
-    this.handritLink.setValue(this.activeMs.handritLink);
-    this.fasnlLink.setValue(this.activeMs.fasnlLink);
+    this.entryLink.setValue(this.activeMs.entryLink);
     this.description.setValue(this.activeMs.description);
 
     this.openAddEditModal();
@@ -225,8 +213,7 @@ export class MsSingle {
   submitAddOrEdit() {
     this.shelfmark.updateValueAndValidity();
     this.date.updateValueAndValidity();
-    this.handritLink.updateValueAndValidity();
-    this.fasnlLink.updateValueAndValidity();
+    this.entryLink.updateValueAndValidity();
 
     const formValue = this.editForm.getRawValue();
 
@@ -235,8 +222,7 @@ export class MsSingle {
       name: String(formValue.name).trim(),
       shelfmark: String(formValue.shelfmark!).trim(),
       date: String(formValue.date).trim(),
-      handritLink: String(formValue.handritLink)?.trim(),
-      fasnlLink: String(formValue.fasnlLink)?.trim(),
+      entryLink: String(formValue.entryLink)?.trim(),
       description: formValue.description
         ? formValue.description.replaceAll(/((?:&nbsp;)*)&nbsp;/g, "$1 ").trim()
         : null,

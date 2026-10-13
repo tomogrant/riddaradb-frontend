@@ -23,11 +23,7 @@
       </div>
 
       <div class="row mb-3">
-        <div class="col">Handrit link: {{ activeMs.handritLink }}</div>
-      </div>
-
-      <div class="row mb-3">
-        <div class="col">Shelfmark: {{ activeMs.fasnlLink }}</div>
+        <div class="col">Link to online entry: {{ activeMs.entryLink }}</div>
       </div>
 
       <div class="row mb-3">
@@ -144,6 +140,7 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="ms-date" class="form-label"> Date: </label>
+                <span class="red">*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -152,7 +149,11 @@
                   placeholder="Date"
                   [class.invalid-input]="date.invalid && showValidationErrors" />
                 @if (date.invalid && showValidationErrors) {
-                  @if (date.hasError("pattern")) {
+                  @if (date.hasError("required")) {
+                    <div class="red">
+                      <small>Date is required.</small>
+                    </div>
+                  } @else if (date.hasError("pattern")) {
                     <div class="red">
                       <small>Date should be a year (e.g. 1600) or a range of years (e.g. 1600-1700).</small>
                     </div>
@@ -161,42 +162,21 @@
               </div>
             </div>
 
-            <!-- HANDRIT LINK FIELD -->
+            <!-- LINK FIELD -->
             <div class="row mb-3">
               <div class="col">
-                <label for="ms-handrit" class="form-label"> Link to handrit<i>.is</i> entry: </label>
+                <label for="ms-link" class="form-label"> Link to online entry: </label>
                 <input
                   type="text"
                   class="form-control"
-                  formControlName="handritLink"
-                  id="ms-handrit"
-                  placeholder="handrit.is"
-                  [class.invalid-input]="handritLink.invalid && showValidationErrors" />
-                @if (handritLink.invalid && showValidationErrors) {
-                  @if (handritLink.hasError("pattern")) {
+                  formControlName="entryLink"
+                  id="ms-link"
+                  placeholder="https://handrit.is/manuscript"
+                  [class.invalid-input]="entryLink.invalid && showValidationErrors" />
+                @if (entryLink.invalid && showValidationErrors) {
+                  @if (entryLink.hasError("pattern")) {
                     <div class="red">
-                      <small>Link should point to a manuscript page (<i>https://handrit.is/manuscript/</i>).</small>
-                    </div>
-                  }
-                }
-              </div>
-            </div>
-
-            <!-- FASNL LINK FIELD -->
-            <div class="row mb-3">
-              <div class="col">
-                <label for="ms-fasnl" class="form-label"> Link to FASNL entry: </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="fasnlLink"
-                  id="ms-fasnl"
-                  placeholder="fasnl.net"
-                  [class.invalid-input]="fasnlLink.invalid && showValidationErrors" />
-                @if (fasnlLink.invalid && showValidationErrors) {
-                  @if (fasnlLink.hasError("pattern")) {
-                    <div class="red">
-                      <small>Link should point to a manuscript page (<i>https://fasnl.net/manuscripts/</i>).</small>
+                      <small>Link is in invalid format.</small>
                     </div>
                   }
                 }

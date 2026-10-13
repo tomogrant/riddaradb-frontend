@@ -15,7 +15,7 @@ describe("MotifService", () => {
     motifName: "Name",
     description: "",
     parentId: null,
-    sagaMotifs: [],
+    motifSagas: [],
   };
 
   let motifs: IMotif[] = [motif];
@@ -49,7 +49,7 @@ describe("MotifService", () => {
   });
 
   it("getMotifs should return data", () => {
-    service.getMotifs().subscribe((result) => {
+    service.getAllMotifs().subscribe((result) => {
       expect(result).toBeTruthy();
       expect(result.length).toBeGreaterThanOrEqual(1);
       expect(Array.isArray(result)).toBeTrue();

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { PageHeader } from "./page-header";
+import { inputBinding } from "@angular/core";
 
 describe("PageHeader", () => {
   let component: PageHeader;
@@ -11,7 +12,11 @@ describe("PageHeader", () => {
       imports: [PageHeader],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PageHeader);
+    fixture = TestBed.createComponent(PageHeader, {
+      bindings: [
+        inputBinding('backgroundImg', () => 'vignette.jpg')
+      ]
+    });
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
