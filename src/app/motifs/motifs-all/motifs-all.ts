@@ -13,7 +13,7 @@ import { AuthService } from "../../auth/auth.service";
 
 export interface MotifDetails {
   pageChapterNumber: string | null;
-  inBoberg: boolean
+  inBoberg: boolean;
 }
 
 @Component({
@@ -24,14 +24,14 @@ export interface MotifDetails {
 })
 export class MotifsAll {
   constructor() {
-    effect(() => {  
+    effect(() => {
       if (this.$modalState() != null) {
         this.setForm();
         this.toggleModal();
       }
     });
   }
-      
+
   private motifStore = inject(MotifStore);
   private motifModalService = inject(MotifModalService);
   private route = inject(ActivatedRoute);
@@ -45,12 +45,7 @@ export class MotifsAll {
 
   $sagas = computed(() => this.motifStore.$sagaTitles());
 
-  $editModel = signal<IMotifForm>({
-    motifCode: "",
-    motifName: "",
-    description: "",
-    sagas: [],
-  });
+  $editModel = signal<IMotifForm>(this.createNewMotifForm());
 
   editForm = form(this.$editModel, (fieldPath) => {
     (required(fieldPath.motifCode),
@@ -80,7 +75,7 @@ export class MotifsAll {
     for (const saga of this.$editModel().sagas) {
       map.set(saga.sagaVersionId, {
         pageChapterNumber: saga.pageChapterNumber,
-        inBoberg: saga.inBoberg
+        inBoberg: saga.inBoberg,
       });
     }
 
@@ -104,7 +99,9 @@ export class MotifsAll {
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
-      this.initialise(params);
+      if (params) {
+        this.initialise(params);
+      }
     });
   }
 
@@ -119,6 +116,15 @@ export class MotifsAll {
     this.motifStore.search(searchTerm, true);
   }
 
+  createNewMotifForm(): IMotifForm {
+    return {
+      motifCode: "",
+      motifName: "",
+      description: "",
+      sagas: [],
+    };
+  }
+
   updateSelection(id: number) {
     //Called when a checkbox next to a saga is clicked. Gets ID from DOM.
     //Removes saga (id, pageChapterNumber) from array or adds
@@ -130,8 +136,8 @@ export class MotifsAll {
         return {
           ...current,
           //collection of sagas whose IDs do not match the ID provided
-          sagas: current.sagas.filter(saga => saga.sagaVersionId !== id)
-        }
+          sagas: current.sagas.filter((saga) => saga.sagaVersionId !== id),
+        };
       }
 
       //Saga not associated with motif; add
@@ -142,38 +148,30 @@ export class MotifsAll {
           {
             sagaVersionId: id,
             pageChapterNumber: "",
-            inBoberg: true
-          }
-        ]
-      }
+            inBoberg: true,
+          },
+        ],
+      };
     });
   }
 
-  updateBoberg(id: number){
+  updateBoberg(id: number) {
     this.$editModel.update((current) => ({
       ...current,
-      sagas: current.sagas.map(saga => 
-        saga.sagaVersionId === id 
-        ? {...saga, inBoberg: !saga.inBoberg}
-        : saga
-      )
-      }));
+      sagas: current.sagas.map((saga) => (saga.sagaVersionId === id ? { ...saga, inBoberg: !saga.inBoberg } : saga)),
+    }));
   }
 
   //Called when a page/chapter number field associated with a saga changes
   pageChapterNumberUpdate(id: number, pageChapterNumber: string) {
     this.$editModel.update((current) => {
-        return {
-          ...current,
-          sagas: current.sagas.map(saga => saga.sagaVersionId === id 
-            ? {
-                ...saga,
-                pageChapterNumber: pageChapterNumber ?? ""
-              }
-            : saga)
-        }
-      }
-    );
+      return {
+        ...current,
+        sagas: current.sagas.map((saga) =>
+          saga.sagaVersionId === id ? { ...saga, pageChapterNumber: pageChapterNumber ?? "" } : saga,
+        ),
+      };
+    });
   }
 
   submitSearchRequest() {
@@ -193,15 +191,15 @@ export class MotifsAll {
     this.motifStore.toggleColourCoding();
   }
 
-  togglePinnedNode(id: number){
+  togglePinnedNode(id: number) {
     this.motifStore.togglePinnedNode(id);
   }
 
-  movePinnedNode(id: number, direction: number){
+  movePinnedNode(id: number, direction: number) {
     this.motifStore.movePinnedNode(id, direction);
   }
 
-  clearPinnedNodes(){
+  clearPinnedNodes() {
     this.motifStore.clearPinnedNodes();
   }
 
@@ -215,12 +213,7 @@ export class MotifsAll {
     this.showValidationErrors = false;
     const currentNode = this.$currentNode();
     if (this.$modalState()?.mode == Mode.ADD) {
-      this.$editModel.set({
-        motifCode: "",
-        motifName: "",
-        description: "",
-        sagas: [],
-      });
+      this.$editModel.set(this.createNewMotifForm());
     }
     if (this.$modalState()?.mode == Mode.EDIT) {
       if (!currentNode) return;
@@ -228,7 +221,7 @@ export class MotifsAll {
         motifCode: currentNode.motifCode,
         motifName: currentNode.motifName,
         description: currentNode.description,
-        sagas: currentNode.motifSagas.map(saga => ({...saga}))
+        sagas: currentNode.motifSagas.map((saga) => ({ ...saga })),
       });
     }
   }
