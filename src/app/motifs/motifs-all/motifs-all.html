@@ -10,14 +10,18 @@
           <div class="col"></div>
           <div class="col text-center">Pinboard</div>
           <div class="col text-end">
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearPinnedNodes()">
+            <button
+              type="button"
+              data-testid="clear-pinned-nodes-button"
+              class="btn btn-sm btn-outline-danger"
+              (click)="clearPinnedNodes()">
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
         </div>
         <hr />
         <div class="masonry-grid">
-          @for (node of $pinnedNodes().values(); track $index) {
+          @for (node of $pinnedNodes().values(); track $index; let i = $index) {
             <div class="masonry-item">
               <div class="card" style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); background-color: rgb(255, 254, 249)">
                 <div class="card-header">
@@ -30,6 +34,7 @@
                   <span style="float: right">
                     <button
                       type="button"
+                      [attr.data-testid]="'move-pinned-node-left-button-' + i"
                       class="btn btn-sm btn-outline-secondary me-1"
                       [disabled]="$index === 0"
                       (click)="movePinnedNode(node.id!, -1)">
@@ -37,6 +42,7 @@
                     </button>
                     <button
                       type="button"
+                      [attr.data-testid]="'move-pinned-node-right-button-' + i"
                       class="btn btn-sm btn-outline-secondary me-1"
                       [disabled]="$index === $pinnedNodes().size - 1"
                       (click)="movePinnedNode(node.id!, 1)">
@@ -44,6 +50,7 @@
                     </button>
                     <button
                       type="button"
+                      [attr.data-testid]="'toggle-pinned-node-button-' + i"
                       class="btn btn-sm btn-outline-secondary me-1"
                       (click)="togglePinnedNode(node.id!)">
                       <i class="bi bi-pin-angle"></i>
@@ -70,17 +77,30 @@
             placeholder="Search motif entries..." />
           <button
             type="button"
+            data-testid="search-button"
             class="btn btn-outline-success"
             (click)="submitSearchRequest()"
             [disabled]="!searchForm.searchTerm().value()"
             >Search</button
           >
-          <button type="button" class="btn btn-outline-danger" (click)="clearSearch()">Clear</button>
+          <button type="button" data-testid="clear-button" class="btn btn-outline-danger" (click)="clearSearch()"
+            >Clear</button
+          >
         </div>
       </div>
       <div class="col-12 col-md-8 d-flex">
-        <button type="button" class="me-3 btn btn-outline-secondary" (click)="collapseAll()">Collapse all</button>
-        <button type="button" class="btn btn-outline-secondary" (click)="toggleColourCoding()">
+        <button
+          type="button"
+          data-testid="collapse-all-button"
+          class="me-3 btn btn-outline-secondary"
+          (click)="collapseAll()"
+          >Collapse all</button
+        >
+        <button
+          type="button"
+          data-testid="toggle-colour-coding-button"
+          class="btn btn-outline-secondary"
+          (click)="toggleColourCoding()">
           {{ $showColourCoding() ? "Hide colour coding" : "Show colour coding" }}
         </button>
       </div>
@@ -95,7 +115,7 @@
   @if ($loggedIn()) {
     <!-- ADD BUTTON -->
     <div class="mt-3">
-      <a type="button" class="btn btn-success" (click)="openAddModal()">Add motif</a>
+      <a type="button" data-testid="add-new-motif-button" class="btn btn-success" (click)="openAddModal()">Add motif</a>
     </div>
   }
 </div>
@@ -234,7 +254,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="setModalStateToClose()">
           Close
         </button>
-        <button type="button" class="btn btn-primary" (click)="submitForm()">Save</button>
+        <button type="button" data-testid="save-button" class="btn btn-primary" (click)="submitForm()">Save</button>
       </div>
     </div>
   </div>

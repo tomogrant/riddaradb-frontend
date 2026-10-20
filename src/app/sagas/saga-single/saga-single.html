@@ -24,12 +24,6 @@
         }
       </div>
 
-      <div class="row mb-3">
-        <div class="col">
-          Page author: {{ sagaEntry.pageAuthor}}
-        </div>
-      </div>
-
       @if (sagaEntry.sagaVersions.length == 1 && sagaEntry.sagaVersions[0].date != SagaDate.UNDEFINED) {
         <div class="row mb-3">
           <div class="col">

@@ -36,20 +36,20 @@ export class MsAll {
   //Forms
   editForm = new FormGroup({
     id: new FormControl<number | null>({ value: null, disabled: true }),
-    name: new FormControl<string>("", [Validators.required, this.repositoryUnique()]),
-    city: new FormControl<string>("", Validators.required),
-    country: new FormControl<string>("", Validators.required),
+    name: new FormControl<string>("", {nonNullable: true, validators: [Validators.required, this.repositoryUnique()]}),
+    city: new FormControl<string>("", {nonNullable: true, validators: Validators.required}),
+    country: new FormControl<string>("", {nonNullable: true, validators: Validators.required}),
   });
 
-  get name(): FormControl {
+  get name(): FormControl<string> {
     return this.editForm.controls.name;
   }
 
-  get city(): FormControl {
+  get city(): FormControl<string> {
     return this.editForm.controls.city;
   }
 
-  get country(): FormControl {
+  get country(): FormControl<string> {
     return this.editForm.controls.country;
   }
 
@@ -57,7 +57,7 @@ export class MsAll {
     filter: new FormControl("", { nonNullable: true }),
   });
 
-  get filter(): FormControl {
+  get filter(): FormControl<string> {
     return this.filterForm.controls.filter;
   }
 
@@ -354,7 +354,7 @@ export class MsAll {
         this.updateFilter("");
       },
       error: (err) => {
-        console.log("Problem deleting");
+        console.log("Problem deleting; " + JSON.stringify(err.error));
       },
     });
   }

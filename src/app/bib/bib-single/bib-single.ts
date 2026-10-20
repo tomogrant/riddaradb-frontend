@@ -59,25 +59,25 @@ export class BibSingle {
 
   editForm = new FormGroup(
     {
-      type: new FormControl(this.defaultPublicationTypeOption, {
+      type: new FormControl<string>(this.defaultPublicationTypeOption, {
         nonNullable: true,
       }),
-      authors: new FormControl("", { nonNullable: true }),
-      editors: new FormControl("", { nonNullable: true }),
-      translators: new FormControl("", { nonNullable: true }),
-      title: new FormControl("", { nonNullable: true }),
-      url: new FormControl("", { nonNullable: true }),
-      bookEditors: new FormControl("", { nonNullable: true }),
-      book: new FormControl("", { nonNullable: true }),
-      bookSeries: new FormControl("", { nonNullable: true }),
-      volume: new FormControl("", { nonNullable: true }),
-      numOfVolumes: new FormControl("", { nonNullable: true }),
-      placeOfPublication: new FormControl("", { nonNullable: true }),
-      publisher: new FormControl("", { nonNullable: true }),
-      publicationYear: new FormControl("", { nonNullable: true }),
-      pageNumbers: new FormControl("", { nonNullable: true }),
-      recommended: new FormControl(false, { nonNullable: true }),
-      description: new FormControl("", { nonNullable: true }),
+      authors: new FormControl<string>("", { nonNullable: true }),
+      editors: new FormControl<string>("", { nonNullable: true }),
+      translators: new FormControl<string>("", { nonNullable: true }),
+      title: new FormControl<string>("", { nonNullable: true }),
+      url: new FormControl<string>("", { nonNullable: true }),
+      bookEditors: new FormControl<string>("", { nonNullable: true }),
+      book: new FormControl<string>("", { nonNullable: true }),
+      bookSeries: new FormControl<string>("", { nonNullable: true }),
+      volume: new FormControl<string>("", { nonNullable: true }),
+      numOfVolumes: new FormControl<string>("", { nonNullable: true }),
+      placeOfPublication: new FormControl<string>("", { nonNullable: true }),
+      publisher: new FormControl<string>("", { nonNullable: true }),
+      publicationYear: new FormControl<string>("", { nonNullable: true }),
+      pageNumbers: new FormControl<string>("", { nonNullable: true }),
+      recommended: new FormControl<boolean>(false, { nonNullable: true }),
+      description: new FormControl<string>("", { nonNullable: true }),
     },
     [this.authorsEditorsTranslatorsNotProvided()],
   );
@@ -121,55 +121,55 @@ export class BibSingle {
   };
 
   //GETTERS FOR EDITFORM
-  get type(): FormControl {
+  get type(): FormControl<string> {
     return this.editForm.controls.type;
   }
-  get authors(): FormControl {
+  get authors(): FormControl<string> {
     return this.editForm.controls.authors;
   }
-  get editors(): FormControl {
+  get editors(): FormControl<string> {
     return this.editForm.controls.editors;
   }
-  get translators(): FormControl {
+  get translators(): FormControl<string> {
     return this.editForm.controls.translators;
   }
-  get title(): FormControl {
+  get title(): FormControl<string> {
     return this.editForm.controls.title;
   }
-  get url(): FormControl {
+  get url(): FormControl<string> {
     return this.editForm.controls.url;
   }
-  get bookEditors(): FormControl {
+  get bookEditors(): FormControl<string> {
     return this.editForm.controls.bookEditors;
   }
-  get book(): FormControl {
+  get book(): FormControl<string> {
     return this.editForm.controls.book;
   }
-  get bookSeries(): FormControl {
+  get bookSeries(): FormControl<string> {
     return this.editForm.controls.bookSeries;
   }
-  get volume(): FormControl {
+  get volume(): FormControl<string> {
     return this.editForm.controls.volume;
   }
-  get numOfVolumes(): FormControl {
+  get numOfVolumes(): FormControl<string> {
     return this.editForm.controls.numOfVolumes;
   }
-  get placeOfPublication(): FormControl {
+  get placeOfPublication(): FormControl<string> {
     return this.editForm.controls.placeOfPublication;
   }
-  get publisher(): FormControl {
+  get publisher(): FormControl<string> {
     return this.editForm.controls.publisher;
   }
-  get publicationYear(): FormControl {
+  get publicationYear(): FormControl<string> {
     return this.editForm.controls.publicationYear;
   }
-  get pageNumbers(): FormControl {
+  get pageNumbers(): FormControl<string> {
     return this.editForm.controls.pageNumbers;
   }
-  get recommended(): FormControl {
+  get recommended(): FormControl<boolean> {
     return this.editForm.controls.recommended;
   }
-  get description(): FormControl {
+  get description(): FormControl<string> {
     return this.editForm.controls.description;
   }
 
@@ -180,13 +180,16 @@ export class BibSingle {
 
   parseParams() {
     const mode = this.route.snapshot.paramMap.get("mode");
-    const id = Number(this.route.snapshot.paramMap.get("id"));
+    const idParam = this.route.snapshot.paramMap.get("id");
+    const id = this.parameterValid(idParam);
 
     //ADD MODE
     if (mode == "add") {
       this.getSagas();
       this.addBib();
-    } else if (Number.isFinite(Number(id))) {
+    }
+    //If parameter is not null and not empty/decimal...
+    else if (id) {
       this.bibService.getBibEntryById(id).subscribe({
         next: (receivedEntry) => {
           this.activeBib = receivedEntry;
@@ -201,6 +204,14 @@ export class BibSingle {
     } else {
       console.log("parameter is incorrect");
       this.navigateToBibAllPage();
+    }
+  }
+
+  parameterValid(param: string | null): number | null {
+    if (param !== null && /^\d+$/.test(param) && Number.isSafeInteger(Number(param)) && Number(param) > 0) {
+      return Number(param);
+    } else {
+      return null;
     }
   }
 

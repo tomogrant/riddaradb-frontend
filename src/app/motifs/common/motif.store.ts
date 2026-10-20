@@ -36,6 +36,10 @@ export class MotifStore {
     this.collapseAll();
     this.clearVisibleNodes();
     this.clearResultNodes();
+
+    this.getRootMotifs();
+    this.getSagaTitles();
+
     this.$searchActive.set(false);
     this.$searchTerm.set("");
     this.$showColourCoding.set(false);
@@ -292,7 +296,7 @@ export class MotifStore {
   }
 
   //Gets motif node in store corresponding to ID.
-  getMotifNode(id: number) {
+  getMotifNode(id: number): IMotif | undefined {
     return this.$motifNodes().get(id);
   }
 
@@ -428,6 +432,7 @@ export class MotifStore {
     });
   }
 
+  //Can I shorten this method? 
   deleteMotifNode(id: number) {
     this.$motifNodes.update((current) => {
       const next = new Map(current);

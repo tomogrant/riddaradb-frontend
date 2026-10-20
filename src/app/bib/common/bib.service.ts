@@ -50,9 +50,9 @@ export class BibService {
   }
 
   //DELETE SAGA VERSION BY ID
-  deleteBib(id: number): Observable<IBib> {
+  deleteBib(id: number): Observable<null>{
     console.log("request sent: " + `${this.bibMain}/deletebibentry/${id}`);
-    return this.httpClient.delete<IBib>(`${this.bibMain}/deletebibentry/${id}`);
+    return this.httpClient.delete<null>(`${this.bibMain}/deletebibentry/${id}`);
   }
 
   private errorHandler(error: HttpErrorResponse) {

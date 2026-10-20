@@ -83,7 +83,7 @@ export class MotifNode {
     }
   }
 
-  togglePinNode(){
+  togglePinnedNode(){
     this.motifStore.togglePinnedNode(this.$nodeId());
   }
 

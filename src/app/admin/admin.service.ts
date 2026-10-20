@@ -34,9 +34,9 @@ export class AdminService {
     );
   }
 
-  deleteUser(username: string): Observable<IUser> {
+  deleteUser(username: string): Observable<null> {
     console.log("request sent: " + `${this.adminMain}/deleteuser/${username}`);
-    return this.httpClient.delete<IUser>(`${this.adminMain}/deleteuser/${username}`);
+    return this.httpClient.delete<null>(`${this.adminMain}/deleteuser/${username}`);
   }
 
   private errorHandler(error: HttpErrorResponse) {

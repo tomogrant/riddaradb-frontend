@@ -34,39 +34,39 @@ export class Admin {
 
   editForm = new FormGroup({
     id: new FormControl<number | null>(null),
-    username: new FormControl<string>("", Validators.required),
-    email: new FormControl<string>("", [Validators.required, Validators.email]),
-    firstName: new FormControl<string>("", Validators.required),
-    lastNames: new FormControl<string>("", Validators.required),
+    username: new FormControl<string>("", {nonNullable: true, validators: Validators.required}),
+    email: new FormControl<string>("", {nonNullable: true, validators: [Validators.required, Validators.email]}),
+    firstName: new FormControl<string>("", {nonNullable: true, validators: Validators.required}),
+    lastNames: new FormControl<string>("", {nonNullable: true, validators: Validators.required}),
     password: new FormControl<string>("", this.passwordsDoNotMatch()),
     repeatPassword: new FormControl<string>("", this.passwordsDoNotMatch()),
   });
 
-  get id(): FormControl {
+  get id(): FormControl<number | null>{
     return this.editForm.controls.id;
   }
 
-  get username(): FormControl {
+  get username(): FormControl<string> {
     return this.editForm.controls.username;
   }
 
-  get email(): FormControl {
+  get email(): FormControl<string> {
     return this.editForm.controls.email;
   }
 
-  get firstName(): FormControl {
+  get firstName(): FormControl<string> {
     return this.editForm.controls.firstName;
   }
 
-  get lastNames(): FormControl {
+  get lastNames(): FormControl<string> {
     return this.editForm.controls.lastNames;
   }
 
-  get password(): FormControl {
+  get password(): FormControl<string | null> {
     return this.editForm.controls.password;
   }
 
-  get repeatPassword(): FormControl {
+  get repeatPassword(): FormControl<string | null> {
     return this.editForm.controls.repeatPassword;
   }
 
@@ -167,7 +167,7 @@ export class Admin {
       email: this.email.value,
       firstName: this.firstName.value,
       lastNames: this.lastNames.value,
-      password: this.password.value,
+      password: this.password.value ? this.password.value : undefined,
     };
   }
 

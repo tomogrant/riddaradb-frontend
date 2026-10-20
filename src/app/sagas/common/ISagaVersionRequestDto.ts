@@ -6,8 +6,6 @@ export interface ISagaVersionRequestDto {
   description: string;
   date: SagaDate;
   sagaId: number;
-  personIds: number[];
-  placeIds: number[];
-  objectIds: number[];
-  msIds: number[];
+  characterIds: [],
+  locationIds: []
 }

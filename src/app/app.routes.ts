@@ -1,7 +1,7 @@
 import { CanActivateFn, Router, Routes } from '@angular/router';
 import { Home } from './home/home';
-import { SagasAll } from './sagas/sagas-all/sagas-all';
-import { SagasSingle } from './sagas/sagas-single/sagas-single';
+import { SagaAll } from './sagas/saga-all/saga-all';
+import { SagaSingle } from './sagas/saga-single/saga-single';
 import { BibAll } from './bib/bib-all/bib-all';
 import { BibSingle } from './bib/bib-single/bib-single';
 import { MotifsAll } from './motifs/motifs-all/motifs-all';
@@ -28,9 +28,9 @@ export const routes: Routes = [
 
     { path: 'about', component: About, title: 'riddaraDB - About' },
 
-    { path: 'sagas', component: SagasAll, title: 'riddaraDB - Sagas' },
-    { path: 'sagas/:id', component: SagasSingle },
-    { path: 'sagas/action/:mode', component: SagasSingle, title: 'riddaraDB - Sagas'},
+    { path: 'sagas', component: SagaAll, title: 'riddaraDB - Sagas' },
+    { path: 'sagas/:id', component: SagaSingle },
+    { path: 'sagas/action/:mode', component: SagaSingle, title: 'riddaraDB - Sagas'},
 
     { path: 'bib', component: BibAll, title: 'riddaraDB - Bibliography' },
     { path: 'bib/:id', component: BibSingle, title: 'riddaraDB - Bibliography entry' },

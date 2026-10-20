@@ -50,7 +50,9 @@ export class MsService {
   //DELETE MS REPOSITORY BY ID
   deleteMsRepository(id: number): Observable<IMsRepositoryDto> {
     console.log("request sent: " + `${this.msRepoMain}/deletemsrepository/${id}`);
-    return this.httpClient.delete<IMsRepositoryDto>(`${this.msRepoMain}/deletemsrepository/${id}`);
+    return this.httpClient.delete<IMsRepositoryDto>(`${this.msRepoMain}/deletemsrepository/${id}`).pipe(
+      catchError(this.errorHandler)
+    );
   }
 
   //GET ALL MS ENTRIES

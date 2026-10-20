@@ -36,10 +36,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 @Component({
   selector: "app-saga-entry",
   imports: [CommonModule, RouterModule, ReactiveFormsModule, QuillModule, PageHeader],
-  templateUrl: "./sagas-single.html",
-  styleUrl: "./sagas-single.css",
+  templateUrl: "./saga-single.html",
+  styleUrl: "./saga-single.css",
 })
-export class SagasSingle implements OnInit {
+export class SagaSingle implements OnInit {
   private route = inject(ActivatedRoute);
   private sagasService = inject(SagaService);
   private bibService = inject(BibService);
@@ -59,8 +59,6 @@ export class SagasSingle implements OnInit {
   mode: Mode = Mode.NONE;
 
   sagaEntry: ISagaVm = this.initialiseSaga();
-
-  sagaVersions: ISagaVersionVm[] = [];
 
   sagaTitles: ISagaTitleDto[] = [];
 
@@ -125,35 +123,35 @@ export class SagasSingle implements OnInit {
 
   editForm = new FormGroup({
     id: new FormControl<number | null>({ value: null, disabled: true }),
-    title: new FormControl<string>("", { validators: [Validators.required, this.sagaTitleUnique()] }),
-    translatedTitle: new FormControl<string>("", Validators.required),
-    pageAuthor: new FormControl<string>("", Validators.required),
-    translated: new FormControl<boolean>(false),
-    description: new FormControl<string>(""),
+    title: new FormControl<string>("", {nonNullable: true, validators: [Validators.required, this.sagaTitleUnique()] }),
+    translatedTitle: new FormControl<string>("", {nonNullable: true, validators: Validators.required}),
+    pageAuthor: new FormControl<string>("", {nonNullable: true, validators: Validators.required}),
+    translated: new FormControl<boolean>(false, {nonNullable: true}),
+    description: new FormControl<string>("", {nonNullable: true}),
     sagaVersionForms: new FormArray<FormGroup>([]),
-    bibFilter: new FormControl<string>(""),
-    bibIds: new FormControl<number[]>([]),
+    bibFilter: new FormControl<string>("", {nonNullable: true}),
+    bibIds: new FormControl<number[]>([], {nonNullable: true}),
     msForms: new FormArray<FormGroup>([]),
-    msFilter: new FormControl<string>(""),
+    msFilter: new FormControl<string>("", {nonNullable: true}),
   });
 
-  get title(): FormControl {
+  get title(): FormControl<string> {
     return this.editForm.controls.title;
   }
 
-  get translatedTitle(): FormControl {
+  get translatedTitle(): FormControl<string> {
     return this.editForm.controls.translatedTitle;
   }
 
-  get pageAuthor(): FormControl {
+  get pageAuthor(): FormControl<string> {
     return this.editForm.controls.pageAuthor;
   }
 
-  get translated(): FormControl {
+  get translated(): FormControl<boolean> {
     return this.editForm.controls.translated;
   }
 
-  get description(): FormControl {
+  get description(): FormControl<string> {
     return this.editForm.controls.description;
   }
 
@@ -161,11 +159,11 @@ export class SagasSingle implements OnInit {
     return this.editForm.controls.sagaVersionForms;
   }
 
-  get bibFilter(): FormControl {
+  get bibFilter(): FormControl<string> {
     return this.editForm.controls.bibFilter;
   }
 
-  get bibIds(): FormControl {
+  get bibIds(): FormControl<number[]> {
     return this.editForm.controls.bibIds;
   }
 
@@ -173,8 +171,8 @@ export class SagasSingle implements OnInit {
     return this.editForm.controls.msForms;
   }
 
-  get msFilter() {
-    return this.editForm.get("msFilter") as FormControl;
+  get msFilter(): FormControl<string> {
+    return this.editForm.controls.msFilter;
   }
 
   populateSagaVersionForms() {
@@ -196,7 +194,7 @@ export class SagasSingle implements OnInit {
         nonNullable: true,
         validators: this.dateNotSelected(),
       }),
-      description: new FormControl<string>(sagaVersion ? sagaVersion.description : ""),
+      description: new FormControl<string>(sagaVersion ? sagaVersion.description : "", {nonNullable: true}),
     });
   }
 
@@ -219,8 +217,8 @@ export class SagasSingle implements OnInit {
     return new FormGroup({
       trackingId: new FormControl<number>({ value: this.sagaVersionTrackingId++, disabled: true }),
       msId: new FormControl<number | null>({ value: ms.id, disabled: true }),
-      shelfmark: new FormControl<string>({ value: ms.shelfmark, disabled: true }),
-      date: new FormControl<string>({ value: ms.date, disabled: true }),
+      shelfmark: new FormControl<string>({ value: ms.shelfmark, disabled: true }, {nonNullable: true}),
+      date: new FormControl<string>({ value: ms.date, disabled: true }, {nonNullable: true}),
       folioNumber: new FormControl<string | null>(
         { value: msInSaga ? msInSaga.folioNumber : null, disabled: !selected },
         Validators.required,
@@ -330,7 +328,8 @@ export class SagasSingle implements OnInit {
       "', riddaraDB: Database of Medieval Icelandic Romance," +
       " ed. Tom Grant and Jonathan Y. H. Hui." +
       " Last accessed: " +
-      this.date;
+      this.date +
+      ".";
 
     navigator.clipboard.writeText(ref);
     this.copyButtonClicked = true;
@@ -571,9 +570,7 @@ export class SagasSingle implements OnInit {
     this.sagaEntry.pageAuthor = this.pageAuthor.value;
 
     //Ugly fix until Quill releases update
-    if (this.description.value == null) {
-      this.sagaEntry.description = "";
-    } else {
+    if (this.description.value) {
       this.sagaEntry.description = String(this.description.value).replaceAll(/((?:&nbsp;)*)&nbsp;/g, "$1 ");
     }
 
@@ -598,37 +595,37 @@ export class SagasSingle implements OnInit {
       }));
 
     //Fill VM saga versions
-    this.sagaVersions = [];
+    const sagaVersions: ISagaVersionVm[] = [];
 
     for (var i = 0; i < this.sagaVersionForms.length; i++) {
       const sagaVersionForm = this.sagaVersionForms.controls[i];
       if (!sagaVersionForm) continue;
 
       const newSagaVersion = this.initialiseSagaVersion();
-      this.sagaVersions.push(newSagaVersion);
+      sagaVersions.push(newSagaVersion);
 
       const sagaVersionFormId = sagaVersionForm.get("id");
-      if (!sagaVersionFormId) this.sagaVersions[i].id = null;
-      else this.sagaVersions[i].id = sagaVersionFormId.getRawValue();
+      if (!sagaVersionFormId) sagaVersions[i].id = null;
+      else sagaVersions[i].id = sagaVersionFormId.getRawValue();
 
       const sagaVersionFormTitle = sagaVersionForm.get("title");
-      if (!sagaVersionFormTitle) this.sagaVersions[i].title = "";
-      else this.sagaVersions[i].title = sagaVersionFormTitle.value;
+      if (!sagaVersionFormTitle) sagaVersions[i].title = "";
+      else sagaVersions[i].title = sagaVersionFormTitle.value;
 
       const sagaVersionFormDescription = sagaVersionForm.get("description");
-      if (!sagaVersionFormDescription) this.sagaVersions[i].description = "";
+      if (!sagaVersionFormDescription) sagaVersions[i].description = "";
       else
-        this.sagaVersions[i].description = String(sagaVersionFormDescription.value).replaceAll(
+        sagaVersions[i].description = String(sagaVersionFormDescription.value).replaceAll(
           /((?:&nbsp;)*)&nbsp;/g,
           "$1 ",
         );
 
       const sagaVersionFormDate = sagaVersionForm.get("date");
-      if (!sagaVersionFormDate) this.sagaVersions[i].date = SagaDate.UNDEFINED;
-      else this.sagaVersions[i].date = this.mapDateFromUi(sagaVersionFormDate.value);
+      if (!sagaVersionFormDate) sagaVersions[i].date = SagaDate.UNDEFINED;
+      else sagaVersions[i].date = this.mapDateFromUi(sagaVersionFormDate.value);
     }
 
-    this.sagaEntry.sagaVersions = this.sagaVersions;
+    this.sagaEntry.sagaVersions = sagaVersions;
   }
 
   getSagaTitles() {
@@ -669,7 +666,8 @@ export class SagasSingle implements OnInit {
 
   //READ
   getSaga() {
-    const id = Number(this.route.snapshot.paramMap.get("id"));
+    const idParam = this.route.snapshot.paramMap.get("id");
+    const id = this.parameterValid(idParam);
 
     if (id !== null && Number.isFinite(id)) {
       //If saga id is valid, get saga
@@ -689,6 +687,14 @@ export class SagasSingle implements OnInit {
     } else {
       console.log("Parameter is incorrect");
       this.navigateToSagasAllPage();
+    }
+  }
+
+  parameterValid(param: string | null): number | null {
+    if (param !== null && /^\d+$/.test(param) && Number.isSafeInteger(Number(param)) && Number(param) > 0) {
+      return Number(param);
+    } else {
+      return null;
     }
   }
 

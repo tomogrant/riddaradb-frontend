@@ -11,10 +11,10 @@ import { AuthService } from "../../auth/auth.service";
 @Component({
   selector: "app-sagas",
   imports: [CommonModule, RouterModule, PageHeader],
-  templateUrl: "./sagas-all.html",
-  styleUrl: "./sagas-all.css",
+  templateUrl: "./saga-all.html",
+  styleUrl: "./saga-all.css",
 })
-export class SagasAll implements OnInit {
+export class SagaAll implements OnInit {
 
   private sagaService = inject(SagaService);
   private router = inject(Router);

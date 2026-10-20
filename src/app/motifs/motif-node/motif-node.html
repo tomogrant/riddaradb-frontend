@@ -52,25 +52,25 @@
         <div class="card-footer">
           @if ($loggedIn()) {
             <span class="me-1">
-              <a class="me-1" type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">Edit</a>
+              <a class="me-1" type="button" data-testid="edit-button" class="btn btn-sm btn-outline-secondary" (click)="openEditModal()">Edit</a>
             </span>
 
             <span class="me-1">
-              <a class="me-1" type="button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
+              <a class="me-1" type="button" data-testid="add-button" class="btn btn-sm btn-outline-success" (click)="openAddModal()">
                 Add sub-motif
               </a>
             </span>
 
-            @if ($isAdmin()) {
+            @if (!$node()?.hasChildren || $isAdmin()) {
               <span>
-                <a type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">Delete</a>
+                <a type="button" data-testid="delete-button" class="btn btn-sm btn-outline-danger" (click)="openDeleteModal()">Delete</a>
               </span>
             }
           }
 
           <span class="toggle-slot">
             @if ($depth() > 2) {
-              <a type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="togglePinNode()" aria-label="Pin">
+              <a type="button" data-testid="toggle-pinned-button" class="btn btn-sm btn-outline-secondary me-1" (click)="togglePinnedNode()" aria-label="Pin">
                 @if ($pinnedNode()) {
                   <i class="bi bi-pin-angle"></i>
                 } @else {
@@ -80,7 +80,7 @@
             }
 
             @if ($node()?.hasChildren && !$searchActive()) {
-              <a type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleExpand()">
+              <a type="button" data-testid="toggle-expand-button" class="btn btn-sm btn-outline-secondary" (click)="toggleExpand()">
                 @if ($expanded()) {
                   <i class="bi bi-dash-lg"></i>
                 } @else {

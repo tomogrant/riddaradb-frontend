@@ -9,8 +9,4 @@ export interface ISagaVersionResponseDto {
   date: SagaDate;
   sagaId: number;  
   sagaMotifs: ISagaMotif[];
-  personIds: number[];
-  placeIds: number[];
-  objectIds: number[];
-  msIds: number[];
 } 

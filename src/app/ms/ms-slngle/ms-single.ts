@@ -34,35 +34,35 @@ export class MsSingle {
   //Forms
   editForm = new FormGroup({
     id: new FormControl<number | null>({ value: null, disabled: true }),
-    name: new FormControl<string>(""),
-    shelfmark: new FormControl<string>("", [Validators.required, this.shelfmarkUnique()]),
-    date: new FormControl<string>("", [Validators.required, Validators.pattern(/^\d{4}(?:-\d{4})?$/)]),
-    entryLink: new FormControl<string>(""),
-    description: new FormControl<string>(""),
+    name: new FormControl<string>("", {nonNullable: true}),
+    shelfmark: new FormControl<string>("", {nonNullable: true, validators: [Validators.required, this.shelfmarkUnique()]}),
+    date: new FormControl<string>("", {nonNullable: true, validators: [Validators.required, Validators.pattern(/^\d{4}(?:-\d{4})?$/)]}),
+    entryLink: new FormControl<string>("", {nonNullable: true}),
+    description: new FormControl<string>("", {nonNullable: true}),
     msSagas: new FormArray<FormGroup>([]),
   });
 
-  get id(): FormControl {
+  get id(): FormControl<number | null> {
     return this.editForm.controls.id;
   }
 
-  get name(): FormControl {
+  get name(): FormControl<string> {
     return this.editForm.controls.name;
   }
 
-  get shelfmark(): FormControl {
+  get shelfmark(): FormControl<string> {
     return this.editForm.controls.shelfmark;
   }
 
-  get date(): FormControl {
+  get date(): FormControl<string> {
     return this.editForm.controls.date;
   }
 
-  get entryLink(): FormControl {
+  get entryLink(): FormControl<string> {
     return this.editForm.controls.entryLink;
   }
 
-  get description(): FormControl {
+  get description(): FormControl<string> {
     return this.editForm.controls.description;
   }
 
@@ -94,14 +94,15 @@ export class MsSingle {
     const repoId = this.route.snapshot.paramMap.get("repoid");
     this.activeMs.msRepositoryId = Number(repoId);
 
-    const id = Number(this.route.snapshot.paramMap.get("id"));
+    const idParam = this.route.snapshot.paramMap.get("id");
+    const id = this.parameterValid(idParam);
 
     //ADD MODE
     if (mode == "add") {
       this.getSagas();
       this.getRepo();
       this.addMs();
-    } else if (id !== null && Number.isFinite(Number(id))) {
+    } else if (id) {
       this.msService.getMsEntryById(id).subscribe({
         next: (receivedEntry) => {
           this.activeMs = receivedEntry;
@@ -117,6 +118,14 @@ export class MsSingle {
     } else {
       console.log("parameter is incorrect");
       this.navigateToMsAllPage();
+    }
+  }
+
+    parameterValid(param: string | null): number | null {
+    if (param !== null && /^\d+$/.test(param) && Number.isSafeInteger(Number(param)) && Number(param) > 0) {
+      return Number(param);
+    } else {
+      return null;
     }
   }
 
@@ -193,11 +202,11 @@ export class MsSingle {
     this.showValidationErrors = false;
 
     this.id.setValue(this.activeMs.id);
-    this.name.setValue(this.activeMs.name);
+    this.name.setValue(this.activeMs.name ?? "");
     this.shelfmark.setValue(this.activeMs.shelfmark);
     this.date.setValue(this.activeMs.date);
-    this.entryLink.setValue(this.activeMs.entryLink);
-    this.description.setValue(this.activeMs.description);
+    this.entryLink.setValue(this.activeMs.entryLink ?? "");
+    this.description.setValue(this.activeMs.description ?? "");
 
     this.openAddEditModal();
   }

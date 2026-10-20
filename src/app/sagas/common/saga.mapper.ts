@@ -77,10 +77,8 @@ export class SagaMapper {
       description: vm.description,
       date: vm.date,
       sagaId: vm.sagaId,
-      personIds: [],
-      placeIds: [],
-      objectIds: [],
-      msIds: [],
+      characterIds: [],
+      locationIds: []
     };
   }
 

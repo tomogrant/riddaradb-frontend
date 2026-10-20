@@ -12,10 +12,9 @@ import { signal } from "@angular/core";
 describe("BibSingle", () => {
   let activatedRouteMock: any;
 
-  const authServiceMock = {
+  let authServiceMock = {
     $loggedIn: signal(true),
-    $isAdmin: signal(true)
-  }
+  };
 
   let bib: IBib = {
     id: 1,
@@ -77,29 +76,17 @@ describe("BibSingle", () => {
       },
     };
 
+    //Initialisations
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: "1" });
+    authServiceMock.$loggedIn.set(true);
+
     //Sets up the mock BibService instance to be passed to the TestBed
-    const bibServiceSpy = jasmine.createSpyObj<BibService>([
-      "getBibEntryById",
-      "putBib",
-      "postBib",
-      "deleteBib",
-    ]);
+    const bibServiceSpy = jasmine.createSpyObj<BibService>(["getBibEntryById", "putBib", "postBib", "deleteBib"]);
     //When the bib service's getBibEntryById function is called, return the bib entry defined above
-    bibServiceSpy.getBibEntryById.and.callFake(function () {
-      return of(bib);
-    });
-    //Ditto
-    bibServiceSpy.postBib.and.callFake(function () {
-      return of(bib);
-    });
-
-    bibServiceSpy.putBib.and.callFake(function () {
-      return of(updatedBib);
-    });
-
-    bibServiceSpy.deleteBib.and.callFake(function () {
-      return of(bib);
-    });
+    bibServiceSpy.getBibEntryById.and.returnValue(of(bib));
+    bibServiceSpy.postBib.and.returnValue(of(bib));
+    bibServiceSpy.putBib.and.returnValue(of(bib));
+    bibServiceSpy.deleteBib.and.returnValue(of(null));
 
     //Sets up the mock SagaService instance to be passed to the TestBed
     const sagaServiceSpy = jasmine.createSpyObj<SagaService>(["getSagaTitles"]);
@@ -132,42 +119,65 @@ describe("BibSingle", () => {
     }).compileComponents();
   });
 
-  //Tests
-  it("Component should be created", () => {
-    //Creates testing harness
-    const fixture = TestBed.createComponent(BibSingle, {
-      
-    });
-    //Instance of the component class
-    const component = fixture.componentInstance;
-    //Triggers change detection cycle, including running ngOnInit if not run before
-    fixture.detectChanges();
-
-    expect(component).toBeTruthy();
-  });
-
-  it('Header should read "Bibliography"', () => {
-    const fixture = TestBed.createComponent(BibSingle);
-
-    const header = fixture.nativeElement.querySelector("h1");
-    if (header) expect(header.textContent).toContain("Bibliography");
-  });
-
   it("ngOnInit should return bibliography entries when not in add mode", () => {
-    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: "1" });
     const fixture = TestBed.createComponent(BibSingle);
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.activeBib).toBeTruthy();
-    expect(component.activeBibVm).toBeTruthy();
+    expect(component.activeBib).toEqual(bib);
+    expect(component.activeBibVm).toEqual(
+      jasmine.objectContaining({
+        id: bib.id,
+      }),
+    );
     expect(component.sagas).toBeTruthy();
+  });
+
+  ["1.5", "", "1 ", "0", "abc", undefined].forEach((invalidParam) => {
+    it(`Invalid parameter ${invalidParam} should not fetch saga`, () => {
+      activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: invalidParam });
+      const fixture = TestBed.createComponent(BibSingle);
+      const component = fixture.componentInstance;
+
+      const bibService = TestBed.inject(BibService) as jasmine.SpyObj<BibService>;
+      spyOn(component, "navigateToBibAllPage");
+
+      fixture.detectChanges();
+
+      expect(component.navigateToBibAllPage).toHaveBeenCalled();
+      expect(bibService.getBibEntryById).not.toHaveBeenCalled();
+    });
+  });
+
+  it("Buttons are unavailable to unauthenticated users", () => {
+    authServiceMock.$loggedIn.set(false);
+
+    const fixture = TestBed.createComponent(BibSingle);
+    fixture.detectChanges();
+
+    const editButton = fixture.nativeElement.querySelector('[data-testid="edit-button"]');
+    const deleteButton = fixture.nativeElement.querySelector('[data-testid="delete-button"]');
+
+    expect(editButton).toBeNull();
+    expect(deleteButton).toBeNull();
+  });
+
+  it("Buttons are available to all authenticated users", () => {
+    const fixture = TestBed.createComponent(BibSingle);
+    fixture.detectChanges();
+
+    const editButton = fixture.nativeElement.querySelector('[data-testid="edit-button"]');
+    const deleteButton = fixture.nativeElement.querySelector('[data-testid="delete-button"]');
+
+    expect(editButton).not.toBeNull();
+    expect(deleteButton).not.toBeNull();
   });
 
   it("Add modal posts bib entry", () => {
     activatedRouteMock.snapshot.paramMap = convertToParamMap({ mode: "add" });
     const fixture = TestBed.createComponent(BibSingle);
     const component = fixture.componentInstance;
+    const bibService = TestBed.inject(BibService) as jasmine.SpyObj<BibService>;
     //We don't want the add modal to actually open
     spyOn(component, "openAddEditModal");
     spyOn(component, "closeAddEditModal");
@@ -180,22 +190,25 @@ describe("BibSingle", () => {
     component.authors.setValue("Author");
     component.title.setValue("Title");
 
-    const saveButton = fixture.nativeElement.querySelector(
-      '[data-testid="save-button"]',
-    );
-    const bibService = TestBed.inject(BibService) as jasmine.SpyObj<BibService>;
+    const saveButton = fixture.nativeElement.querySelector('[data-testid="save-button"]');
     saveButton.click();
     fixture.detectChanges();
 
     expect(component.sagas).toBeTruthy();
     expect(component.editForm.valid).toBeTrue();
-    expect(component.openAddEditModal).toHaveBeenCalled();
-    expect(component.closeAddEditModal).toHaveBeenCalled();
-    expect(bibService.postBib).toHaveBeenCalled();
+    expect(component.openAddEditModal).toHaveBeenCalledTimes(1);
+    expect(component.closeAddEditModal).toHaveBeenCalledTimes(1);
+    expect(bibService.postBib).toHaveBeenCalledTimes(1);
+    expect(bibService.postBib).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        id: null,
+        title: "Title",
+        authors: "Author",
+      }),
+    );
   });
 
   it("Edit modal populates and updates bib entry", () => {
-    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: "1" });
     const fixture = TestBed.createComponent(BibSingle);
     const component = fixture.componentInstance;
     const bibService = TestBed.inject(BibService) as jasmine.SpyObj<BibService>;
@@ -206,16 +219,14 @@ describe("BibSingle", () => {
 
     //Gets button by data-testid, clicks button, and triggers change detection which runs
     //this.type.valueChanges.pipe().
-    const editButton = fixture.nativeElement.querySelector(
-      '[data-testid="edit-button"]',
-    );
+    const editButton = fixture.nativeElement.querySelector('[data-testid="edit-button"]');
     editButton.click();
     fixture.detectChanges();
 
+    component.title.setValue("New title");
+
     //Clicks the save button
-    const saveButton = fixture.nativeElement.querySelector(
-      '[data-testid="save-button"]',
-    );
+    const saveButton = fixture.nativeElement.querySelector('[data-testid="save-button"]');
     saveButton.click();
     fixture.detectChanges();
 
@@ -224,12 +235,17 @@ describe("BibSingle", () => {
     expect(component.editForm.valid).toBeTrue();
     expect(component.openAddEditModal).toHaveBeenCalled();
     expect(component.closeAddEditModal).toHaveBeenCalled();
-    expect(bibService.putBib).toHaveBeenCalled();
-    expect(component.activeBib.title).toBe("Updated title");
+    expect(bibService.putBib).toHaveBeenCalledTimes(1);
+    expect(bibService.putBib).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        publicationType: PublicationType.OTHER,
+        id: 1,
+        title: "New title",
+      }),
+    );
   });
 
   it("Delete modal deletes bib entry", () => {
-    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: "1" });
     const fixture = TestBed.createComponent(BibSingle);
     const component = fixture.componentInstance;
     const bibService = TestBed.inject(BibService) as jasmine.SpyObj<BibService>;
@@ -238,12 +254,8 @@ describe("BibSingle", () => {
 
     fixture.detectChanges();
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '[data-testid="delete-button"]',
-    );
-    const deleteConfirmButton = fixture.nativeElement.querySelector(
-      '[data-testid="delete-confirm-button"]',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('[data-testid="delete-button"]');
+    const deleteConfirmButton = fixture.nativeElement.querySelector('[data-testid="delete-confirm-button"]');
 
     deleteButton.click();
     fixture.detectChanges();
@@ -253,15 +265,7 @@ describe("BibSingle", () => {
 
     expect(component.openDeleteModal).toHaveBeenCalled();
     expect(component.closeDeleteModal).toHaveBeenCalled();
-    expect(bibService.deleteBib).toHaveBeenCalled();
+    expect(bibService.deleteBib).toHaveBeenCalledTimes(1);
+    expect(bibService.deleteBib).toHaveBeenCalledWith(1);
   });
-
-  //   afterEach(() => {
-  //     //Modals display strange behaviour in karma. This manually destroys them
-  //     //after each test.
-  //     document.querySelectorAll('.modal').forEach(element => {
-  //         const modal = Modal.getInstance(element);
-  //         modal?.dispose();
-  //         });
-  //     });
 });

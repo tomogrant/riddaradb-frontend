@@ -24,6 +24,7 @@ export interface MotifDetails {
 })
 export class MotifsAll {
   constructor() {
+    //Opens modal when modal state is not null
     effect(() => {
       if (this.$modalState() != null) {
         this.setForm();
@@ -94,23 +95,18 @@ export class MotifsAll {
       return null;
     }
 
+    console.log("Test: " + this.motifStore.getMotifNode(1)?.motifName);
     return this.motifStore.getMotifNode(state.motifId);
   });
 
   ngOnInit() {
-    this.route.paramMap.subscribe((params) => {
-      if (params) {
-        this.initialise(params);
-      }
-    });
+    this.initialise();
   }
 
-  async initialise(params: ParamMap) {
-    this.motifStore.initialise();
-    await this.motifStore.getRootMotifs();
-    await this.motifStore.getSagaTitles();
+  async initialise() {
+    await this.motifStore.initialise();
 
-    const searchTerm = params.get("searchterm");
+    const searchTerm = this.route.snapshot.paramMap.get("searchterm");
     if (!searchTerm) return;
     this.searchForm.searchTerm().value.set(searchTerm);
     this.motifStore.search(searchTerm, true);
@@ -210,6 +206,7 @@ export class MotifsAll {
   }
 
   setForm() {
+    console.log("setForm called");
     this.showValidationErrors = false;
     const currentNode = this.$currentNode();
     if (this.$modalState()?.mode == Mode.ADD) {
@@ -217,6 +214,7 @@ export class MotifsAll {
     }
     if (this.$modalState()?.mode == Mode.EDIT) {
       if (!currentNode) return;
+      console.log(currentNode.id);
       this.$editModel.set({
         motifCode: currentNode.motifCode,
         motifName: currentNode.motifName,
@@ -272,7 +270,7 @@ export class MotifsAll {
         });
       }
 
-      this.motifModalService.$modalState.set(null);
+      this.setModalStateToClose();
       this.toggleModal();
     } else {
       this.showValidationErrors = true;
@@ -284,5 +282,6 @@ export class MotifsAll {
 
     if (!motifId) return;
     this.motifStore.deleteMotifNode(motifId);
+    this.setModalStateToClose();
   }
 }
