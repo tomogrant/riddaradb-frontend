@@ -88,7 +88,7 @@
           >
         </div>
       </div>
-      <div class="col-12 col-md-8 d-flex">
+      <div class="col-12 col-md-auto d-flex">
         <button
           type="button"
           data-testid="collapse-all-button"
@@ -103,6 +103,13 @@
           (click)="toggleColourCoding()">
           {{ $showColourCoding() ? "Hide colour coding" : "Show colour coding" }}
         </button>
+      </div>
+      <div class="col-12 col-md-4 d-flex">
+        <span class="mt-1">
+          <b>
+            {{$searchMessage()}}
+          </b>
+        </span>
       </div>
     </div>
   </div>

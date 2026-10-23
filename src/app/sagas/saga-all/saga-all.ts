@@ -44,7 +44,7 @@ export class SagaAll implements OnInit {
 
         this.sagas.sort((a, b) => a.title.localeCompare(b.title));
       },
-      error: (err) => console.log("Error fetching sagas: " + err),
+      error: (err) => console.log("Error fetching sagas: " + JSON.stringify(err.error)),
     });
   }
 }

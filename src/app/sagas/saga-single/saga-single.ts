@@ -631,10 +631,11 @@ export class SagaSingle implements OnInit {
   getSagaTitles() {
     this.sagasService.getSagaTitles().subscribe({
       next: (titles) => {
-        console.log(this.sagaTitles);
         this.sagaTitles = titles;
       },
-      error: (err) => {},
+      error: (err) => {
+        console.log("error fetching saga titles: " + JSON.stringify(err.error));
+      },
     });
   }
 
@@ -648,6 +649,9 @@ export class SagaSingle implements OnInit {
         this.bibVms.sort((a, b) => a.bibliographyEntry.localeCompare(b.bibliographyEntry));
         this.updateBibFilter();
       },
+      error: (err) => {
+        console.log("error fetching bibs: " + JSON.stringify(err.error));
+      }
     });
   }
 
@@ -660,7 +664,9 @@ export class SagaSingle implements OnInit {
         this.populateMsForms();
         this.updateMsFilter();
       },
-      error: (err) => {},
+      error: (err) => {
+        console.log("Error fetching manuscripts: " + JSON.stringify(err.error));
+      },
     });
   }
 

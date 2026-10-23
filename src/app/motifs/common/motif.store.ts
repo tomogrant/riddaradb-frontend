@@ -1,9 +1,11 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { IMotif } from "./IMotif";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 import { MotifService } from "./motif.service";
 import { SagaService } from "../../sagas/common/saga.service";
 import { ISagaVersionTitleDto } from "../../sagas/common/ISagaVersionTitleDto";
+import { IMotifSearchResult } from "./IMotifSearchResult";
+import { HttpErrorResponse } from "@angular/common/http";
 
 @Injectable({
   providedIn: "root",
@@ -30,6 +32,7 @@ export class MotifStore {
   //UI state
   $searchActive = signal(false);
   $searchTerm = signal("");
+  $searchMessage = signal("");
   $showColourCoding = signal(false);
 
   async initialise() {
@@ -37,34 +40,38 @@ export class MotifStore {
     this.clearVisibleNodes();
     this.clearResultNodes();
 
-    this.getRootMotifs();
-    this.getSagaTitles();
+    await this.getRootMotifs();
+    await this.getSagaTitles();
 
     this.$searchActive.set(false);
     this.$searchTerm.set("");
+    this.$searchMessage.set("");
     this.$showColourCoding.set(false);
     this.$pinnedNodes.set(await this.retrievePinnedNodesFromLocalStorage());
   }
 
-  //Gets pinned node IDs from local storage and retrieves them from the database. 
-  //Nodes are placed in the $pinnedNodes map. 
+  //Gets pinned node IDs from local storage and retrieves them from the database.
+  //Nodes are placed in the $pinnedNodes map.
   async retrievePinnedNodesFromLocalStorage(): Promise<Map<number, IMotif>> {
-    
     const raw = localStorage.getItem("pinnedNodes");
     const nodeIds: number[] = raw ? JSON.parse(raw) : [];
 
-    const pinnedNodes = await firstValueFrom(this.motifService.getMotifsByIds(nodeIds)); 
+    const pinnedNodes = await firstValueFrom(this.motifService.getMotifsByIds(nodeIds));
 
     //1. Type predicate filters for IMotifs with numeric + non-null IDs
     //2. Sorts IMotifs according to IDs in local storage (we don't want the order changing)
-    //3. Creates a map from the filtered, sorted IMotifs. 
-    return new Map(pinnedNodes
-      .filter((pinnedNode): pinnedNode is IMotif & {id: number} => pinnedNode.id !== null)
-      .sort((a, b) => nodeIds.indexOf(a.id!) - nodeIds.indexOf(b.id!))
-      .map(pinnedNode => [pinnedNode.id, pinnedNode]));
+    //3. Creates a map from the filtered, sorted IMotifs.
+    return new Map(
+      pinnedNodes
+        .filter((pinnedNode): pinnedNode is IMotif & { id: number } => pinnedNode.id !== null)
+        .sort((a, b) => nodeIds.indexOf(a.id!) - nodeIds.indexOf(b.id!))
+        .map((pinnedNode) => [pinnedNode.id, pinnedNode]),
+    );
   }
 
   savePinnedNodesToLocalStorage() {
+    this.$pinnedNodes
+
     localStorage.setItem("pinnedNodes", JSON.stringify([...this.$pinnedNodes().keys()]));
     console.log("Pinned nodes saved to local storage");
   }
@@ -82,6 +89,7 @@ export class MotifStore {
     if (this.$searchActive()) {
       this.$searchActive.set(false);
       this.$searchTerm.set("");
+      this.$searchMessage.set("");
 
       this.collapseAll();
       this.clearVisibleNodes();
@@ -94,11 +102,21 @@ export class MotifStore {
       const next = new Map(current);
       const node = this.$motifNodes().get(nodeId);
 
-      if (!node || !node.id) return next;
+      console.log("Node ID: " + nodeId);
+      console.log(node?.motifCode + " is present in central motifNodes store");
+      console.log("Node is present in $pinnedNodes: " + next.has(nodeId));
 
+      //Node is no longer in the motif store; remove from pinned nodes
+      if (!node || !node.id){
+        next.delete(nodeId);
+        return next;
+      }
+
+      //Node is in pinned nodes; remove
       if (next.has(node.id)) {
         next.delete(node.id);
       } else {
+        //Node is not in pinned nodes; add
         next.set(node.id, node);
       }
 
@@ -177,10 +195,28 @@ export class MotifStore {
     this.$showColourCoding.set(!this.$showColourCoding());
   }
 
-  async search(searchTerm: string, exactSearch: boolean): Promise<void> {
-    const results = exactSearch
+  async search(searchTerm: string, exactSearch: boolean) {
+
+
+    let results: IMotifSearchResult[] = [];
+
+    try {
+      results = exactSearch
       ? await firstValueFrom(this.motifService.searchMotifsExactMatch(searchTerm))
       : await firstValueFrom(this.motifService.searchMotifs(searchTerm));
+
+    }
+    catch(err: unknown) {
+      if (err instanceof HttpErrorResponse && err.status === 400){
+        console.log(JSON.stringify(err));
+        this.$searchMessage.set("Too many results. Please refine your search.");
+        return;
+      }
+
+      throw (err);
+    }
+
+    results.length ? this.$searchMessage.set(`${results.length} results.`) : this.$searchMessage.set("No results found.");
 
     this.$searchActive.set(true);
     this.$searchTerm.set(searchTerm);
@@ -191,7 +227,6 @@ export class MotifStore {
 
     for (const result of results) {
       //Loads all ancestors and makes them visible
-      result.searchResultPath.sort((a, b) => a - b);
       await this.loadAncestors(result.searchResultPath);
 
       //Finally, makes the result node visible
@@ -214,7 +249,10 @@ export class MotifStore {
       //The first node is a root node, and is already loaded (getRootMotifs).
       //It is made visible, and its child/children are loaded.
       const node = this.getMotifNode(ancestorId);
-      if (!node) return;
+      if (!node) {
+        console.log("NODE " + ancestorId + " MISSING!");
+        return;
+      }
 
       this.$expandedNodes.update((current) => {
         const next = new Set(current);
@@ -432,7 +470,7 @@ export class MotifStore {
     });
   }
 
-  //Can I shorten this method? 
+  //Can I shorten this method?
   deleteMotifNode(id: number) {
     this.$motifNodes.update((current) => {
       const next = new Map(current);
@@ -498,15 +536,19 @@ export class MotifStore {
     console.log("deleting motif " + id);
     this.motifService.deleteMotif(id).subscribe({
       next: () => this.removePinnedNode(id),
-      error: err => console.log("Error deleting motif node: " + JSON.stringify(err.error))
+      error: (err) => console.log("Error deleting motif node: " + JSON.stringify(err.error)),
     });
   }
 
   async getMotifChildren(id: number): Promise<void> {
     //Loads, sorts and adds children to $motifNodes
-    const children = await firstValueFrom(this.motifService.getChildren(id));
+    const children = await firstValueFrom(this.motifService.getChildren(id)).catch((error) => {
+      console.log(JSON.stringify(error));
+    });
     this.$motifNodes.update((current) => {
       const next = new Map(current);
+
+      if (!children) return next;
 
       const sortedChildren = children.sort((a, b) => a.motifCode.localeCompare(b.motifCode));
 

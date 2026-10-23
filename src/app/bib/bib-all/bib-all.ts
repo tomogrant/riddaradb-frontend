@@ -85,7 +85,7 @@ export class BibAll {
 
         this.updateFilter("");
       },
-      error: (err) => console.log("Error fetching bibs: " + err),
+      error: (err) => console.log("Error fetching bibs: " + JSON.stringify(err.error)),
     });
   }
 }

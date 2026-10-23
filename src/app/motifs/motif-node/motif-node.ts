@@ -55,7 +55,7 @@ export class MotifNode {
           sagaTitle: saga.title,
           sagaId: saga.sagaId,
           pageChapterNumber: sagaMotif.pageChapterNumber,
-          inBoberg: sagaMotif.inBoberg
+          inBoberg: sagaMotif.inBoberg,
         });
       }
     }
@@ -83,7 +83,7 @@ export class MotifNode {
     }
   }
 
-  togglePinnedNode(){
+  togglePinnedNode() {
     this.motifStore.togglePinnedNode(this.$nodeId());
   }
 
@@ -125,6 +125,12 @@ export class MotifNode {
         break;
       case 7:
         this.nodeColour = "rgb(255, 213, 252)";
+        break;
+      case 8:
+        this.nodeColour = "rgb(255, 213, 213)";
+        break;
+      case 9:
+        this.nodeColour = "rgb(255, 235, 213)";
         break;
       default:
         return;

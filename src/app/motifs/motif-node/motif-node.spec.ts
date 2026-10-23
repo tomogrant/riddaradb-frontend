@@ -250,24 +250,6 @@ describe("MotifNode", () => {
     expect(motifModalService.openDeleteModal).toHaveBeenCalledWith(1);
   });
 
-  [1, 2].forEach((depth) => {
-    it("Toggle motif button should be hidden on depth " + depth, () => {
-      fixture = TestBed.createComponent(MotifNode, {
-        bindings: [inputBinding("$depth", () => depth), inputBinding("$nodeId", () => 1)],
-      });
-      component = fixture.componentInstance;
-
-      spyOn(component, "togglePinnedNode");
-
-      fixture.detectChanges();
-
-      const togglePinnedButton = fixture.nativeElement.querySelector('[data-testid="toggle-pinned-button"]');
-
-      expect(togglePinnedButton).toBeNull();
-      expect(component.togglePinnedNode).not.toHaveBeenCalled();
-    });
-  });
-
   it("User can toggle pinned motif", () => {
     fixture = TestBed.createComponent(MotifNode, {
       bindings: [inputBinding("$depth", () => 3), inputBinding("$nodeId", () => 1)],

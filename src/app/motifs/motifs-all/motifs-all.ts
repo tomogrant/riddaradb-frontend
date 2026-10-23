@@ -64,9 +64,11 @@ export class MotifsAll {
   //SIGNALS
   $rootIds = this.motifStore.$rootIds;
 
-  $modalState = this.motifModalService.$modalState;
+  $modalState = computed(() => this.motifModalService.$modalState());
 
-  $pinnedNodes = this.motifStore.$pinnedNodes;
+  $pinnedNodes = computed(() => this.motifStore.$pinnedNodes());
+
+  $searchMessage = computed(() => this.motifStore.$searchMessage());
 
   $showColourCoding = computed(() => this.motifStore.$showColourCoding());
 

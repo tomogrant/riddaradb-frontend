@@ -2,6 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from './auth/auth.service';
 import { Collapse } from 'bootstrap';
+import { ConfigService } from './config/config.service';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,7 @@ import { Collapse } from 'bootstrap';
   styleUrl: './app.css'
 })
 export class App {
+  private configService = inject(ConfigService);
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -18,7 +20,6 @@ export class App {
 
   ngOnInit(){
     //When application starts on load or refresh, set logged-in user
-    console.log("APPLICATION STARTED");
     this.authService.getCurrentUser().subscribe();
   }
 
